@@ -15,8 +15,9 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 add_library(${PROJECT_NAME}
   "src/${PROJECT_NAME}/imu_filter.cpp"
@@ -29,8 +30,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
-  sensor_msgs
-  geometry_msgs)
+  geometry_msgs
+  tf2
+  tf2_geometry_msgs)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -47,8 +49,9 @@ endif()
 
 ament_export_dependencies(
   rclcpp
-  sensor_msgs
-  geometry_msgs)
+  geometry_msgs
+  tf2
+  tf2_geometry_msgs)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 ament_package()
