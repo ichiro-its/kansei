@@ -38,8 +38,8 @@ public:
 
 private:
 	// **** paramaters
-	double gain_;												 // algorithm gain
-	double zeta_;												 // gyro drift bias gain
+	double gain_;						 // algorithm gain
+	double zeta_;						 // gyro drift bias gain
 	WorldFrame world_frame_; // NWU, ENU, NED
 
 	// **** state variables
@@ -91,17 +91,20 @@ public:
 		w_bz_ = 0;
 	}
 
-	void madgwickAHRSupdate(float gx, float gy, float gz,
-													float ax, float ay, float az,
-													float mx, float my, float mz,
-													float dt);
+	void madgwickAHRSupdate(
+			float gx, float gy, float gz,
+			float ax, float ay, float az,
+			float mx, float my, float mz,
+			float dt);
 
-	void madgwickAHRSupdateIMU(float gx, float gy, float gz,
-															float ax, float ay, float az,
-															float dt);
+	void madgwickAHRSupdateIMU(
+			float gx, float gy, float gz,
+			float ax, float ay, float az,
+			float dt);
 
-	void getGravity(float &rx, float &ry, float &rz,
-									float gravity = 9.80665);
+	void getGravity(
+			float &rx, float &ry, float &rz,
+			float gravity = 9.80665);
 };
 
 } // namespace kansei
