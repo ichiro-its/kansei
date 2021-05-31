@@ -21,9 +21,6 @@
 #ifndef KANSEI__IMU_HPP_
 #define KANSEI__IMU_HPP_
 
-#include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/imu.hpp>
-
 #include <kansei/imu_filter.hpp>
 
 #include <string>
@@ -32,17 +29,26 @@
 namespace kansei
 {
 
-class Imu : public rclcpp::Node
+class Imu
 {
 public:
-  Imu(std::string node_name);
+  Imu();
+
+  void compute_rpy(float gy[3], float acc[3], float seconds);
+
+  float get_roll();
+  float get_pitch();
+  float get_yaw();
 
 private:
-  std::shared_ptr<rclcpp::Subscription<sensor_msgs::msg::Imu>> imu_subscriber;
+  ImuFilter filter;
 
   bool initialized;
-  rclcpp::Time last_time;
-  ImuFilter filter;
+  float last_seconds;
+
+  double roll;
+  double pitch;
+  double yaw;
 };
 
 }  // namespace kansei
