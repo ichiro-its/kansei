@@ -24,6 +24,7 @@
 
 #include <kansei/imu.hpp>
 #include <kansei/stateless_orientation.hpp>
+#include <keisan/angle.hpp>
 
 #include <iostream>
 #include <string>
@@ -84,23 +85,17 @@ void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
 
 float Imu::get_roll()
 {
-  return radian_to_degree(roll);
+  return keisan::rad_to_deg(roll);
 }
 
 float Imu::get_pitch()
 {
-  return radian_to_degree(pitch);
+  return keisan::rad_to_deg(pitch);
 }
 
 float Imu::get_yaw()
 {
-  return radian_to_degree(yaw);
-}
-
-double Imu::radian_to_degree(double radian)
-{
-  double pi = 3.14159;
-  return(radian * (180 / pi));
+  return keisan::rad_to_deg(yaw);
 }
 
 }  // namespace kansei

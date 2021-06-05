@@ -14,8 +14,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(keisan REQUIRED)
+find_package(rclcpp REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
@@ -29,8 +30,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:include>)
 
 ament_target_dependencies(${PROJECT_NAME}
-  rclcpp
   geometry_msgs
+  keisan
+  rclcpp
   tf2
   tf2_geometry_msgs)
 
@@ -48,8 +50,9 @@ if(BUILD_TESTING)
 endif()
 
 ament_export_dependencies(
-  rclcpp
   geometry_msgs
+  keisan
+  rclcpp
   tf2
   tf2_geometry_msgs)
 ament_export_include_directories("include")
