@@ -84,17 +84,23 @@ void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
 
 float Imu::get_roll()
 {
-  return roll;
+  return radian_to_degree(roll);
 }
 
 float Imu::get_pitch()
 {
-  return pitch;
+  return radian_to_degree(pitch);
 }
 
 float Imu::get_yaw()
 {
-  return yaw;
+  return radian_to_degree(yaw);
+}
+
+double Imu::radian_to_degree(double radian)
+{
+  double pi = 3.14159;
+  return(radian * (180 / pi));
 }
 
 }  // namespace kansei

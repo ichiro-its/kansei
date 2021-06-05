@@ -41,6 +41,8 @@ public:
   float get_yaw();
 
 private:
+  double radian_to_degree(double radian);
+
   ImuFilter filter;
 
   bool initialized;
