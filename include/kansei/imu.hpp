@@ -45,8 +45,6 @@ public:
   float get_fb_gyro() {return gyro[1] - fb_gyro_center;}
 
 private:
-  void set_gyro_accelero(float gy[3], float acc[3]);
-
   ImuFilter filter;
 
   bool initialized;

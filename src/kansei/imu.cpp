@@ -45,8 +45,10 @@ Imu::Imu()
   pitch = 0.0;
   yaw = 0.0;
 
-  gyro = {0};
-  accelero = {0};
+  for (int i = 0; i < 3; i++) {
+    gyro[i] = 0.0;
+    accelero[i] = 0.0;
+  }
 
   rl_gyro_center = 512.0;
   fb_gyro_center = 512.0;
@@ -54,7 +56,10 @@ Imu::Imu()
 
 void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
 {
-  set_gyro_accelero(gy, acc);
+  for (int i = 0; i < 3; i++) {
+    gyro[i] = gy[i];
+    accelero[i] = acc[i];
+  }
 
   geometry_msgs::msg::Vector3 ang_vel;
   ang_vel.x = gy[0];
@@ -89,14 +94,6 @@ void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
   double q3;
   filter.getOrientation(q0, q1, q2, q3);
   tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(roll, pitch, yaw);
-}
-
-void Imu::set_gyro_accelero(float gy[3], float acc[3])
-{
-  for (int i = 0; i < 3; i++) {
-    gyro[i] = gy[i];
-    accelero[i] = acc[i];
-  }
 }
 
 }  // namespace kansei
