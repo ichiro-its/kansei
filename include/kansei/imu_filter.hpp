@@ -1,23 +1,22 @@
-// Copyright (C) 2010, CCNY Robotics Lab
-// Ivan Dryanovski <ivan.dryanovski@gmail.com>
+// Copyright (c) 2021 Ichiro ITS
 //
-// http://robotics.ccny.cuny.edu
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// Based on implementation of Madgwick's IMU and AHRS algorithms.
-// http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #ifndef KANSEI__IMU_FILTER_HPP_
 #define KANSEI__IMU_FILTER_HPP_
@@ -37,14 +36,14 @@ public:
   virtual ~ImuFilter();
 
 private:
-  // **** paramaters
+  // paramaters
   double gain_;             // algorithm gain
   double zeta_;             // gyro drift bias gain
-  WorldFrame world_frame_; // NWU, ENU, NED
+  WorldFrame world_frame_;  // NWU, ENU, NED
 
-  // **** state variables
-  double q0, q1, q2, q3;     // quaternion
-  float w_bx_, w_by_, w_bz_; //
+  // state variables
+  double q0, q1, q2, q3;      // quaternion
+  float w_bx_, w_by_, w_bz_;  //
 
 public:
   void setAlgorithmGain(double gain)
@@ -62,7 +61,7 @@ public:
     world_frame_ = frame;
   }
 
-  void getOrientation(double &q0, double &q1, double &q2, double &q3)
+  void getOrientation(double & q0, double & q1, double & q2, double & q3)
   {
     q0 = this->q0;
     q1 = this->q1;
@@ -92,21 +91,21 @@ public:
   }
 
   void madgwickAHRSupdate(
-      float gx, float gy, float gz,
-      float ax, float ay, float az,
-      float mx, float my, float mz,
-      float dt);
+    float gx, float gy, float gz,
+    float ax, float ay, float az,
+    float mx, float my, float mz,
+    float dt);
 
   void madgwickAHRSupdateIMU(
-      float gx, float gy, float gz,
-      float ax, float ay, float az,
-      float dt);
+    float gx, float gy, float gz,
+    float ax, float ay, float az,
+    float dt);
 
   void getGravity(
-      float &rx, float &ry, float &rz,
-      float gravity = 9.80665);
+    float & rx, float & ry, float & rz,
+    float gravity = 9.80665);
 };
 
-} // namespace kansei
+}  // namespace kansei
 
-#endif // KANSEI__IMU_FILTER_HPP_
+#endif  // KANSEI__IMU_FILTER_HPP_

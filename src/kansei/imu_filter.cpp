@@ -1,23 +1,22 @@
-// Copyright (C) 2010, CCNY Robotics Lab
-// Ivan Dryanovski <ivan.dryanovski@gmail.com>
+// Copyright (c) 2021 Ichiro ITS
 //
-// http://robotics.ccny.cuny.edu
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// Based on implementation of Madgwick's IMU and AHRS algorithms.
-// http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #include <kansei/imu_filter.hpp>
 
@@ -28,8 +27,7 @@
 static float invSqrt(float x)
 {
   float xhalf = 0.5f * x;
-  union
-  {
+  union {
     float x;
     int i;
   } u;
@@ -40,8 +38,8 @@ static float invSqrt(float x)
   return u.x;
 }
 
-template <typename T>
-static inline void normalizeVector(T &vx, T &vy, T &vz)
+template<typename T>
+static inline void normalizeVector(T & vx, T & vy, T & vz)
 {
   T recipNorm = invSqrt(vx * vx + vy * vy + vz * vz);
   vx *= recipNorm;
@@ -49,8 +47,8 @@ static inline void normalizeVector(T &vx, T &vy, T &vz)
   vz *= recipNorm;
 }
 
-template <typename T>
-static inline void normalizeQuaternion(T &q0, T &q1, T &q2, T &q3)
+template<typename T>
+static inline void normalizeQuaternion(T & q0, T & q1, T & q2, T & q3)
 {
   T recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
   q0 *= recipNorm;
@@ -60,11 +58,10 @@ static inline void normalizeQuaternion(T &q0, T &q1, T &q2, T &q3)
 }
 
 static inline void rotateAndScaleVector(
-    float q0, float q1, float q2, float q3,
-    float _2dx, float _2dy, float _2dz,
-    float &rx, float &ry, float &rz)
+  float q0, float q1, float q2, float q3,
+  float _2dx, float _2dy, float _2dz,
+  float & rx, float & ry, float & rz)
 {
-
   // result is half as long as input
   rx = _2dx * (0.5f - q2 * q2 - q3 * q3) + _2dy * (q0 * q3 + q1 * q2) + _2dz * (q1 * q3 - q0 * q2);
   ry = _2dx * (q1 * q2 - q0 * q3) + _2dy * (0.5f - q1 * q1 - q3 * q3) + _2dz * (q0 * q1 + q2 * q3);
@@ -72,11 +69,11 @@ static inline void rotateAndScaleVector(
 }
 
 static inline void compensateGyroDrift(
-    float q0, float q1, float q2, float q3,
-    float s0, float s1, float s2, float s3,
-    float dt, float zeta,
-    float &w_bx, float &w_by, float &w_bz,
-    float &gx, float &gy, float &gz)
+  float q0, float q1, float q2, float q3,
+  float s0, float s1, float s2, float s3,
+  float dt, float zeta,
+  float & w_bx, float & w_by, float & w_bz,
+  float & gx, float & gy, float & gz)
 {
   // w_err = 2 q x s
   float w_err_x = 2.0f * q0 * s1 - 2.0f * q1 * s0 - 2.0f * q2 * s3 + 2.0f * q3 * s2;
@@ -93,9 +90,9 @@ static inline void compensateGyroDrift(
 }
 
 static inline void orientationChangeFromGyro(
-    float q0, float q1, float q2, float q3,
-    float gx, float gy, float gz,
-    float &qDot1, float &qDot2, float &qDot3, float &qDot4)
+  float q0, float q1, float q2, float q3,
+  float gx, float gy, float gz,
+  float & qDot1, float & qDot2, float & qDot3, float & qDot4)
 {
   // Rate of change of quaternion from gyroscope
   // See EQ 12
@@ -106,10 +103,10 @@ static inline void orientationChangeFromGyro(
 }
 
 static inline void addGradientDescentStep(
-    float q0, float q1, float q2, float q3,
-    float _2dx, float _2dy, float _2dz,
-    float mx, float my, float mz,
-    float &s0, float &s1, float &s2, float &s3)
+  float q0, float q1, float q2, float q3,
+  float _2dx, float _2dy, float _2dz,
+  float mx, float my, float mz,
+  float & s0, float & s1, float & s2, float & s3)
 {
   float f0, f1, f2;
 
@@ -124,15 +121,18 @@ static inline void addGradientDescentStep(
   // EQ 22, 34
   // Jt * f
   s0 += (_2dy * q3 - _2dz * q2) * f0 + (-_2dx * q3 + _2dz * q1) * f1 + (_2dx * q2 - _2dy * q1) * f2;
-  s1 += (_2dy * q2 + _2dz * q3) * f0 + (_2dx * q2 - 2.0f * _2dy * q1 + _2dz * q0) * f1 + (_2dx * q3 - _2dy * q0 - 2.0f * _2dz * q1) * f2;
-  s2 += (-2.0f * _2dx * q2 + _2dy * q1 - _2dz * q0) * f0 + (_2dx * q1 + _2dz * q3) * f1 + (_2dx * q0 + _2dy * q3 - 2.0f * _2dz * q2) * f2;
-  s3 += (-2.0f * _2dx * q3 + _2dy * q0 + _2dz * q1) * f0 + (-_2dx * q0 - 2.0f * _2dy * q3 + _2dz * q2) * f1 + (_2dx * q1 + _2dy * q2) * f2;
+  s1 += (_2dy * q2 + _2dz * q3) * f0 + (_2dx * q2 - 2.0f * _2dy * q1 + _2dz * q0) * f1 +
+    (_2dx * q3 - _2dy * q0 - 2.0f * _2dz * q1) * f2;
+  s2 += (-2.0f * _2dx * q2 + _2dy * q1 - _2dz * q0) * f0 + (_2dx * q1 + _2dz * q3) * f1 +
+    (_2dx * q0 + _2dy * q3 - 2.0f * _2dz * q2) * f2;
+  s3 += (-2.0f * _2dx * q3 + _2dy * q0 + _2dz * q1) * f0 +
+    (-_2dx * q0 - 2.0f * _2dy * q3 + _2dz * q2) * f1 + (_2dx * q1 + _2dy * q2) * f2;
 }
 
 static inline void compensateMagneticDistortion(
-    float q0, float q1, float q2, float q3,
-    float mx, float my, float mz,
-    float &_2bxy, float &_2bz)
+  float q0, float q1, float q2, float q3,
+  float mx, float my, float mz,
+  float & _2bxy, float & _2bz)
 {
   float hx, hy, hz;
   // Reference direction of Earth's magnetic field (See EQ 46)
@@ -145,9 +145,10 @@ static inline void compensateMagneticDistortion(
 namespace kansei
 {
 
-ImuFilter::ImuFilter() : gain_(0.0), zeta_(0.0), world_frame_(ENU),
-                          q0(1.0), q1(0.0), q2(0.0), q3(0.0),
-                          w_bx_(0.0), w_by_(0.0), w_bz_(0.0)
+ImuFilter::ImuFilter()
+: gain_(0.0), zeta_(0.0), world_frame_(ENU),
+  q0(1.0), q1(0.0), q2(0.0), q3(0.0),
+  w_bx_(0.0), w_by_(0.0), w_bz_(0.0)
 {
 }
 
@@ -156,25 +157,25 @@ ImuFilter::~ImuFilter()
 }
 
 void ImuFilter::madgwickAHRSupdate(
-    float gx, float gy, float gz,
-    float ax, float ay, float az,
-    float mx, float my, float mz,
-    float dt)
+  float gx, float gy, float gz,
+  float ax, float ay, float az,
+  float mx, float my, float mz,
+  float dt)
 {
   float s0, s1, s2, s3;
   float qDot1, qDot2, qDot3, qDot4;
   float _2bz, _2bxy;
 
-  // Use IMU algorithm if magnetometer measurement invalid (avoids NaN in magnetometer normalisation)
-  if (!std::isfinite(mx) || !std::isfinite(my) || !std::isfinite(mz))
-  {
+  // Use IMU algorithm if magnetometer measurement invalid
+  // (avoids NaN in magnetometer normalisation)
+  if (!std::isfinite(mx) || !std::isfinite(my) || !std::isfinite(mz)) {
     madgwickAHRSupdateIMU(gx, gy, gz, ax, ay, az, dt);
     return;
   }
 
-  // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
-  if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f)))
-  {
+  // Compute feedback only if accelerometer measurement valid
+  // (avoids NaN in accelerometer normalisation)
+  if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
     // Normalise accelerometer measurement
     normalizeVector(ax, ay, az);
 
@@ -189,30 +190,29 @@ void ImuFilter::madgwickAHRSupdate(
     s1 = 0.0;
     s2 = 0.0;
     s3 = 0.0;
-    switch (world_frame_)
-    {
-    case NED:
-      // Gravity: [0, 0, -1]
-      addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, -2.0, ax, ay, az, s0, s1, s2, s3);
+    switch (world_frame_) {
+      case NED:
+        // Gravity: [0, 0, -1]
+        addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, -2.0, ax, ay, az, s0, s1, s2, s3);
 
-      // Earth magnetic field: = [bxy, 0, bz]
-      addGradientDescentStep(q0, q1, q2, q3, _2bxy, 0.0, _2bz, mx, my, mz, s0, s1, s2, s3);
-      break;
-    case NWU:
-      // Gravity: [0, 0, 1]
-      addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, 2.0, ax, ay, az, s0, s1, s2, s3);
+        // Earth magnetic field: = [bxy, 0, bz]
+        addGradientDescentStep(q0, q1, q2, q3, _2bxy, 0.0, _2bz, mx, my, mz, s0, s1, s2, s3);
+        break;
+      case NWU:
+        // Gravity: [0, 0, 1]
+        addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, 2.0, ax, ay, az, s0, s1, s2, s3);
 
-      // Earth magnetic field: = [bxy, 0, bz]
-      addGradientDescentStep(q0, q1, q2, q3, _2bxy, 0.0, _2bz, mx, my, mz, s0, s1, s2, s3);
-      break;
-    default:
-    case ENU:
-      // Gravity: [0, 0, 1]
-      addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, 2.0, ax, ay, az, s0, s1, s2, s3);
+        // Earth magnetic field: = [bxy, 0, bz]
+        addGradientDescentStep(q0, q1, q2, q3, _2bxy, 0.0, _2bz, mx, my, mz, s0, s1, s2, s3);
+        break;
+      default:
+      case ENU:
+        // Gravity: [0, 0, 1]
+        addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, 2.0, ax, ay, az, s0, s1, s2, s3);
 
-      // Earth magnetic field: = [0, bxy, bz]
-      addGradientDescentStep(q0, q1, q2, q3, 0.0, _2bxy, _2bz, mx, my, mz, s0, s1, s2, s3);
-      break;
+        // Earth magnetic field: = [0, bxy, bz]
+        addGradientDescentStep(q0, q1, q2, q3, 0.0, _2bxy, _2bz, mx, my, mz, s0, s1, s2, s3);
+        break;
     }
     normalizeQuaternion(s0, s1, s2, s3);
 
@@ -226,9 +226,7 @@ void ImuFilter::madgwickAHRSupdate(
     qDot2 -= gain_ * s1;
     qDot3 -= gain_ * s2;
     qDot4 -= gain_ * s3;
-  }
-  else
-  {
+  } else {
     orientationChangeFromGyro(q0, q1, q2, q3, gx, gy, gz, qDot1, qDot2, qDot3, qDot4);
   }
 
@@ -243,9 +241,9 @@ void ImuFilter::madgwickAHRSupdate(
 }
 
 void ImuFilter::madgwickAHRSupdateIMU(
-    float gx, float gy, float gz,
-    float ax, float ay, float az,
-    float dt)
+  float gx, float gy, float gz,
+  float ax, float ay, float az,
+  float dt)
 {
   float s0, s1, s2, s3;
   float qDot1, qDot2, qDot3, qDot4;
@@ -253,9 +251,9 @@ void ImuFilter::madgwickAHRSupdateIMU(
   // Rate of change of quaternion from gyroscope
   orientationChangeFromGyro(q0, q1, q2, q3, gx, gy, gz, qDot1, qDot2, qDot3, qDot4);
 
-  // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
-  if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f)))
-  {
+  // Compute feedback only if accelerometer measurement valid
+  // (avoids NaN in accelerometer normalisation)
+  if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
     // Normalise accelerometer measurement
     normalizeVector(ax, ay, az);
 
@@ -264,21 +262,20 @@ void ImuFilter::madgwickAHRSupdateIMU(
     s1 = 0.0;
     s2 = 0.0;
     s3 = 0.0;
-    switch (world_frame_)
-    {
-    case NED:
-      // Gravity: [0, 0, -1]
-      addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, -2.0, ax, ay, az, s0, s1, s2, s3);
-      break;
-    case NWU:
-      // Gravity: [0, 0, 1]
-      addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, 2.0, ax, ay, az, s0, s1, s2, s3);
-      break;
-    default:
-    case ENU:
-      // Gravity: [0, 0, 1]
-      addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, 2.0, ax, ay, az, s0, s1, s2, s3);
-      break;
+    switch (world_frame_) {
+      case NED:
+        // Gravity: [0, 0, -1]
+        addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, -2.0, ax, ay, az, s0, s1, s2, s3);
+        break;
+      case NWU:
+        // Gravity: [0, 0, 1]
+        addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, 2.0, ax, ay, az, s0, s1, s2, s3);
+        break;
+      default:
+      case ENU:
+        // Gravity: [0, 0, 1]
+        addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, 2.0, ax, ay, az, s0, s1, s2, s3);
+        break;
     }
 
     normalizeQuaternion(s0, s1, s2, s3);
@@ -300,35 +297,35 @@ void ImuFilter::madgwickAHRSupdateIMU(
   normalizeQuaternion(q0, q1, q2, q3);
 }
 
-void ImuFilter::getGravity(float &rx, float &ry, float &rz,
-                            float gravity)
+void ImuFilter::getGravity(
+  float & rx, float & ry, float & rz,
+  float gravity)
 {
   // Estimate gravity vector from current orientation
-  switch (world_frame_)
-  {
-  case NED:
-    // Gravity: [0, 0, -1]
-    rotateAndScaleVector(
+  switch (world_frame_) {
+    case NED:
+      // Gravity: [0, 0, -1]
+      rotateAndScaleVector(
         q0, q1, q2, q3,
         0.0, 0.0, -2.0 * gravity,
         rx, ry, rz);
-    break;
-  case NWU:
-    // Gravity: [0, 0, 1]
-    rotateAndScaleVector(
+      break;
+    case NWU:
+      // Gravity: [0, 0, 1]
+      rotateAndScaleVector(
         q0, q1, q2, q3,
         0.0, 0.0, 2.0 * gravity,
         rx, ry, rz);
-    break;
-  default:
-  case ENU:
-    // Gravity: [0, 0, 1]
-    rotateAndScaleVector(
+      break;
+    default:
+    case ENU:
+      // Gravity: [0, 0, 1]
+      rotateAndScaleVector(
         q0, q1, q2, q3,
         0.0, 0.0, 2.0 * gravity,
         rx, ry, rz);
-    break;
+      break;
   }
 }
 
-} // namespace kansei
+}  // namespace kansei

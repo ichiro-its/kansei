@@ -24,7 +24,6 @@
 
 #include <kansei/imu.hpp>
 #include <kansei/stateless_orientation.hpp>
-#include <keisan/angle.hpp>
 
 #include <iostream>
 #include <string>
@@ -36,7 +35,8 @@ namespace kansei
 {
 
 Imu::Imu()
-  : initialized(false) {
+: initialized(false)
+{
   filter.setWorldFrame(ENU);
   filter.setAlgorithmGain(0.1);
   filter.setDriftBiasGain(0.0);
@@ -44,10 +44,18 @@ Imu::Imu()
   roll = 0.0;
   pitch = 0.0;
   yaw = 0.0;
+
+  gyro = {0};
+  accelero = {0};
+
+  rl_gyro_center = 512.0;
+  fb_gyro_center = 512.0;
 }
 
 void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
 {
+  set_gyro_accelero(gy, acc);
+
   geometry_msgs::msg::Vector3 ang_vel;
   ang_vel.x = gy[0];
   ang_vel.y = gy[1];
@@ -83,19 +91,12 @@ void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
   tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(roll, pitch, yaw);
 }
 
-float Imu::get_roll()
+void Imu::set_gyro_accelero(float gy[3], float acc[3])
 {
-  return keisan::rad_to_deg(roll);
-}
-
-float Imu::get_pitch()
-{
-  return keisan::rad_to_deg(pitch);
-}
-
-float Imu::get_yaw()
-{
-  return keisan::rad_to_deg(yaw);
+  for (int i = 0; i < 3; i++) {
+    gyro[i] = gy[i];
+    accelero[i] = acc[i];
+  }
 }
 
 }  // namespace kansei
