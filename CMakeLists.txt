@@ -10,7 +10,7 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic -fPIC)
 endif()
 
 find_package(ament_cmake REQUIRED)
@@ -20,7 +20,7 @@ find_package(rclcpp REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/imu_filter.cpp"
   "src/${PROJECT_NAME}/stateless_orientation.cpp"
   "src/${PROJECT_NAME}/imu.cpp")
