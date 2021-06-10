@@ -33,6 +33,15 @@ namespace kansei
 class Imu
 {
 public:
+  enum
+  {
+    FALLEN_LEFT   = -2,
+    FALLEN_BACK   = -1,
+    NOT_FALLEN    = 0,
+    FALLEN_FRONT  = 1,
+    FALLEN_RIGHT        = 2
+  };
+
   Imu();
 
   void compute_rpy(float gy[3], float acc[3], float seconds);
@@ -43,6 +52,9 @@ public:
 
   float get_rl_gyro() {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() {return gyro[1] - fb_gyro_center;}
+
+  bool is_fallen() {return fallen_state != NOT_FALLEN;}
+  int get_fallen_state();
 
 private:
   ImuFilter filter;
@@ -59,6 +71,12 @@ private:
 
   double rl_gyro_center;
   double fb_gyro_center;
+
+  float fallen_back_limit;
+  float fallen_front_limit;
+  float fallen_right_limit;
+  float fallen_left_limit;
+  int fallen_state;
 };
 
 }  // namespace kansei
