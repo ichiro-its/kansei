@@ -30,6 +30,15 @@
 namespace kansei
 {
 
+enum FallenStatus
+{
+  LEFT,
+  BACKWARD,
+  STANDUP,
+  FORWARD,
+  RIGHT
+};
+
 class Imu
 {
 public:
@@ -43,6 +52,9 @@ public:
 
   float get_rl_gyro() {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() {return gyro[1] - fb_gyro_center;}
+
+  bool is_fallen() {return fallen_status != FallenStatus::STANDUP;}
+  FallenStatus get_fallen_status();
 
 private:
   ImuFilter filter;
@@ -59,6 +71,12 @@ private:
 
   double rl_gyro_center;
   double fb_gyro_center;
+
+  float fallen_back_limit;
+  float fallen_front_limit;
+  float fallen_right_limit;
+  float fallen_left_limit;
+  FallenStatus fallen_status;
 };
 
 }  // namespace kansei

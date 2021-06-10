@@ -52,6 +52,12 @@ Imu::Imu()
 
   rl_gyro_center = 512.0;
   fb_gyro_center = 512.0;
+
+  fallen_back_limit = 390.0;
+  fallen_front_limit = 590.0;
+  fallen_right_limit = 390.0;
+  fallen_left_limit = 610.0;
+  fallen_status = FallenStatus::STANDUP;
 }
 
 void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
@@ -94,6 +100,21 @@ void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
   double q3;
   filter.getOrientation(q0, q1, q2, q3);
   tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(roll, pitch, yaw);
+}
+
+FallenStatus Imu::get_fallen_status()
+{
+  if (accelero[1] < fallen_front_limit) {
+    fallen_status = FallenStatus::FORWARD;
+  } else if (accelero[1] > fallen_back_limit) {
+    fallen_status = FallenStatus::BACKWARD;
+  } else if (accelero[0] < fallen_right_limit) {
+    fallen_status = FallenStatus::RIGHT;
+  } else if (accelero[0] > fallen_left_limit) {
+    fallen_status = FallenStatus::LEFT;
+  }
+
+  return fallen_status;
 }
 
 }  // namespace kansei
