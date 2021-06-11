@@ -56,6 +56,8 @@ public:
   FallenStatus get_fallen_status();
 
 private:
+  void load_data();
+
   ImuFilter filter;
 
   bool initialized;

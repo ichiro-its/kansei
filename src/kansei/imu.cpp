@@ -25,6 +25,9 @@
 #include <kansei/imu.hpp>
 #include <kansei/stateless_orientation.hpp>
 
+#include <nlohmann/json.hpp>
+
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <memory>
@@ -58,6 +61,29 @@ Imu::Imu()
   fallen_right_limit = 570.0;
   fallen_left_limit = 400.0;
   fallen_status = FallenStatus::STANDUP;
+
+  load_data();
+}
+
+void Imu::load_data()
+{
+  std::string file_name =
+    "/home/ichiro/ROS2Project/ros2_ws/src/kansei/data/kansei.json";
+  std::ifstream file(file_name);
+  nlohmann::json imu_data = nlohmann::json::parse(file);
+
+  for (auto &[key, val] : imu_data.items()) {
+    if (key == "Fallen") {
+      try {
+        val.at("fallen_back_limit").get_to(fallen_back_limit);
+        val.at("fallen_front_limit").get_to(fallen_front_limit);
+        val.at("fallen_right_limit").get_to(fallen_right_limit);
+        val.at("fallen_left_limit").get_to(fallen_left_limit);
+      } catch (nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+  }
 }
 
 void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
