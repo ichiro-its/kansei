@@ -22,7 +22,6 @@
 #define KANSEI__IMU_HPP_
 
 #include <kansei/imu_filter.hpp>
-#include <keisan/angle.hpp>
 
 #include <string>
 #include <memory>
@@ -46,9 +45,9 @@ public:
 
   void compute_rpy(float gy[3], float acc[3], float seconds);
 
-  float get_roll() {return keisan::rad_to_deg(roll);}
-  float get_pitch() {return keisan::rad_to_deg(pitch);}
-  float get_yaw() {return keisan::rad_to_deg(yaw);}
+  float get_roll() {return roll;}
+  float get_pitch() {return pitch;}
+  float get_yaw() {return yaw;}
 
   float get_rl_gyro() {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() {return gyro[1] - fb_gyro_center;}
