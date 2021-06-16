@@ -196,7 +196,7 @@ void Imu::load_data(const std::string & path)
     path + "imu/" + "kansei.json";
   std::ifstream file(file_name);
 
-  nlohmann::json imu_data
+  nlohmann::json imu_data;
   try {
     imu_data = nlohmann::json::parse(file);
   } catch (const nlohmann::json::parse_error & ex) {
