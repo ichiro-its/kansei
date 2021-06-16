@@ -23,6 +23,8 @@
 
 #include <kansei/imu_filter.hpp>
 
+#include <keisan/angle.hpp>
+
 #include <string>
 #include <memory>
 
@@ -43,11 +45,11 @@ class Imu
 public:
   Imu();
 
-  void compute_rpy(float gy[3], float acc[3], float seconds);
+  void compute_rpy(double gy[3], double acc[3], double seconds);
 
-  float get_roll() {return roll;}
-  float get_pitch() {return pitch;}
-  float get_yaw() {return yaw;}
+  const float & get_roll() const {return keisan::rad_to_deg(roll);}
+  const float & get_pitch() const {return keisan::rad_to_deg(pitch);}
+  const float & get_yaw() const {return keisan::rad_to_deg(yaw);}
 
   float get_rl_gyro() {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() {return gyro[1] - fb_gyro_center;}
@@ -55,11 +57,10 @@ public:
   bool is_fallen() {return fallen_status != FallenStatus::STANDUP;}
   FallenStatus get_fallen_status();
 
+  void load_data(const std::string & path);
+
 private:
-  void load_data();
-
   ImuFilter filter;
-
   bool initialized;
   float last_seconds;
 
@@ -68,16 +69,27 @@ private:
   double yaw;
 
   double gyro[3];
-  double accelero[3];
-
+  double gyro_mux[3];
+  double rl_gyro_arr[100];
+  double fb_gyro_arr[100];
   double rl_gyro_center;
   double fb_gyro_center;
+  int rl_fb_gyro_counter;
+
+  double accelero[3];
+  double rl_accelero_arr[15];
+  double fb_accelero_arr[15];
+  double rl_accelero;
+  double fb_accelero;
+  int rl_fb_accelero_counter;
 
   float fallen_back_limit;
   float fallen_front_limit;
   float fallen_right_limit;
   float fallen_left_limit;
   FallenStatus fallen_status;
+
+  bool calibration_status;
 };
 
 }  // namespace kansei

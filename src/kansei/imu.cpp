@@ -27,6 +27,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -38,70 +39,110 @@ namespace kansei
 {
 
 Imu::Imu()
-: initialized(false)
+: initialized(false), roll(0.0), pitch(0.0), yaw(0.0),
+  rl_gyro_center(512.0), fb_gyro_center(512.0),
+  fallen_status(FallenStatus::STANDUP), fallen_back_limit(620.0),
+  fallen_front_limit(360.0), fallen_right_limit(610.0),
+  fallen_left_limit(410.0)
 {
   filter.setWorldFrame(ENU);
   filter.setAlgorithmGain(0.1);
   filter.setDriftBiasGain(0.0);
 
-  roll = 0.0;
-  pitch = 0.0;
-  yaw = 0.0;
-
   for (int i = 0; i < 3; i++) {
     gyro[i] = 0.0;
+    gyro_mux[i] = 0.0;
     accelero[i] = 0.0;
   }
 
-  rl_gyro_center = 512.0;
-  fb_gyro_center = 512.0;
+  // for (int i = 0; i < 100; i++) {
+  //   rl_gyro_arr[i] = rl_gyro_center;
+  //   fb_gyro_arr[i] = fb_gyro_center;
 
-  fallen_back_limit = 620.0;
-  fallen_front_limit = 445.0;
-  fallen_right_limit = 570.0;
-  fallen_left_limit = 400.0;
-  fallen_status = FallenStatus::STANDUP;
+  //   if (i < 15) {
+  //     fb_accelero_arr[i] = fb_gyro_center;
+  //     rl_accelero_arr[i] = rl_gyro_center;
+  //   }
+  // }
 
-  load_data();
+  // rl_fb_gyro_counter = 0;
+  // rl_fb_accelero_counter = 0;
 }
 
-void Imu::load_data()
-{
-  std::string file_name =
-    "/home/ichiro/ROS2Project/ros2_ws/src/kansei/data/kansei.json";
-  std::ifstream file(file_name);
-  nlohmann::json imu_data = nlohmann::json::parse(file);
-
-  for (auto &[key, val] : imu_data.items()) {
-    if (key == "Fallen") {
-      try {
-        val.at("fallen_back_limit").get_to(fallen_back_limit);
-        val.at("fallen_front_limit").get_to(fallen_front_limit);
-        val.at("fallen_right_limit").get_to(fallen_right_limit);
-        val.at("fallen_left_limit").get_to(fallen_left_limit);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-      }
-    }
-  }
-}
-
-void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
+void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
 {
   for (int i = 0; i < 3; i++) {
-    gyro[i] = gy[i];
-    accelero[i] = acc[i];
+    gyro[i] = ((gy[i] - 512.0) * (17.4532925199 / 1023.0)) * gyro_mux[i];
+    accelero[i] = (acc[i] - 512.0) * (39.2266 / 512.0);
   }
 
+  fb_accelero = acc[0];
+  rl_accelero = acc[1];
+
+  // if (!calibration_status) {
+  //   if (rl_fb_gyro_counter < 100) {
+  //     fb_gyro_arr[rl_fb_gyro_counter] = gy[1];
+  //     rl_gyro_arr[rl_fb_gyro_counter] = gy[0];
+  //     rl_fb_gyro_counter++;
+  //   } else {
+  //     rl_fb_gyro_counter = 0;
+
+  //     double fb_sum = 0.0;
+  //     double rl_sum = 0.0;
+  //     for (int i = 0; i < 100; i++) {
+  //       fb_sum += fb_gyro_arr[i];
+  //       rl_sum += rl_gyro_arr[i];
+  //     }
+
+  //     double fb_mean = fb_sum / 100;
+  //     double rl_mean = rl_sum / 100;
+  //     fb_sum = 0.0;
+  //     rl_sum = 0.0;
+  //     for(int i = 0; i < 100; i++) {
+  //       fb_sum += pow((fb_gyro_arr[i] - fb_mean), 2);
+  //       rl_sum += pow((rl_gyro_arr[i] - rl_mean), 2);
+  //     }
+
+  //     double fb_sd = pow((fb_sum / 100), 0.5);
+  //     double rl_sd = pow((rl_sum / 100), 0.5);
+  //     if (fb_sd < 2.0 && rl_sd < 2.0) {
+  //       fb_gyro_center = fb_mean;
+  //       rl_gyro_center = rl_mean;
+  //       calibration_status = true;
+  //     } else {
+  //       fb_gyro_center = 512.0;
+  //       rl_gyro_center = 512.0;
+  //     }
+  //   }
+  // }
+
+  // if (rl_fb_accelero_counter < 15) {
+  //   fb_accelero_arr[rl_fb_accelero_counter] = acc[1];
+  //   rl_accelero_arr[rl_fb_accelero_counter] = acc[0];
+  //   rl_fb_accelero_counter++;
+  // } else {
+  //   rl_fb_accelero_counter = 0;
+  // }
+
+  // double sum_fb = 0.0;
+  // double sum_rl = 0.0;
+  // for (int i = 0; i < 15; i++) {
+  //   sum_fb += fb_accelero_arr[i];
+  //   sum_rl += rl_accelero_arr[i];
+  // }
+
+  // int avr_fb = sum_fb / 15;
+  // int avr_rl = sum_rl / 15;
+
   geometry_msgs::msg::Vector3 ang_vel;
-  ang_vel.x = gy[0];
-  ang_vel.y = gy[1];
-  ang_vel.z = gy[2];
+  ang_vel.x = gyro[0];
+  ang_vel.y = gyro[1];
+  ang_vel.z = gyro[2];
 
   geometry_msgs::msg::Vector3 lin_acc;
-  lin_acc.x = acc[0];
-  lin_acc.y = acc[1];
-  lin_acc.z = acc[2];
+  lin_acc.x = accelero[0];
+  lin_acc.y = accelero[1];
+  lin_acc.z = accelero[2];
 
   if (!initialized) {
     geometry_msgs::msg::Quaternion init_q;
@@ -118,29 +159,70 @@ void Imu::compute_rpy(float gy[3], float acc[3], float seconds)
     ang_vel.x, ang_vel.y, ang_vel.z,
     lin_acc.x, lin_acc.y, lin_acc.z,
     seconds - last_seconds);
-  last_seconds = seconds;
 
-  double q0;
-  double q1;
-  double q2;
-  double q3;
+  roll = 0.0;
+  pitch = 0.0;
+  yaw = 0.0;
+  double q0 = 0.0;
+  double q1 = 0.0;
+  double q2 = 0.0;
+  double q3 = 0.0;
   filter.getOrientation(q0, q1, q2, q3);
   tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(roll, pitch, yaw);
+
+  last_seconds = seconds;
 }
 
 FallenStatus Imu::get_fallen_status()
 {
-  if (accelero[0] < fallen_front_limit) {
+  fallen_status = FallenStatus::STANDUP;
+
+  if (fb_accelero < fallen_front_limit) {
     fallen_status = FallenStatus::FORWARD;
-  } else if (accelero[0] > fallen_back_limit) {
+  } else if (fb_accelero > fallen_back_limit) {
     fallen_status = FallenStatus::BACKWARD;
-  } else if (accelero[1] > fallen_right_limit) {
+  } else if (rl_accelero > fallen_right_limit) {
     fallen_status = FallenStatus::RIGHT;
-  } else if (accelero[1] < fallen_left_limit) {
+  } else if (rl_accelero < fallen_left_limit) {
     fallen_status = FallenStatus::LEFT;
   }
 
   return fallen_status;
+}
+
+void Imu::load_data(const std::string & path)
+{
+  std::string file_name =
+    path + "imu/" + "kansei.json";
+  std::ifstream file(file_name);
+
+  nlohmann::json imu_data
+  try {
+    imu_data = nlohmann::json::parse(file);
+  } catch (const nlohmann::json::parse_error & ex) {
+    std::cerr << "parse error at byte " << ex.byte << std::endl;
+  }
+
+  for (const auto &[key, val] : imu_data.items()) {
+    if (key == "Fallen") {
+      try {
+        val.at("fallen_back_limit").get_to(fallen_back_limit);
+        val.at("fallen_front_limit").get_to(fallen_front_limit);
+        val.at("fallen_right_limit").get_to(fallen_right_limit);
+        val.at("fallen_left_limit").get_to(fallen_left_limit);
+      } catch (const nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    } else if (key == "Imu") {
+      try {
+        val.at("gyro_mux_x").get_to(gyro_mux[0]);
+        val.at("gyro_mux_y").get_to(gyro_mux[1]);
+        val.at("gyro_mux_z").get_to(gyro_mux[2]);
+      } catch (const nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+  }
 }
 
 }  // namespace kansei
