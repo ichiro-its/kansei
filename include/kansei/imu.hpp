@@ -60,7 +60,7 @@ public:
   bool is_fallen() {return fallen_status != FallenStatus::STANDUP;}
   FallenStatus get_fallen_status();
 
-  bool is_calibrated() { return calibration_status; }
+  bool is_calibrated() {return calibration_status;}
 
   void load_data(std::string path);
 
