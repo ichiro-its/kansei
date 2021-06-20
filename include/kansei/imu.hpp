@@ -22,8 +22,7 @@
 #define KANSEI__IMU_HPP_
 
 #include <kansei/imu_filter.hpp>
-
-#include <keisan/angle.hpp>
+#include <kansei/complementary_filter.hpp>
 
 #include <string>
 #include <memory>
@@ -51,38 +50,51 @@ public:
 
   void compute_rpy(double gy[3], double acc[3], double seconds);
 
-  const float & get_roll() const {return keisan::rad_to_deg(roll);}
-  const float & get_pitch() const {return keisan::rad_to_deg(pitch);}
-  float get_yaw() {return keisan::rad_to_deg(yaw) + angle_compensation;}
+  float get_roll() {return roll * 180.0/M_PI;}
+  float get_pitch() {return pitch * 180.0/M_PI;}
+  float get_yaw() {return (yaw * 180.0/M_PI) + angle_compensation;}
 
   float get_rl_gyro() {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() {return gyro[1] - fb_gyro_center;}
 
-  bool is_calibrated() {return calibration_status;}
   bool is_fallen() {return fallen_status != FallenStatus::STANDUP;}
   FallenStatus get_fallen_status();
 
-  void load_data(const std::string & path);
+  bool is_calibrated() {return calibration_status;}
+
+  void load_data(std::string path);
 
   double angle_compensation;
   double angle_raw_compensation;
 
 private:
+  // imu madgwick
   ImuFilter filter;
   bool initialized;
   float last_seconds;
+
+  // imu madgwick
+  ComplementaryFilter com_filter;
+  bool com_initialized;
 
   double roll;
   double pitch;
   double yaw;
   double yaw_raw;
 
+  double initial_yaw;
+  double delta_yaw;
+  bool init_yaw;
+
   double gyro[3];
   double gyro_mux[3];
-  double rl_gyro_arr[100];
-  double fb_gyro_arr[100];
+  // double last_gyro_x;
+  // double last_gyro_y;
+  // double last_gyro_z;
   double rl_gyro_center;
   double fb_gyro_center;
+  double rl_gyro_arr[100];
+  double fb_gyro_arr[100];
   int rl_fb_gyro_counter;
 
   double accelero[3];
@@ -98,6 +110,7 @@ private:
   float fallen_left_limit;
   FallenStatus fallen_status;
 
+  bool print;
   bool calibration_status;
 };
 
