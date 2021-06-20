@@ -44,8 +44,9 @@ class Imu
 public:
   Imu();
 
-  void reset_orientation() {reset_orientation_to(0.0);};
+  void reset_orientation();
   void reset_orientation_to(double orientation);
+  void reset_orientation_raw_to(double orientation);
 
   void compute_rpy(double gy[3], double acc[3], double seconds);
 
@@ -59,9 +60,12 @@ public:
   bool is_fallen() {return fallen_status != FallenStatus::STANDUP;}
   FallenStatus get_fallen_status();
 
+  bool is_calibrated() { return calibration_status; }
+
   void set_path(std::string path) {this->path = path;};
 
   double angle_compensation;
+  double angle_raw_compensation;
 
 private:
   void load_data();
