@@ -96,8 +96,6 @@ Imu::Imu()
 
 void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
 {
-  load_data();
- 
   for (int i = 0; i < 3; i++) {
     gyro[i] = ((gy[i] - 512.0) * (17.4532925199/1023.0)) * gyro_mux[i];
     accelero[i] = (acc[i] - 512.0) * (39.2266/512.0);
@@ -303,7 +301,7 @@ FallenStatus Imu::get_fallen_status()
   return fallen_status;
 }
 
-void Imu::load_data()
+void Imu::load_data(std::string path)
 {
   std::string file_name =
     path + "imu/" + "kansei.json";

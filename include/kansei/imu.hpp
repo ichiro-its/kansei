@@ -62,16 +62,12 @@ public:
 
   bool is_calibrated() { return calibration_status; }
 
-  void set_path(std::string path) {this->path = path;};
+  void load_data(std::string path);
 
   double angle_compensation;
   double angle_raw_compensation;
 
 private:
-  void load_data();
-
-  std::string path;
-
   // imu madgwick
   ImuFilter filter;
   bool initialized;
