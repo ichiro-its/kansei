@@ -22,12 +22,8 @@
 #define KANSEI__IMU_HPP_
 
 #include <kansei/imu_filter.hpp>
-<<<<<<< HEAD
 
 #include <keisan/angle.hpp>
-=======
-#include <kansei/complementary_filter.hpp>
->>>>>>> origin/fix-imu
 
 #include <string>
 #include <memory>
@@ -49,14 +45,15 @@ class Imu
 public:
   Imu();
 
-  void reset_orientation() {reset_orientation_to(0.0);};
+  void reset_orientation();
   void reset_orientation_to(double orientation);
+  void reset_orientation_raw_to(double orientation);
 
   void compute_rpy(double gy[3], double acc[3], double seconds);
 
   const float & get_roll() const {return keisan::rad_to_deg(roll);}
   const float & get_pitch() const {return keisan::rad_to_deg(pitch);}
-  const float & get_yaw() const {return keisan::rad_to_deg(yaw) + angle_compensation;}
+  float get_yaw() {return keisan::rad_to_deg(yaw) + angle_compensation;}
 
   float get_rl_gyro() {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() {return gyro[1] - fb_gyro_center;}
@@ -67,6 +64,7 @@ public:
   void load_data(const std::string & path);
 
   double angle_compensation;
+  double angle_raw_compensation;
 
 private:
   ImuFilter filter;

@@ -25,6 +25,7 @@
 #include <kansei/imu.hpp>
 #include <kansei/stateless_orientation.hpp>
 
+#include <keisan/angle.hpp>
 #include <nlohmann/json.hpp>
 
 #include <cmath>
@@ -43,9 +44,9 @@ Imu::Imu()
   rl_gyro_center(512.0), fb_gyro_center(512.0),
   fallen_status(FallenStatus::STANDUP), fallen_back_limit(620.0),
   fallen_front_limit(360.0), fallen_right_limit(610.0),
-  fallen_left_limit(410.0)
+  fallen_left_limit(410.0), calibration_status(false),
+  angle_compensation(0.0), angle_raw_compensation(0.0)
 {
-  // imu madgwick
   filter.setWorldFrame(ENU);
   filter.setAlgorithmGain(0.1);
   filter.setDriftBiasGain(0.0);
@@ -65,134 +66,120 @@ Imu::Imu()
       rl_accelero_arr[i] = rl_gyro_center;
     }
   }
-
-  rl_fb_gyro_counter = 0.0;
-  rl_fb_accelero_counter = 0.0;
-
-  fallen_back_limit = 620.0;
-  fallen_front_limit = 390.0;
-  fallen_right_limit = 610.0;
-  fallen_left_limit = 410.0;
-  fallen_status = FallenStatus::STANDUP;
-
-  calibration_status = false;
-  angle_compensation = 0.0;
 }
 
 void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
 {
-  load_data();
- 
   for (int i = 0; i < 3; i++) {
-    gyro[i] = ((gy[i] - 512.0) * (17.4532925199/1023.0)) * gyro_mux[i];
-    accelero[i] = (acc[i] - 512.0) * (39.2266/512.0);
+    gyro[i] = ((gy[i] - 512.0) * (17.4532925199 / 1023.0)) * gyro_mux[i];
+    accelero[i] = (acc[i] - 512.0) * (39.2266 / 512.0);
   }
 
   fb_accelero = acc[0];
   rl_accelero = acc[1];
-  
-  // if (!calibration_status) {
-  //   if (rl_fb_gyro_counter < 100) {
-  //     fb_gyro_arr[rl_fb_gyro_counter] = gy[1];
-  //     rl_gyro_arr[rl_fb_gyro_counter] = gy[0];
-  //     rl_fb_gyro_counter++;
-  //   } else {
-  //     rl_fb_gyro_counter = 0;
 
-  //     double fb_sum = 0.0;
-  //     double rl_sum = 0.0;
-  //     for (int i = 0; i < 100; i++) {
-  //       fb_sum += fb_gyro_arr[i];
-  //       rl_sum += rl_gyro_arr[i];
-  //     }
+  if (!calibration_status) {
+    if (rl_fb_gyro_counter < 100) {
+      fb_gyro_arr[rl_fb_gyro_counter] = gy[1];
+      rl_gyro_arr[rl_fb_gyro_counter] = gy[0];
+      rl_fb_gyro_counter++;
+    } else {
+      rl_fb_gyro_counter = 0;
 
-  //     double fb_mean = fb_sum / 100;
-  //     double rl_mean = rl_sum / 100;
-  //     fb_sum = 0.0;
-  //     rl_sum = 0.0;
-  //     for(int i = 0; i < 100; i++) {
-  //       fb_sum += pow((fb_gyro_arr[i] - fb_mean), 2);
-  //       rl_sum += pow((rl_gyro_arr[i] - rl_mean), 2);
-  //     }
+      double fb_sum = 0.0;
+      double rl_sum = 0.0;
+      for (int i = 0; i < 100; i++) {
+        fb_sum += fb_gyro_arr[i];
+        rl_sum += rl_gyro_arr[i];
+      }
 
-  //     double fb_sd = pow((fb_sum / 100), 0.5);
-  //     double rl_sd = pow((rl_sum / 100), 0.5);
-  //     if (fb_sd < 2.0 && rl_sd < 2.0) {
-  //       fb_gyro_center = fb_mean;
-  //       rl_gyro_center = rl_mean;
-  //       calibration_status = true;
-  //     } else {
-  //       fb_gyro_center = 512.0;
-  //       rl_gyro_center = 512.0;
-  //     }
-  //   }
-  // }
+      double fb_mean = fb_sum / 100;
+      double rl_mean = rl_sum / 100;
+      fb_sum = 0.0;
+      rl_sum = 0.0;
+      for (int i = 0; i < 100; i++) {
+        fb_sum += pow((fb_gyro_arr[i] - fb_mean), 2);
+        rl_sum += pow((rl_gyro_arr[i] - rl_mean), 2);
+      }
 
-  if (rl_fb_accelero_counter < 15) {
-    fb_accelero_arr[rl_fb_accelero_counter] = acc[1];
-    rl_accelero_arr[rl_fb_accelero_counter] = acc[0];
-    rl_fb_accelero_counter++;
+      double fb_sd = pow((fb_sum / 100), 0.5);
+      double rl_sd = pow((rl_sum / 100), 0.5);
+      if (fb_sd < 2.0 && rl_sd < 2.0) {
+        fb_gyro_center = fb_mean;
+        rl_gyro_center = rl_mean;
+        calibration_status = true;
+      } else {
+        fb_gyro_center = 512.0;
+        rl_gyro_center = 512.0;
+      }
+    }
   } else {
-    rl_fb_accelero_counter = 0;
-  }
-
-  double sum_fb = 0.0;
-  double sum_rl = 0.0;
-  for (int i = 0; i < 15; i++) {
-    sum_fb += fb_accelero_arr[i];
-    sum_rl += rl_accelero_arr[i];
-  }
-
-  int avr_fb = sum_fb / 15;
-  int avr_rl = sum_rl / 15;
-
-  geometry_msgs::msg::Vector3 ang_vel;
-  ang_vel.x = gyro[0];
-  ang_vel.y = gyro[1];
-  ang_vel.z = gyro[2];
-
-  geometry_msgs::msg::Vector3 lin_acc;
-  lin_acc.x = accelero[0];
-  lin_acc.y = accelero[1];
-  lin_acc.z = accelero[2];
-
-  if (!initialized) {
-    geometry_msgs::msg::Quaternion init_q;
-    if (!StatelessOrientation::computeOrientation(ENU, lin_acc, init_q)) {
-      return;
+    if (rl_fb_accelero_counter < 15) {
+      fb_accelero_arr[rl_fb_accelero_counter] = acc[1];
+      rl_accelero_arr[rl_fb_accelero_counter] = acc[0];
+      rl_fb_accelero_counter++;
+    } else {
+      rl_fb_accelero_counter = 0;
     }
 
-    filter.setOrientation(init_q.w, init_q.x, init_q.y, init_q.z);
+    double sum_fb = 0.0;
+    double sum_rl = 0.0;
+    for (int i = 0; i < 15; i++) {
+      sum_fb += fb_accelero_arr[i];
+      sum_rl += rl_accelero_arr[i];
+    }
+
+    int avr_fb = sum_fb / 15;
+    int avr_rl = sum_rl / 15;
+
+    geometry_msgs::msg::Vector3 ang_vel;
+    ang_vel.x = gyro[0];
+    ang_vel.y = gyro[1];
+    ang_vel.z = gyro[2];
+
+    geometry_msgs::msg::Vector3 lin_acc;
+    lin_acc.x = accelero[0];
+    lin_acc.y = accelero[1];
+    lin_acc.z = accelero[2];
+
+    if (!initialized) {
+      geometry_msgs::msg::Quaternion init_q;
+      if (!StatelessOrientation::computeOrientation(ENU, lin_acc, init_q)) {
+        return;
+      }
+
+      filter.setOrientation(init_q.w, init_q.x, init_q.y, init_q.z);
+      last_seconds = seconds;
+      initialized = true;
+    }
+
+    filter.madgwickAHRSupdateIMU(
+      ang_vel.x, ang_vel.y, ang_vel.z,
+      lin_acc.x, lin_acc.y, lin_acc.z,
+      seconds - last_seconds);
+
+    double temp_roll = 0.0;
+    double temp_pitch = 0.0;
+    double temp_yaw = 0.0;
+    double q0 = 0.0;
+    double q1 = 0.0;
+    double q2 = 0.0;
+    double q3 = 0.0;
+    filter.getOrientation(q0, q1, q2, q3);
+    tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(temp_roll, temp_pitch, temp_yaw);
+
+    if (temp_yaw < 0) {
+      yaw = (temp_yaw + keisan::pi) * -1;
+    } else if (temp_yaw >= 0) {
+      yaw = (temp_yaw - keisan::pi) * -1;
+    } else {
+      yaw = temp_yaw;
+    }
+
+    yaw_raw = keisan::rad_to_deg(yaw);
+
     last_seconds = seconds;
-    initialized = true;
   }
-
-  filter.madgwickAHRSupdateIMU(
-    ang_vel.x, ang_vel.y, ang_vel.z,
-    lin_acc.x, lin_acc.y, lin_acc.z,
-    seconds - last_seconds);
-
-  double temp_roll = 0.0;
-  double temp_pitch = 0.0;
-  double temp_yaw = 0.0;
-  double q0 = 0.0;
-  double q1 = 0.0;
-  double q2 = 0.0;
-  double q3 = 0.0;
-  filter.getOrientation(q0, q1, q2, q3);
-  tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(temp_roll, temp_pitch, temp_yaw);
-
-  if (temp_yaw < 0) {
-    yaw = (temp_yaw + M_PI) * -1;
-  } else if (temp_yaw >= 0) {
-    yaw = (temp_yaw - M_PI) * -1;
-  } else {
-    yaw = temp_yaw;
-  }
-
-  yaw_raw = keisan::rad_to_deg(yaw);
-
-  last_seconds = seconds;
 }
 
 FallenStatus Imu::get_fallen_status()
@@ -223,12 +210,12 @@ void Imu::load_data(const std::string & path)
     imu_data = nlohmann::json::parse(file);
 
     for (const auto &[key, val] : imu_data.items()) {
-      if (key == "Fallen") {
+      if (key == "fallen_limit") {
         val.at("fallen_back_limit").get_to(fallen_back_limit);
         val.at("fallen_front_limit").get_to(fallen_front_limit);
         val.at("fallen_right_limit").get_to(fallen_right_limit);
         val.at("fallen_left_limit").get_to(fallen_left_limit);
-      } else if (key == "Imu") {
+      } else if (key == "imu") {
         val.at("gyro_mux_x").get_to(gyro_mux[0]);
         val.at("gyro_mux_y").get_to(gyro_mux[1]);
         val.at("gyro_mux_z").get_to(gyro_mux[2]);
@@ -239,9 +226,20 @@ void Imu::load_data(const std::string & path)
   }
 }
 
+void Imu::reset_orientation()
+{
+  reset_orientation_raw_to(0.0);
+  reset_orientation_to(0.0);
+}
+
 void Imu::reset_orientation_to(double orientation)
 {
-  angle_compensation = orientation - yaw_raw;
+  angle_compensation = orientation - (yaw_raw + angle_raw_compensation);
+}
+
+void Imu::reset_orientation_raw_to(double orientation)
+{
+  angle_raw_compensation = orientation - yaw_raw;
 }
 
 }  // namespace kansei
