@@ -58,7 +58,7 @@ public:
   float get_rl_gyro() {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() {return gyro[1] - fb_gyro_center;}
 
-  bool is_calibrated() {return calibration_status; }
+  bool is_calibrated() {return calibration_status;}
   bool is_fallen() {return fallen_status != FallenStatus::STANDUP;}
   FallenStatus get_fallen_status();
 
