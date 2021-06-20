@@ -45,6 +45,7 @@ Imu::Imu()
   fallen_front_limit(360.0), fallen_right_limit(610.0),
   fallen_left_limit(410.0)
 {
+  // imu madgwick
   filter.setWorldFrame(ENU);
   filter.setAlgorithmGain(0.1);
   filter.setDriftBiasGain(0.0);
@@ -55,30 +56,41 @@ Imu::Imu()
     accelero[i] = 0.0;
   }
 
-  // for (int i = 0; i < 100; i++) {
-  //   rl_gyro_arr[i] = rl_gyro_center;
-  //   fb_gyro_arr[i] = fb_gyro_center;
+  for (int i = 0; i < 100; i++) {
+    rl_gyro_arr[i] = rl_gyro_center;
+    fb_gyro_arr[i] = fb_gyro_center;
 
-  //   if (i < 15) {
-  //     fb_accelero_arr[i] = fb_gyro_center;
-  //     rl_accelero_arr[i] = rl_gyro_center;
-  //   }
-  // }
+    if (i < 15) {
+      fb_accelero_arr[i] = fb_gyro_center;
+      rl_accelero_arr[i] = rl_gyro_center;
+    }
+  }
 
-  // rl_fb_gyro_counter = 0;
-  // rl_fb_accelero_counter = 0;
+  rl_fb_gyro_counter = 0.0;
+  rl_fb_accelero_counter = 0.0;
+
+  fallen_back_limit = 620.0;
+  fallen_front_limit = 390.0;
+  fallen_right_limit = 610.0;
+  fallen_left_limit = 410.0;
+  fallen_status = FallenStatus::STANDUP;
+
+  calibration_status = false;
+  angle_compensation = 0.0;
 }
 
 void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
 {
+  load_data();
+ 
   for (int i = 0; i < 3; i++) {
-    gyro[i] = ((gy[i] - 512.0) * (17.4532925199 / 1023.0)) * gyro_mux[i];
-    accelero[i] = (acc[i] - 512.0) * (39.2266 / 512.0);
+    gyro[i] = ((gy[i] - 512.0) * (17.4532925199/1023.0)) * gyro_mux[i];
+    accelero[i] = (acc[i] - 512.0) * (39.2266/512.0);
   }
 
   fb_accelero = acc[0];
   rl_accelero = acc[1];
-
+  
   // if (!calibration_status) {
   //   if (rl_fb_gyro_counter < 100) {
   //     fb_gyro_arr[rl_fb_gyro_counter] = gy[1];
@@ -116,23 +128,23 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
   //   }
   // }
 
-  // if (rl_fb_accelero_counter < 15) {
-  //   fb_accelero_arr[rl_fb_accelero_counter] = acc[1];
-  //   rl_accelero_arr[rl_fb_accelero_counter] = acc[0];
-  //   rl_fb_accelero_counter++;
-  // } else {
-  //   rl_fb_accelero_counter = 0;
-  // }
+  if (rl_fb_accelero_counter < 15) {
+    fb_accelero_arr[rl_fb_accelero_counter] = acc[1];
+    rl_accelero_arr[rl_fb_accelero_counter] = acc[0];
+    rl_fb_accelero_counter++;
+  } else {
+    rl_fb_accelero_counter = 0;
+  }
 
-  // double sum_fb = 0.0;
-  // double sum_rl = 0.0;
-  // for (int i = 0; i < 15; i++) {
-  //   sum_fb += fb_accelero_arr[i];
-  //   sum_rl += rl_accelero_arr[i];
-  // }
+  double sum_fb = 0.0;
+  double sum_rl = 0.0;
+  for (int i = 0; i < 15; i++) {
+    sum_fb += fb_accelero_arr[i];
+    sum_rl += rl_accelero_arr[i];
+  }
 
-  // int avr_fb = sum_fb / 15;
-  // int avr_rl = sum_rl / 15;
+  int avr_fb = sum_fb / 15;
+  int avr_rl = sum_rl / 15;
 
   geometry_msgs::msg::Vector3 ang_vel;
   ang_vel.x = gyro[0];
@@ -160,15 +172,25 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
     lin_acc.x, lin_acc.y, lin_acc.z,
     seconds - last_seconds);
 
-  roll = 0.0;
-  pitch = 0.0;
-  yaw = 0.0;
+  double temp_roll = 0.0;
+  double temp_pitch = 0.0;
+  double temp_yaw = 0.0;
   double q0 = 0.0;
   double q1 = 0.0;
   double q2 = 0.0;
   double q3 = 0.0;
   filter.getOrientation(q0, q1, q2, q3);
-  tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(roll, pitch, yaw);
+  tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(temp_roll, temp_pitch, temp_yaw);
+
+  if (temp_yaw < 0) {
+    yaw = (temp_yaw + M_PI) * -1;
+  } else if (temp_yaw >= 0) {
+    yaw = (temp_yaw - M_PI) * -1;
+  } else {
+    yaw = temp_yaw;
+  }
+
+  yaw_raw = keisan::rad_to_deg(yaw);
 
   last_seconds = seconds;
 }
@@ -196,33 +218,30 @@ void Imu::load_data(const std::string & path)
     path + "imu/" + "kansei.json";
   std::ifstream file(file_name);
 
-  nlohmann::json imu_data;
   try {
+    nlohmann::json imu_data;
     imu_data = nlohmann::json::parse(file);
-  } catch (const nlohmann::json::parse_error & ex) {
-    std::cerr << "parse error at byte " << ex.byte << std::endl;
-  }
 
-  for (const auto &[key, val] : imu_data.items()) {
-    if (key == "Fallen") {
-      try {
+    for (const auto &[key, val] : imu_data.items()) {
+      if (key == "Fallen") {
         val.at("fallen_back_limit").get_to(fallen_back_limit);
         val.at("fallen_front_limit").get_to(fallen_front_limit);
         val.at("fallen_right_limit").get_to(fallen_right_limit);
         val.at("fallen_left_limit").get_to(fallen_left_limit);
-      } catch (const nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-      }
-    } else if (key == "Imu") {
-      try {
+      } else if (key == "Imu") {
         val.at("gyro_mux_x").get_to(gyro_mux[0]);
         val.at("gyro_mux_y").get_to(gyro_mux[1]);
         val.at("gyro_mux_z").get_to(gyro_mux[2]);
-      } catch (const nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
       }
     }
+  } catch (const nlohmann::json::parse_error & ex) {
+    std::cerr << "parse error at byte " << ex.byte << std::endl;
   }
+}
+
+void Imu::reset_orientation_to(double orientation)
+{
+  angle_compensation = orientation - yaw_raw;
 }
 
 }  // namespace kansei
