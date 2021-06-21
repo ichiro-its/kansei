@@ -154,8 +154,8 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
       sum_rl += rl_accelero_arr[i];
     }
 
-    int avr_fb = sum_fb / 15;
-    int avr_rl = sum_rl / 15;
+    // int avr_fb = sum_fb / 15;
+    // int avr_rl = sum_rl / 15;
 
     geometry_msgs::msg::Vector3 ang_vel;
     ang_vel.x = gyro[0];

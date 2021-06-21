@@ -49,17 +49,17 @@ public:
 
   void compute_rpy(double gy[3], double acc[3], double seconds);
 
-  float get_roll() {return roll * 180.0 / M_PI;}
-  float get_pitch() {return pitch * 180.0 / M_PI;}
-  float get_yaw() {return (yaw * 180.0 / M_PI) + angle_compensation;}
+  float get_roll() const {return roll * 180.0 / M_PI;}
+  float get_pitch() const {return pitch * 180.0 / M_PI;}
+  float get_yaw() const {return (yaw * 180.0 / M_PI) + angle_compensation;}
 
-  float get_rl_gyro() {return gyro[0] - rl_gyro_center;}
-  float get_fb_gyro() {return gyro[1] - fb_gyro_center;}
+  float get_rl_gyro() const {return gyro[0] - rl_gyro_center;}
+  float get_fb_gyro() const {return gyro[1] - fb_gyro_center;}
 
-  bool is_fallen() {return fallen_status != FallenStatus::STANDUP;}
+  bool is_fallen() const {return fallen_status != FallenStatus::STANDUP;}
   FallenStatus get_fallen_status();
 
-  bool is_calibrated() {return calibration_status;}
+  const bool & is_calibrated() const {return calibration_status;}
 
   void load_data(std::string path);
 
