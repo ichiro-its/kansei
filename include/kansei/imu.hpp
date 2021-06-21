@@ -22,7 +22,6 @@
 #define KANSEI__IMU_HPP_
 
 #include <kansei/imu_filter.hpp>
-#include <kansei/complementary_filter.hpp>
 
 #include <string>
 #include <memory>
@@ -50,9 +49,9 @@ public:
 
   void compute_rpy(double gy[3], double acc[3], double seconds);
 
-  float get_roll() {return roll * 180.0/M_PI;}
-  float get_pitch() {return pitch * 180.0/M_PI;}
-  float get_yaw() {return (yaw * 180.0/M_PI) + angle_compensation;}
+  float get_roll() {return roll * 180.0 / M_PI;}
+  float get_pitch() {return pitch * 180.0 / M_PI;}
+  float get_yaw() {return (yaw * 180.0 / M_PI) + angle_compensation;}
 
   float get_rl_gyro() {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() {return gyro[1] - fb_gyro_center;}
@@ -74,7 +73,6 @@ private:
   float last_seconds;
 
   // imu madgwick
-  ComplementaryFilter com_filter;
   bool com_initialized;
 
   double roll;
