@@ -52,7 +52,7 @@ public:
 
   float get_roll() {return roll * 180.0/M_PI;}
   float get_pitch() {return pitch * 180.0/M_PI;}
-  float get_yaw() {return (yaw * 180.0/M_PI) + angle_compensation;}
+  float get_yaw();
 
   float get_rl_gyro() {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() {return gyro[1] - fb_gyro_center;}

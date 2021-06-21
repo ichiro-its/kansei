@@ -233,6 +233,9 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
     // std::cout << "yaw_raw_comp " << angle_raw_compensation << std::endl;
     // std::cout << "yaw_raw " << yaw_raw + angle_raw_compensation << std::endl;
 
+    // std::cout << "yaw " << yaw * 180.0/M_PI << std::endl;
+    // std::cout << "yaw_comp " << angle_compensation << std::endl;
+    // std::cout << "yaw " << get_yaw() << std::endl;
     // if (init_yaw) {
     //   initial_yaw = (yaw * 180.0/M_PI);
     //   init_yaw = false;
@@ -345,6 +348,19 @@ void Imu::reset_orientation_to(double orientation)
 void Imu::reset_orientation_raw_to(double orientation)
 {
   angle_raw_compensation = orientation - yaw_raw;
+}
+
+float Imu::get_yaw()
+{
+  double orientaion = (yaw * 180.0/M_PI) + angle_compensation;
+  
+  if (orientaion < -180.0) {
+    return (orientaion + 360.0);
+  } else if (orientaion >= 180.0) {
+    return (orientaion - 360.0);
+  } else {
+    return orientaion;
+  }
 }
 
 }  // namespace kansei
