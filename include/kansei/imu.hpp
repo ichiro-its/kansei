@@ -49,9 +49,9 @@ public:
 
   void compute_rpy(double gy[3], double acc[3], double seconds);
 
-  float get_roll() const {return roll * 180.0 / M_PI;}
-  float get_pitch() const {return pitch * 180.0 / M_PI;}
-  float get_yaw() const {return (yaw * 180.0 / M_PI) + angle_compensation;}
+  float get_roll() {return roll * 180.0 / M_PI;}
+  float get_pitch() {return pitch * 180.0 / M_PI;}
+  float get_yaw();
 
   float get_rl_gyro() const {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() const {return gyro[1] - fb_gyro_center;}
@@ -67,13 +67,9 @@ public:
   double angle_raw_compensation;
 
 private:
-  // imu madgwick
   ImuFilter filter;
   bool initialized;
   float last_seconds;
-
-  // imu madgwick
-  bool com_initialized;
 
   double roll;
   double pitch;
@@ -86,9 +82,6 @@ private:
 
   double gyro[3];
   double gyro_mux[3];
-  // double last_gyro_x;
-  // double last_gyro_y;
-  // double last_gyro_z;
   double rl_gyro_center;
   double fb_gyro_center;
   double rl_gyro_arr[100];
