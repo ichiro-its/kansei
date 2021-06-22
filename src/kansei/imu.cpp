@@ -41,17 +41,9 @@ namespace kansei
 Imu::Imu()
 : initialized(false)
 {
-  // imu madgwick
   filter.setWorldFrame(ENU);
   filter.setAlgorithmGain(0.1);
   filter.setDriftBiasGain(0.0);
-
-  // imu complementary
-  com_initialized = false;
-  com_filter.setDoBiasEstimation(true);
-  com_filter.setDoAdaptiveGain(true);
-  com_filter.setGainAcc(0.01);
-  com_filter.setBiasAlpha(0.01);
 
   roll = 0.0;
   pitch = 0.0;
@@ -97,15 +89,14 @@ Imu::Imu()
 void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
 {
   for (int i = 0; i < 3; i++) {
-    gyro[i] = ((gy[i] - 512.0) * (17.4532925199/1023.0)) * gyro_mux[i];
-    accelero[i] = (acc[i] - 512.0) * (39.2266/512.0);
+    gyro[i] = ((gy[i] - 512.0) * (17.4532925199 / 1023.0)) * gyro_mux[i];
+    accelero[i] = (acc[i] - 512.0) * (39.2266 / 512.0);
   }
 
   fb_accelero = acc[0];
   rl_accelero = acc[1];
-  
+
   if (!calibration_status) {
-    // std::cout << "calibrating" << std::endl;
     if (rl_fb_gyro_counter < 100) {
       fb_gyro_arr[rl_fb_gyro_counter] = gy[1];
       rl_gyro_arr[rl_fb_gyro_counter] = gy[0];
@@ -124,7 +115,7 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
       double rl_mean = rl_sum / 100;
       fb_sum = 0.0;
       rl_sum = 0.0;
-      for(int i = 0; i < 100; i++) {
+      for (int i = 0; i < 100; i++) {
         fb_sum += pow((fb_gyro_arr[i] - fb_mean), 2);
         rl_sum += pow((rl_gyro_arr[i] - rl_mean), 2);
       }
@@ -158,8 +149,8 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
       sum_rl += rl_accelero_arr[i];
     }
 
-    int avr_fb = sum_fb / 15;
-    int avr_rl = sum_rl / 15;
+    // int avr_fb = sum_fb / 15;
+    // int avr_rl = sum_rl / 15;
 
     geometry_msgs::msg::Vector3 ang_vel;
     ang_vel.x = gyro[0];
@@ -170,28 +161,6 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
     lin_acc.x = accelero[0];
     lin_acc.y = accelero[1];
     lin_acc.z = accelero[2];
-
-    // double acc_angle_y = atan(-1*lin_acc.x/sqrt(pow(lin_acc.y,2) + pow(lin_acc.z,2)))*(180.0/M_PI);
-    // double acc_angle_x = atan(lin_acc.y/sqrt(pow(lin_acc.x,2) + pow(lin_acc.z,2)))*(180.0/M_PI);
-    // double acc_angle_z = 0;
-
-    // double dt = seconds - last_seconds;
-
-    // double gyro_angle_x = ang_vel.x*(180.0/M_PI)*dt + last_gyro_x;
-    // double gyro_angle_y = ang_vel.y*(180.0/M_PI)*dt + last_gyro_y;
-    // double gyro_angle_z = ang_vel.z*(180.0/M_PI)*dt + last_gyro_z;
-
-    // double alpha = 0.96;
-    // double angle_x = alpha*gyro_angle_x + (1.0-alpha)*acc_angle_x;
-    // double angle_y = alpha*gyro_angle_y + (1.0-alpha)*acc_angle_y;
-    // double angle_z = alpha*gyro_angle_z + (1.0-alpha)*acc_angle_z;
-
-    // std::cout << "imu filter" << std::endl;
-    // std::cout << "accx " << acc[0] << ", accy " << acc[1] << ", accz " << acc[2] << std::endl;
-    // std::cout << "gyx " << gy[0] << ", gyy " << gy[1] << ", gyz " << gy[2] << std::endl;
-    // std::cout << "ax " << lin_acc.x << ", ay " << lin_acc.y << ", az " << lin_acc.z << std::endl;
-    // std::cout << "gx " << ang_vel.x << ", gy " << ang_vel.y << ", gz " << ang_vel.z << std::endl;
-    // std::cout << "fb_accelero " << fb_accelero << ", rl_accelero " << rl_accelero << std::endl;
 
     if (!initialized) {
       geometry_msgs::msg::Quaternion init_q;
@@ -227,61 +196,7 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
       yaw = temp_yaw;
     }
 
-    yaw_raw = yaw * 180.0/M_PI;
-    // std::cout << "temp_yaw " << temp_yaw * 180.0/M_PI << std::endl;
-    // std::cout << "yaw_raw " << yaw_raw << std::endl;
-    // std::cout << "yaw_raw_comp " << angle_raw_compensation << std::endl;
-    // std::cout << "yaw_raw " << yaw_raw + angle_raw_compensation << std::endl;
-
-    // std::cout << "yaw " << yaw * 180.0/M_PI << std::endl;
-    // std::cout << "yaw_comp " << angle_compensation << std::endl;
-    // std::cout << "yaw " << get_yaw() << std::endl;
-    // if (init_yaw) {
-    //   initial_yaw = (yaw * 180.0/M_PI);
-    //   init_yaw = false;
-    // }
-
-    // if (yaw < 0.0) {
-    //   yaw += 180.0;
-    // } else if (yaw >= 0.0) {
-    //   yaw -= 180.0;
-    // }
-
-    // std::cout << "========= madgwick filter" << std::endl;
-    // std::cout << "q0 " << q0 << ", q1 " << q1 << ", q2 " << q2 << ", q3 " << q3 << std::endl;
-    // std::cout << "roll " << roll << ", temp_yaw " << temp_yaw << ", yaw " << yaw * 180.0/M_PI << std::endl;
-
-    // delta_yaw += ((yaw * 180.0/M_PI) - initial_yaw) * 3.0;
-    // initial_yaw = (yaw * 180.0/M_PI);
-    // double value = std::fmod((std::fabs(initial_yaw) - std::fabs((yaw * 180.0/M_PI)))* 3.0, 180.0);
-    // double value = std::fmod((yaw * 180.0/M_PI+180), 90) * 4.0;
-    // error = value / 4;
-    // std::cout << "roll " << roll << ", pitch " << pitch << ", yaw " << value - (std::fmod((yaw * 180.0/M_PI+180), 90)) << std::endl;
-    // std::cout << "roll " << roll << ", pitch " << pitch << ", yaw " << std::fmod(((initial_yaw) - std::fabs((yaw * 180.0/M_PI))) * 3.0/2.0, 360.0) << std::endl;
-
-    // com_filter.update(
-    //   lin_acc.x, lin_acc.y, lin_acc.z,
-    //   ang_vel.x, ang_vel.y, ang_vel.z,
-    //   seconds - last_seconds);
-
-    // last_gyro_x = ang_vel.x * (180.0/M_PI);
-    // last_gyro_y = ang_vel.y * (180.0/M_PI);
-    // last_gyro_z = ang_vel.z * (180.0/M_PI);
-
-    // roll = 0.0;
-    // pitch = 0.0;
-    // yaw = 0.0;
-    // q0 = 0.0;
-    // q1 = 0.0;
-    // q2 = 0.0;
-    // q3 = 0.0;
-    // com_filter.getOrientation(q0, q1, q2, q3);
-    // tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(roll, pitch, yaw);
-    
-    // std::cout << "========= complementary filter" << std::endl;
-    // std::cout << "q0 " << q0 << ", q1 " << q1 << ", q2 " << q2 << ", q3 " << q3 << std::endl;
-    // std::cout << "roll " << roll << ", pitch " << pitch << ", yaw " << yaw * 180.0/M_PI << std::endl;
-    // std::cout << "========================" << std::endl;
+    yaw_raw = yaw * 180.0 / M_PI;
 
     last_seconds = seconds;
   }
@@ -312,17 +227,7 @@ void Imu::load_data(std::string path)
   nlohmann::json imu_data = nlohmann::json::parse(file);
 
   for (const auto &[key, val] : imu_data.items()) {
-    if (key == "Complementary") {
-      try {
-        val.at("gain_acc").get_to(com_filter.gain_acc_);
-        val.at("gain_mag").get_to(com_filter.gain_mag_);
-        val.at("bias_alpha").get_to(com_filter.bias_alpha_);
-        val.at("do_bias_estimation").get_to(com_filter.do_bias_estimation_);
-        val.at("do_adaptive_gain").get_to(com_filter.do_adaptive_gain_);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-      }
-    } else if (key == "Madgwick") {
+    if (key == "Madgwick") {
       try {
         val.at("gyro_mux_x").get_to(gyro_mux[0]);
         val.at("gyro_mux_y").get_to(gyro_mux[1]);
@@ -352,12 +257,12 @@ void Imu::reset_orientation_raw_to(double orientation)
 
 float Imu::get_yaw()
 {
-  double orientaion = (yaw * 180.0/M_PI) + angle_compensation;
-  
+  double orientaion = (yaw * 180.0 / M_PI) + angle_compensation;
+
   if (orientaion < -180.0) {
-    return (orientaion + 360.0);
+    return orientaion + 360.0;
   } else if (orientaion >= 180.0) {
-    return (orientaion - 360.0);
+    return orientaion - 360.0;
   } else {
     return orientaion;
   }
