@@ -103,6 +103,11 @@ private:
 
   bool print;
   bool calibration_status;
+
+  int min_fb;
+  int max_fb;
+  int min_rl;
+  int max_rl;
 };
 
 }  // namespace kansei
