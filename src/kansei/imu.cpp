@@ -171,12 +171,7 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
       if (max_rl < rl_accelero) {
         max_rl = rl_accelero;
       }
-
-      std::cout << "fb " << fb_accelero << ", rl " << rl_accelero << std::endl;
     }
-
-    std::cout << "min fb " << min_fb << ", min rl " << min_rl << std::endl;
-    std::cout << "max fb " << max_fb << ", max rl " << max_rl << std::endl;
 
     geometry_msgs::msg::Vector3 ang_vel;
     ang_vel.x = gyro[0];
