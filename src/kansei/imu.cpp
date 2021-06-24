@@ -171,7 +171,6 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
       if (max_rl < rl_accelero) {
         max_rl = rl_accelero;
       }
-
     }
 
     geometry_msgs::msg::Vector3 ang_vel;
