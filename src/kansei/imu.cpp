@@ -156,17 +156,21 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
       fb_accelero = sum_fb / 15.0;
       rl_accelero = sum_rl / 15.0;
 
-      if (min_fb > fb_accelero)
+      if (min_fb > fb_accelero) {
         min_fb = fb_accelero;
-      
-      if (max_fb < fb_accelero)
-        max_fb = fb_accelero;
+      }
 
-      if (min_rl > rl_accelero)
+      if (max_fb < fb_accelero) {
+        max_fb = fb_accelero;
+      }
+
+      if (min_rl > rl_accelero) {
         min_rl = rl_accelero;
-      
-      if (max_rl < rl_accelero)
+      }
+
+      if (max_rl < rl_accelero) {
         max_rl = rl_accelero;
+      }
 
       std::cout << "fb " << fb_accelero << ", rl " << rl_accelero << std::endl;
     }
