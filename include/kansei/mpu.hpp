@@ -36,14 +36,17 @@ public:
 
   bool connect();
 
+  void angle_update();
+
+  void reset();
+
   void set_port_name(const std::string & port_name);
+
+  void set_compensation(double compensation);
 
   double get_angle();
   double get_pitch();
   double get_roll();
-
-  void reset();
-  void set_compensation(double compensation);
 
   double angle_compensation_;
   double angle_error_;
@@ -53,20 +56,12 @@ public:
   bool calibrated_;
 
 private:
-  pthread_t thread_;
-  bool thread_handler_;
-
   int socket_fd_;
   std::string serial_name_;
 
   double angle_;
   double pitch_;
   double roll_;
-
-  static void * thread_method(void * object);
-
-  void setup();
-  void angle_update();
 };
 
 }  // namespace kansei

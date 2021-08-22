@@ -40,7 +40,7 @@ namespace kansei
 {
 
 MPU::MPU(const std::string & port_name)
-: thread_handler_(true), angle_(0), angle_error_(0)
+: angle_(0), angle_error_(0)
 {
   set_port_name(port_name);
 }
@@ -53,61 +53,49 @@ MPU::~MPU()
   socket_fd_ = -1;
 }
 
-void * MPU::thread_method(void * object)
-{
-  reinterpret_cast<MPU *>(object)->angle_update();
-  return 0;
-}
-
-void MPU::setup()
-{
-  angle_ = 0;
-  angle_error_ = 0;
-  angle_compensation_ = 0;
-  calibrated_ = false;
-
-  int iFlags = TIOCM_DTR;
-  ioctl(socket_fd_, TIOCMBIS, &iFlags);
-
-  iFlags = TIOCM_DTR;
-  ioctl(socket_fd_, TIOCMBIC, &iFlags);
-
-  struct termios newtio;
-  bzero(&newtio, sizeof(newtio));
-
-  newtio.c_cflag = B115200 | CRTSCTS | CS8 | CLOCAL | CREAD;
-  newtio.c_iflag = IGNPAR | ICRNL;
-  newtio.c_oflag = 0;
-  newtio.c_lflag = ~ICANON;
-
-  newtio.c_cc[VINTR] = 0;
-  newtio.c_cc[VQUIT] = 0;
-  newtio.c_cc[VERASE] = 0;
-  newtio.c_cc[VKILL] = 0;
-  newtio.c_cc[VEOF] = 4;
-  newtio.c_cc[VTIME] = 0;
-  newtio.c_cc[VMIN] = 1;
-  newtio.c_cc[VSWTC] = 0;
-  newtio.c_cc[VSTART] = 0;
-  newtio.c_cc[VSTOP] = 0;
-  newtio.c_cc[VSUSP] = 0;
-  newtio.c_cc[VEOL] = 0;
-  newtio.c_cc[VREPRINT] = 0;
-  newtio.c_cc[VDISCARD] = 0;
-  newtio.c_cc[VWERASE] = 0;
-  newtio.c_cc[VLNEXT] = 0;
-  newtio.c_cc[VEOL2] = 0;
-
-  tcflush(socket_fd_, TCIFLUSH);
-  tcsetattr(socket_fd_, TCSANOW, &newtio);
-}
-
 bool MPU::connect()
 {
   socket_fd_ = open(serial_name_.c_str(), O_RDWR | O_NOCTTY);
   if (socket_fd_ > 0) {
-    setup();
-    pthread_create(&thread_, NULL, &thread_method, this);
+    angle_ = 0;
+    angle_error_ = 0;
+    angle_compensation_ = 0;
+    calibrated_ = false;
+
+    int iFlags = TIOCM_DTR;
+    ioctl(socket_fd_, TIOCMBIS, &iFlags);
+
+    iFlags = TIOCM_DTR;
+    ioctl(socket_fd_, TIOCMBIC, &iFlags);
+
+    struct termios newtio;
+    bzero(&newtio, sizeof(newtio));
+
+    newtio.c_cflag = B115200 | CRTSCTS | CS8 | CLOCAL | CREAD;
+    newtio.c_iflag = IGNPAR | ICRNL;
+    newtio.c_oflag = 0;
+    newtio.c_lflag = ~ICANON;
+
+    newtio.c_cc[VINTR] = 0;
+    newtio.c_cc[VQUIT] = 0;
+    newtio.c_cc[VERASE] = 0;
+    newtio.c_cc[VKILL] = 0;
+    newtio.c_cc[VEOF] = 4;
+    newtio.c_cc[VTIME] = 0;
+    newtio.c_cc[VMIN] = 1;
+    newtio.c_cc[VSWTC] = 0;
+    newtio.c_cc[VSTART] = 0;
+    newtio.c_cc[VSTOP] = 0;
+    newtio.c_cc[VSUSP] = 0;
+    newtio.c_cc[VEOL] = 0;
+    newtio.c_cc[VREPRINT] = 0;
+    newtio.c_cc[VDISCARD] = 0;
+    newtio.c_cc[VWERASE] = 0;
+    newtio.c_cc[VLNEXT] = 0;
+    newtio.c_cc[VEOL2] = 0;
+
+    tcflush(socket_fd_, TCIFLUSH);
+    tcsetattr(socket_fd_, TCSANOW, &newtio);
 
     return true;
   } else {
@@ -127,81 +115,79 @@ void MPU::angle_update()
   float roll_angle = 0;
   int count = 0;
 
-  while (thread_handler_) {
-    if (read(socket_fd_, &usart_data, 1) <= 0) {
-      continue;
-    }
+  if (read(socket_fd_, &usart_data, 1) <= 0) {
+    return;
+  }
 
-    if (usart_status == 0 && usart_data == 'i') {
-      usart_status++;
-    } else if (usart_status == 1 && usart_data == 't') {
-      usart_status++;
-    } else if (usart_status == 2 && usart_data == 's') {
-      usart_status++;
-    } else if (usart_status == 3) {
-      usart_buffer[0] = usart_data;
-      usart_status++;
-    } else if (usart_status == 4) {
-      usart_buffer[1] = usart_data;
-      usart_status++;
-    } else if (usart_status == 5) {
-      usart_buffer[2] = usart_data;
-      usart_status++;
-    } else if (usart_status == 6) {
-      usart_buffer[3] = usart_data;
-      usart_status++;
+  if (usart_status == 0 && usart_data == 'i') {
+    usart_status++;
+  } else if (usart_status == 1 && usart_data == 't') {
+    usart_status++;
+  } else if (usart_status == 2 && usart_data == 's') {
+    usart_status++;
+  } else if (usart_status == 3) {
+    usart_buffer[0] = usart_data;
+    usart_status++;
+  } else if (usart_status == 4) {
+    usart_buffer[1] = usart_data;
+    usart_status++;
+  } else if (usart_status == 5) {
+    usart_buffer[2] = usart_data;
+    usart_status++;
+  } else if (usart_status == 6) {
+    usart_buffer[3] = usart_data;
+    usart_status++;
 
-      memcpy(&orientation_angle, usart_buffer, 4);
-    } else if (usart_status == 7 && usart_data == ':') {
-      usart_status++;
-    } else if (usart_status == 8) {
-      usart_buffer[0] = usart_data;
-      usart_status++;
-    } else if (usart_status == 9) {
-      usart_buffer[1] = usart_data;
-      usart_status++;
-    } else if (usart_status == 10) {
-      usart_buffer[2] = usart_data;
-      usart_status++;
-    } else if (usart_status == 11) {
-      usart_buffer[3] = usart_data;
-      usart_status++;
+    memcpy(&orientation_angle, usart_buffer, 4);
+  } else if (usart_status == 7 && usart_data == ':') {
+    usart_status++;
+  } else if (usart_status == 8) {
+    usart_buffer[0] = usart_data;
+    usart_status++;
+  } else if (usart_status == 9) {
+    usart_buffer[1] = usart_data;
+    usart_status++;
+  } else if (usart_status == 10) {
+    usart_buffer[2] = usart_data;
+    usart_status++;
+  } else if (usart_status == 11) {
+    usart_buffer[3] = usart_data;
+    usart_status++;
 
-      memcpy(&pitch_angle, usart_buffer, 4);
-    } else if (usart_status == 12 && usart_data == ':') {
-      usart_status++;
-    } else if (usart_status == 13) {
-      usart_buffer[0] = usart_data;
-      usart_status++;
-    } else if (usart_status == 14) {
-      usart_buffer[1] = usart_data;
-      usart_status++;
-    } else if (usart_status == 15) {
-      usart_buffer[2] = usart_data;
-      usart_status++;
-    } else if (usart_status == 16) {
-      usart_buffer[3] = usart_data;
-      usart_status++;
+    memcpy(&pitch_angle, usart_buffer, 4);
+  } else if (usart_status == 12 && usart_data == ':') {
+    usart_status++;
+  } else if (usart_status == 13) {
+    usart_buffer[0] = usart_data;
+    usart_status++;
+  } else if (usart_status == 14) {
+    usart_buffer[1] = usart_data;
+    usart_status++;
+  } else if (usart_status == 15) {
+    usart_buffer[2] = usart_data;
+    usart_status++;
+  } else if (usart_status == 16) {
+    usart_buffer[3] = usart_data;
+    usart_status++;
 
-      memcpy(&roll_angle, usart_buffer, 4);
+    memcpy(&roll_angle, usart_buffer, 4);
 
-      if (!calibrated_) {
-        if (fabs(angle_ - orientation_angle) < MINIMUM_ERROR) {
-          count++;
-        }
-
-        if (count > 50) {
-          calibrated_ = true;
-          reset();
-        }
+    if (!calibrated_) {
+      if (fabs(angle_ - orientation_angle) < MINIMUM_ERROR) {
+        count++;
       }
 
-      pitch_ = pitch_angle;
-      roll_ = roll_angle;
-      angle_ = orientation_angle;
-    } else {
-      usart_status = 0;
+      if (count > 50) {
+        calibrated_ = true;
+        reset();
+      }
     }
+
+    pitch_ = pitch_angle;
+    roll_ = roll_angle;
+    angle_ = orientation_angle;
+  } else {
+    usart_status = 0;
   }
 }
 

@@ -22,8 +22,6 @@
 
 #include <cmath>
 
-// Fast inverse square-root
-// See: http://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Reciprocal_of_the_square_root
 static float invSqrt(float x)
 {
   float xhalf = 0.5f * x;
@@ -33,8 +31,8 @@ static float invSqrt(float x)
   } u;
   u.x = x;
   u.i = 0x5f3759df - (u.i >> 1);
-  /* The next line can be repeated any number of times to increase accuracy */
   u.x = u.x * (1.5f - xhalf * u.x * u.x);
+
   return u.x;
 }
 
