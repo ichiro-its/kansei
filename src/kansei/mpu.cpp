@@ -39,14 +39,23 @@
 namespace kansei
 {
 
-MPU::MPU()
+MPU::MPU(const std::string & port_name)
 : thread_handler_(true), angle_(0), angle_error_(0)
 {
+  set_port_name(port_name);
 }
 
-void * MPU::threadMethod(void * object)
+MPU::~MPU()
 {
-  reinterpret_cast<MPU *>(object)->angleUpdate();
+  if (socket_fd_ != -1) {
+    close(socket_fd_);
+  }
+  socket_fd_ = -1;
+}
+
+void * MPU::thread_method(void * object)
+{
+  reinterpret_cast<MPU *>(object)->angle_update();
   return 0;
 }
 
@@ -93,7 +102,21 @@ void MPU::setup()
   tcsetattr(socket_fd_, TCSANOW, &newtio);
 }
 
-void MPU::angleUpdate()
+bool MPU::connect()
+{
+  socket_fd_ = open(serial_name_.c_str(), O_RDWR | O_NOCTTY);
+  if (socket_fd_ > 0) {
+    setup();
+    pthread_create(&thread_, NULL, &thread_method, this);
+
+    return true;
+  } else {
+    fprintf(stderr, "Can not connect MPU on %s\n", serial_name_.c_str());
+    return false;
+  }
+}
+
+void MPU::angle_update()
 {
   unsigned char usart_data = 0;
   unsigned char usart_status = 0;
@@ -182,49 +205,23 @@ void MPU::angleUpdate()
   }
 }
 
-bool MPU::setPortName(const std::string & serial_name)
+void MPU::set_port_name(const std::string & port_name)
 {
-  serial_name_ = serial_name;
-  socket_fd_ = open(serial_name_.c_str(), O_RDWR | O_NOCTTY);
-  if (socket_fd_ > 0) {
-    return true;
-  } else {
-    fprintf(stderr, "Can not connect MPU on %s\n", serial_name_);
-    return false;
-  }
+  serial_name_ = port_name;
 }
 
-bool MPU::isPortExist()
-{
-  struct stat st;
-  if (stat("/dev/ttyUSB0", &st) != -1 && S_ISCHR(st.st_mode)) {
-    return true;
-  } else if (stat("/dev/ttyUSB1", &st) != -1 && S_ISCHR(st.st_mode)) {
-    return true;
-  }
-
-  fprintf(stderr, "Cannot identify mpu: %d, %s\n", errno, strerror(errno));
-  return false;
-}
-
-void MPU::start()
-{
-  setup();
-  pthread_create(&thread_, NULL, &threadMethod, this);
-}
-
-double MPU::getAngle()
+double MPU::get_angle()
 {
   double angle = angle_ + angle_error_ + angle_compensation_;
-  return keisan::wrap_deg(angle);
+  return keisan::Angle<double>(angle).normalize().degree();
 }
 
-double MPU::getPitch()
+double MPU::get_pitch()
 {
   return pitch_;
 }
 
-double MPU::getRoll()
+double MPU::get_roll()
 {
   return roll_;
 }
@@ -235,7 +232,7 @@ void MPU::reset()
   angle_compensation_ = 0.0;
 }
 
-void MPU::setCompensation(double compensation)
+void MPU::set_compensation(double compensation)
 {
   angle_compensation_ = compensation;
 }

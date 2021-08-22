@@ -18,57 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef KANSEI__MPU_HPP_
-#define KANSEI__MPU_HPP_
+#include <kansei/mpu.hpp>
 
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <numeric>
 #include <string>
 
-#include "./pthread.h"
-
-namespace kansei
+int main(int argc, char * argv[])
 {
+  std::string port_name = "/dev/ttyUSB1";
 
-class MPU
-{
-public:
-  explicit MPU(const std::string & port_name);
-  ~MPU();
+  if (argc > 1) {
+    port_name = argv[1];
+  }
 
-  bool connect();
+  std::cout << "set the port name as " << port_name << "\n";
+  kansei::MPU mpu(port_name);
 
-  void set_port_name(const std::string & port_name);
+  std::cout << "connect to mpu\n";
+  if (mpu.connect()) {
+    std::cout << "succeeded to connect to mpu!\n";
+  } else {
+    std::cout << "failed to connect to mpu!\n" <<
+      "try again!\n";
+    return 0;
+  }
 
-  double get_angle();
-  double get_pitch();
-  double get_roll();
+  while (true) {
+    std::cout << "Orientation: " << mpu.get_angle() << std::endl;
+    std::cout << "\033c";
+  }
 
-  void reset();
-  void set_compensation(double compensation);
-
-  double angle_compensation_;
-  double angle_error_;
-  bool left_;
-  bool right_;
-
-  bool calibrated_;
-
-private:
-  pthread_t thread_;
-  bool thread_handler_;
-
-  int socket_fd_;
-  std::string serial_name_;
-
-  double angle_;
-  double pitch_;
-  double roll_;
-
-  static void * thread_method(void * object);
-
-  void setup();
-  void angle_update();
-};
-
-}  // namespace kansei
-
-#endif  // KANSEI__MPU_HPP_
+  return 0;
+}
