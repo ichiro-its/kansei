@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <kansei/imu_filter.hpp>
+#include "kansei/filter/madgwick.hpp"
 
 #include <cmath>
 
@@ -143,18 +143,18 @@ static inline void compensateMagneticDistortion(
 namespace kansei
 {
 
-ImuFilter::ImuFilter()
+MadgwickFilter::MadgwickFilter()
 : gain_(0.0), zeta_(0.0), world_frame_(ENU),
   q0(1.0), q1(0.0), q2(0.0), q3(0.0),
   w_bx_(0.0), w_by_(0.0), w_bz_(0.0)
 {
 }
 
-ImuFilter::~ImuFilter()
+MadgwickFilter::~MadgwickFilter()
 {
 }
 
-void ImuFilter::madgwickAHRSupdate(
+void MadgwickFilter::madgwick_ahrs_update(
   float gx, float gy, float gz,
   float ax, float ay, float az,
   float mx, float my, float mz,
@@ -167,7 +167,7 @@ void ImuFilter::madgwickAHRSupdate(
   // Use IMU algorithm if magnetometer measurement invalid
   // (avoids NaN in magnetometer normalisation)
   if (!std::isfinite(mx) || !std::isfinite(my) || !std::isfinite(mz)) {
-    madgwickAHRSupdateIMU(gx, gy, gz, ax, ay, az, dt);
+    madgwick_ahrs_update_imu(gx, gy, gz, ax, ay, az, dt);
     return;
   }
 
@@ -238,7 +238,7 @@ void ImuFilter::madgwickAHRSupdate(
   normalizeQuaternion(q0, q1, q2, q3);
 }
 
-void ImuFilter::madgwickAHRSupdateIMU(
+void MadgwickFilter::madgwick_ahrs_update_imu(
   float gx, float gy, float gz,
   float ax, float ay, float az,
   float dt)
@@ -295,7 +295,7 @@ void ImuFilter::madgwickAHRSupdateIMU(
   normalizeQuaternion(q0, q1, q2, q3);
 }
 
-void ImuFilter::getGravity(
+void MadgwickFilter::get_gravity(
   float & rx, float & ry, float & rz,
   float gravity)
 {

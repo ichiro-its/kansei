@@ -41,9 +41,9 @@ namespace kansei
 Imu::Imu()
 : initialized(false)
 {
-  filter.setWorldFrame(ENU);
-  filter.setAlgorithmGain(0.1);
-  filter.setDriftBiasGain(0.0);
+  filter.set_world_frame(ENU);
+  filter.set_algorithm_gain(0.1);
+  filter.set_drift_bias_gain(0.0);
 
   roll = 0.0;
   pitch = 0.0;
@@ -185,16 +185,16 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
 
     if (!initialized) {
       geometry_msgs::msg::Quaternion init_q;
-      if (!StatelessOrientation::computeOrientation(ENU, lin_acc, init_q)) {
+      if (!StatelessOrientation::compute_orientation(ENU, lin_acc, init_q)) {
         return;
       }
 
-      filter.setOrientation(init_q.w, init_q.x, init_q.y, init_q.z);
+      filter.set_orientation(init_q.w, init_q.x, init_q.y, init_q.z);
       last_seconds = seconds;
       initialized = true;
     }
 
-    filter.madgwickAHRSupdateIMU(
+    filter.madgwick_ahrs_update_imu(
       ang_vel.x, ang_vel.y, ang_vel.z,
       lin_acc.x, lin_acc.y, lin_acc.z,
       seconds - last_seconds);
@@ -206,7 +206,7 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
     double q1 = 0.0;
     double q2 = 0.0;
     double q3 = 0.0;
-    filter.getOrientation(q0, q1, q2, q3);
+    filter.get_orientation(q0, q1, q2, q3);
     tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(temp_roll, temp_pitch, temp_yaw);
 
     if (temp_yaw < 0) {

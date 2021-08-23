@@ -21,10 +21,10 @@ find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
-  "src/${PROJECT_NAME}/imu_filter.cpp"
   "src/${PROJECT_NAME}/imu.cpp"
-  "src/${PROJECT_NAME}/mpu.cpp"
-  "src/${PROJECT_NAME}/stateless_orientation.cpp")
+  "src/${PROJECT_NAME}/sensor/mpu.cpp"
+  "src/${PROJECT_NAME}/filter/madgwick/madgwick_filter.cpp"
+  "src/${PROJECT_NAME}/filter/madgwick/stateless_orientation.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

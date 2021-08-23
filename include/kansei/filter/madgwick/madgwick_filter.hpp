@@ -18,50 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__IMU_FILTER_HPP_
-#define KANSEI__IMU_FILTER_HPP_
+#ifndef KANSEI__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
+#define KANSEI__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
 
-#include <kansei/world_frame.hpp>
+#include "kansei/filter/madgwick.hpp"
 
-#include <iostream>
-#include <cmath>
+#include "./iostream"
+#include "./cmath"
 
 namespace kansei
 {
 
-class ImuFilter
+class MadgwickFilter
 {
 public:
-  ImuFilter();
-  virtual ~ImuFilter();
+  MadgwickFilter();
+  virtual ~MadgwickFilter();
 
-private:
-  // paramaters
-  double gain_;             // algorithm gain
-  double zeta_;             // gyro drift bias gain
-  WorldFrame world_frame_;  // NWU, ENU, NED
-
-  // state variables
-  double q0, q1, q2, q3;      // quaternion
-  float w_bx_, w_by_, w_bz_;  //
-
-public:
-  void setAlgorithmGain(double gain)
+  void set_algorithm_gain(double gain)
   {
     gain_ = gain;
   }
 
-  void setDriftBiasGain(double zeta)
+  void set_drift_bias_gain(double zeta)
   {
     zeta_ = zeta;
   }
 
-  void setWorldFrame(WorldFrame frame)
+  void set_world_frame(WorldFrame frame)
   {
     world_frame_ = frame;
   }
 
-  void getOrientation(double & q0, double & q1, double & q2, double & q3)
+  void get_orientation(double & q0, double & q1, double & q2, double & q3)
   {
     q0 = this->q0;
     q1 = this->q1;
@@ -78,7 +67,7 @@ public:
     q3 *= recipNorm;
   }
 
-  void setOrientation(double q0, double q1, double q2, double q3)
+  void set_orientation(double q0, double q1, double q2, double q3)
   {
     this->q0 = q0;
     this->q1 = q1;
@@ -90,22 +79,32 @@ public:
     w_bz_ = 0;
   }
 
-  void madgwickAHRSupdate(
+  void madgwick_ahrs_update(
     float gx, float gy, float gz,
     float ax, float ay, float az,
     float mx, float my, float mz,
     float dt);
 
-  void madgwickAHRSupdateIMU(
+  void madgwick_ahrs_update_imu(
     float gx, float gy, float gz,
     float ax, float ay, float az,
     float dt);
 
-  void getGravity(
+  void get_gravity(
     float & rx, float & ry, float & rz,
     float gravity = 9.80665);
+
+private:
+  // paramaters
+  double gain_;             // algorithm gain
+  double zeta_;             // gyro drift bias gain
+  WorldFrame world_frame_;  // NWU, ENU, NED
+
+  // state variables
+  double q0, q1, q2, q3;      // quaternion
+  float w_bx_, w_by_, w_bz_;
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__IMU_FILTER_HPP_
+#endif  // KANSEI__FILTER__MADGWICK__MADGWICK_FILTER_HPP_

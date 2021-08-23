@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <kansei/mpu.hpp>
+#include <kansei/sensor/mpu.hpp>
 
 #include <keisan/angle.hpp>
 

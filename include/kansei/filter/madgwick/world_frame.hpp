@@ -18,32 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__STATELESS_ORIENTATION_HPP_
-#define KANSEI__STATELESS_ORIENTATION_HPP_
-
-#include <geometry_msgs/msg/vector3.hpp>
-#include <geometry_msgs/msg/quaternion.hpp>
-
-#include <kansei/world_frame.hpp>
+#ifndef KANSEI__FILTER__MADGWICK__WORLD_FRAME_HPP_
+#define KANSEI__FILTER__MADGWICK__WORLD_FRAME_HPP_
 
 namespace kansei
 {
 
-class StatelessOrientation
+enum WorldFrame
 {
-public:
-  static bool computeOrientation(
-    WorldFrame frame,
-    geometry_msgs::msg::Vector3 acceleration,
-    geometry_msgs::msg::Vector3 magneticField,
-    geometry_msgs::msg::Quaternion & orientation);
-
-  static bool computeOrientation(
-    WorldFrame frame,
-    geometry_msgs::msg::Vector3 acceleration,
-    geometry_msgs::msg::Quaternion & orientation);
+  ENU,
+  NED,
+  NWU
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__STATELESS_ORIENTATION_HPP_
+#endif  // KANSEI__FILTER__MADGWICK__WORLD_FRAME_HPP_
