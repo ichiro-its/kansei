@@ -18,9 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <kansei/mpu.hpp>
+#include "kansei/mpu.hpp"
 
-#include <keisan/angle.hpp>
+#include "keisan/angle.hpp"
 
 #include <cmath>
 #include <string>
@@ -36,11 +36,15 @@
 
 #define MINIMUM_ERROR 0.001
 
+using namespace keisan::literals;
+
 namespace kansei
 {
 
 MPU::MPU(const std::string & port_name)
-: angle_(0), angle_error_(0)
+: euler_angles(0_deg, 0_deg, 0_deg),
+  angle_error(0, true), angle_compensation(0, true),
+  calibrated_(false)
 {
   set_port_name(port_name);
 }
@@ -57,11 +61,6 @@ bool MPU::connect()
 {
   socket_fd_ = open(serial_name_.c_str(), O_RDWR | O_NOCTTY);
   if (socket_fd_ > 0) {
-    angle_ = 0;
-    angle_error_ = 0;
-    angle_compensation_ = 0;
-    calibrated_ = false;
-
     int iFlags = TIOCM_DTR;
     ioctl(socket_fd_, TIOCMBIS, &iFlags);
 
@@ -173,7 +172,7 @@ void MPU::angle_update()
     memcpy(&roll_angle, usart_buffer, 4);
 
     if (!calibrated_) {
-      if (fabs(angle_ - orientation_angle) < MINIMUM_ERROR) {
+      if (fabs(euler_angles.yaw.degree() - orientation_angle) < MINIMUM_ERROR) {
         count++;
       }
 
@@ -183,9 +182,10 @@ void MPU::angle_update()
       }
     }
 
-    pitch_ = pitch_angle;
-    roll_ = roll_angle;
-    angle_ = orientation_angle;
+    euler_angles = keisan::EulerAngles(
+        keisan::make_degree<double>(roll_angle),
+        keisan::make_degree<double>(pitch_angle),
+        keisan::make_degree<double>(orientation_angle));
   } else {
     usart_status = 0;
   }
@@ -198,29 +198,29 @@ void MPU::set_port_name(const std::string & port_name)
 
 double MPU::get_angle()
 {
-  double angle = angle_ + angle_error_ + angle_compensation_;
-  return keisan::Angle<double>(angle).normalize().degree();
+  auto angle = euler_angles.yaw + angle_error + angle_compensation;
+  return angle.normalize().degree();
 }
 
 double MPU::get_pitch()
 {
-  return pitch_;
+  return euler_angles.pitch.degree();
 }
 
 double MPU::get_roll()
 {
-  return roll_;
+  return euler_angles.roll.degree();
 }
 
 void MPU::reset()
 {
-  angle_error_ = -angle_;
-  angle_compensation_ = 0.0;
+  angle_error = -euler_angles.yaw;
+  angle_compensation = 0_deg;
 }
 
 void MPU::set_compensation(double compensation)
 {
-  angle_compensation_ = compensation;
+  angle_compensation = keisan::make_degree<double>(compensation);
 }
 
 }  // namespace kansei

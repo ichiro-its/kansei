@@ -23,6 +23,8 @@
 
 #include <string>
 
+#include "keisan/angle.hpp"
+
 #include "./pthread.h"
 
 namespace kansei
@@ -48,8 +50,9 @@ public:
   double get_pitch();
   double get_roll();
 
-  double angle_compensation_;
-  double angle_error_;
+  keisan::Angle<double> angle_compensation;
+  keisan::Angle<double> angle_error;
+
   bool left_;
   bool right_;
 
@@ -59,9 +62,7 @@ private:
   int socket_fd_;
   std::string serial_name_;
 
-  double angle_;
-  double pitch_;
-  double roll_;
+  keisan::EulerAngles euler_angles;
 };
 
 }  // namespace kansei
