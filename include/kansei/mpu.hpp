@@ -44,11 +44,11 @@ public:
 
   void set_port_name(const std::string & port_name);
 
-  void set_compensation(double compensation);
+  void set_compensation(keisan::Angle<double> compensation);
 
-  double get_angle();
-  double get_pitch();
-  double get_roll();
+  keisan::Angle<double> get_angle();
+  keisan::Angle<double> get_pitch();
+  keisan::Angle<double> get_roll();
 
   keisan::Angle<double> angle_compensation;
   keisan::Angle<double> angle_error;

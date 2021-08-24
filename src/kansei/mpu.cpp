@@ -41,7 +41,7 @@ namespace kansei
 
 MPU::MPU(const std::string & port_name)
 : rpy(0_deg, 0_deg, 0_deg),
-  angle_error(0, true), angle_compensation(0, true),
+  angle_error(0_deg), angle_compensation(0_deg),
   calibrated_(false)
 {
   set_port_name(port_name);
@@ -166,10 +166,9 @@ void MPU::angle_update()
         }
       }
 
-      rpy = keisan::EulerAngles(
-        keisan::make_degree<double>(roll_angle),
-        keisan::make_degree<double>(pitch_angle),
-        keisan::make_degree<double>(orientation_angle));
+      rpy.roll = keisan::make_degree(roll_angle);
+      rpy.pitch = keisan::make_degree(pitch_angle);
+      rpy.yaw = keisan::make_degree(orientation_angle);
 
       break;
     } else {
@@ -183,20 +182,20 @@ void MPU::set_port_name(const std::string & port_name)
   serial_name_ = port_name;
 }
 
-double MPU::get_angle()
+keisan::Angle<double> MPU::get_angle()
 {
   auto angle = rpy.yaw + angle_error + angle_compensation;
-  return angle.normalize().degree();
+  return angle.normalize();
 }
 
-double MPU::get_pitch()
+keisan::Angle<double> MPU::get_pitch()
 {
-  return rpy.pitch.degree();
+  return rpy.pitch;
 }
 
-double MPU::get_roll()
+keisan::Angle<double> MPU::get_roll()
 {
-  return rpy.roll.degree();
+  return rpy.roll;
 }
 
 void MPU::reset()
@@ -205,9 +204,9 @@ void MPU::reset()
   angle_compensation = 0_deg;
 }
 
-void MPU::set_compensation(double compensation)
+void MPU::set_compensation(keisan::Angle<double> compensation)
 {
-  angle_compensation = keisan::make_degree<double>(compensation);
+  angle_compensation = compensation;
 }
 
 }  // namespace kansei
