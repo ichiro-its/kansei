@@ -74,24 +74,8 @@ bool MPU::connect()
     newtio.c_iflag = IGNPAR | ICRNL;
     newtio.c_oflag = 0;
     newtio.c_lflag = ~ICANON;
-
-    newtio.c_cc[VINTR] = 0;
-    newtio.c_cc[VQUIT] = 0;
-    newtio.c_cc[VERASE] = 0;
-    newtio.c_cc[VKILL] = 0;
     newtio.c_cc[VEOF] = 4;
-    newtio.c_cc[VTIME] = 0;
     newtio.c_cc[VMIN] = 1;
-    newtio.c_cc[VSWTC] = 0;
-    newtio.c_cc[VSTART] = 0;
-    newtio.c_cc[VSTOP] = 0;
-    newtio.c_cc[VSUSP] = 0;
-    newtio.c_cc[VEOL] = 0;
-    newtio.c_cc[VREPRINT] = 0;
-    newtio.c_cc[VDISCARD] = 0;
-    newtio.c_cc[VWERASE] = 0;
-    newtio.c_cc[VLNEXT] = 0;
-    newtio.c_cc[VEOL2] = 0;
 
     tcflush(socket_fd_, TCIFLUSH);
     tcsetattr(socket_fd_, TCSANOW, &newtio);
