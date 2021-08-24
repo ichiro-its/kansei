@@ -34,8 +34,6 @@
 #include "sys/stat.h"
 #include "sys/ioctl.h"
 
-#define MINIMUM_ERROR 0.001
-
 using namespace keisan::literals;  // NOLINT
 
 namespace kansei
@@ -157,7 +155,8 @@ void MPU::angle_update()
       memcpy(&roll_angle, usart_buffer, 4);
 
       if (!calibrated_) {
-        if (fabs(rpy.yaw.degree() - orientation_angle) < MINIMUM_ERROR) {
+        // validate the value to minimum error about 0.001
+        if (fabs(rpy.yaw.degree() - orientation_angle) < 0.001) {
           count++;
         }
 
