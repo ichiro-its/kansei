@@ -62,7 +62,7 @@ private:
   int socket_fd_;
   std::string serial_name_;
 
-  keisan::EulerAngles euler_angles;
+  keisan::EulerAngles rpy;
 };
 
 }  // namespace kansei

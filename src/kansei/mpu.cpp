@@ -18,31 +18,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include <cmath>
+#include <string>
+
 #include "kansei/mpu.hpp"
 
 #include "keisan/angle.hpp"
 
-#include <cmath>
-#include <string>
-
-#include "./fcntl.h"
-#include "./termios.h"
-#include "./stdio.h"
-#include "./unistd.h"
-#include "./string.h"
 #include "./errno.h"
+#include "./fcntl.h"
+#include "./stdio.h"
+#include "./string.h"
+#include "./termios.h"
+#include "./unistd.h"
 #include "sys/stat.h"
 #include "sys/ioctl.h"
 
 #define MINIMUM_ERROR 0.001
 
-using namespace keisan::literals;
+using namespace keisan::literals;  // NOLINT
 
 namespace kansei
 {
 
 MPU::MPU(const std::string & port_name)
-: euler_angles(0_deg, 0_deg, 0_deg),
+: rpy(0_deg, 0_deg, 0_deg),
   angle_error(0, true), angle_compensation(0, true),
   calibrated_(false)
 {
@@ -114,80 +114,84 @@ void MPU::angle_update()
   float roll_angle = 0;
   int count = 0;
 
-  if (read(socket_fd_, &usart_data, 1) <= 0) {
-    return;
-  }
-
-  if (usart_status == 0 && usart_data == 'i') {
-    usart_status++;
-  } else if (usart_status == 1 && usart_data == 't') {
-    usart_status++;
-  } else if (usart_status == 2 && usart_data == 's') {
-    usart_status++;
-  } else if (usart_status == 3) {
-    usart_buffer[0] = usart_data;
-    usart_status++;
-  } else if (usart_status == 4) {
-    usart_buffer[1] = usart_data;
-    usart_status++;
-  } else if (usart_status == 5) {
-    usart_buffer[2] = usart_data;
-    usart_status++;
-  } else if (usart_status == 6) {
-    usart_buffer[3] = usart_data;
-    usart_status++;
-
-    memcpy(&orientation_angle, usart_buffer, 4);
-  } else if (usart_status == 7 && usart_data == ':') {
-    usart_status++;
-  } else if (usart_status == 8) {
-    usart_buffer[0] = usart_data;
-    usart_status++;
-  } else if (usart_status == 9) {
-    usart_buffer[1] = usart_data;
-    usart_status++;
-  } else if (usart_status == 10) {
-    usart_buffer[2] = usart_data;
-    usart_status++;
-  } else if (usart_status == 11) {
-    usart_buffer[3] = usart_data;
-    usart_status++;
-
-    memcpy(&pitch_angle, usart_buffer, 4);
-  } else if (usart_status == 12 && usart_data == ':') {
-    usart_status++;
-  } else if (usart_status == 13) {
-    usart_buffer[0] = usart_data;
-    usart_status++;
-  } else if (usart_status == 14) {
-    usart_buffer[1] = usart_data;
-    usart_status++;
-  } else if (usart_status == 15) {
-    usart_buffer[2] = usart_data;
-    usart_status++;
-  } else if (usart_status == 16) {
-    usart_buffer[3] = usart_data;
-    usart_status++;
-
-    memcpy(&roll_angle, usart_buffer, 4);
-
-    if (!calibrated_) {
-      if (fabs(euler_angles.yaw.degree() - orientation_angle) < MINIMUM_ERROR) {
-        count++;
-      }
-
-      if (count > 50) {
-        calibrated_ = true;
-        reset();
-      }
+  while (true) {
+    if (read(socket_fd_, &usart_data, 1) <= 0) {
+      continue;
     }
 
-    euler_angles = keisan::EulerAngles(
+    if (usart_status == 0 && usart_data == 'i') {
+      usart_status++;
+    } else if (usart_status == 1 && usart_data == 't') {
+      usart_status++;
+    } else if (usart_status == 2 && usart_data == 's') {
+      usart_status++;
+    } else if (usart_status == 3) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 4) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 5) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 6) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&orientation_angle, usart_buffer, 4);
+    } else if (usart_status == 7 && usart_data == ':') {
+      usart_status++;
+    } else if (usart_status == 8) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 9) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 10) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 11) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&pitch_angle, usart_buffer, 4);
+    } else if (usart_status == 12 && usart_data == ':') {
+      usart_status++;
+    } else if (usart_status == 13) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 14) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 15) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 16) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&roll_angle, usart_buffer, 4);
+
+      if (!calibrated_) {
+        if (fabs(rpy.yaw.degree() - orientation_angle) < MINIMUM_ERROR) {
+          count++;
+        }
+
+        if (count > 50) {
+          calibrated_ = true;
+          reset();
+        }
+      }
+
+      rpy = keisan::EulerAngles(
         keisan::make_degree<double>(roll_angle),
         keisan::make_degree<double>(pitch_angle),
         keisan::make_degree<double>(orientation_angle));
-  } else {
-    usart_status = 0;
+
+      break;
+    } else {
+      usart_status = 0;
+    }
   }
 }
 
@@ -198,23 +202,23 @@ void MPU::set_port_name(const std::string & port_name)
 
 double MPU::get_angle()
 {
-  auto angle = euler_angles.yaw + angle_error + angle_compensation;
+  auto angle = rpy.yaw + angle_error + angle_compensation;
   return angle.normalize().degree();
 }
 
 double MPU::get_pitch()
 {
-  return euler_angles.pitch.degree();
+  return rpy.pitch.degree();
 }
 
 double MPU::get_roll()
 {
-  return euler_angles.roll.degree();
+  return rpy.roll.degree();
 }
 
 void MPU::reset()
 {
-  angle_error = -euler_angles.yaw;
+  angle_error = -rpy.yaw;
   angle_compensation = 0_deg;
 }
 
