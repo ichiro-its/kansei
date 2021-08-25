@@ -18,9 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "kansei/filter/madgwick.hpp"
-
 #include <cmath>
+
+#include "kansei/filter/madgwick.hpp"
 
 static float invSqrt(float x)
 {

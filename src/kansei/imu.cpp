@@ -18,22 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <geometry_msgs/msg/vector3_stamped.hpp>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/LinearMath/Matrix3x3.h>
-
-#include <kansei/imu.hpp>
-#include <kansei/stateless_orientation.hpp>
-
-#include <nlohmann/json.hpp>
-
+#include <chrono>
 #include <cmath>
 #include <fstream>
-#include <iostream>
-#include <string>
-#include <memory>
-#include <chrono>
 #include <functional>
+#include <iostream>
+#include <memory>
+#include <string>
+
+#include "kansei/imu.hpp"
+
+#include "kansei/filter/madgwick.hpp"
+#include "geometry_msgs/msg/vector3_stamped.hpp"
+#include "nlohmann/json.hpp"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2/LinearMath/Matrix3x3.h"
 
 namespace kansei
 {

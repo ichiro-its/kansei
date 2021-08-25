@@ -18,13 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <kansei/mpu.hpp>
-
-#include <iostream>
 #include <iomanip>
-#include <vector>
+#include <iostream>
 #include <numeric>
 #include <string>
+#include <vector>
+
+#include "kansei/sensor/mpu.hpp"
 
 int main(int argc, char * argv[])
 {
@@ -47,7 +47,9 @@ int main(int argc, char * argv[])
   }
 
   while (true) {
-    std::cout << "Orientation: " << mpu.get_angle() << std::endl;
+    mpu.angle_update();
+
+    std::cout << "Orientation: " << mpu.get_angle().degree() << std::endl;
     std::cout << "\033c";
   }
 

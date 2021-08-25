@@ -21,10 +21,10 @@
 #ifndef KANSEI__IMU_HPP_
 #define KANSEI__IMU_HPP_
 
-#include <kansei/imu_filter.hpp>
-
-#include <string>
 #include <memory>
+#include <string>
+
+#include "kansei/filter/madgwick.hpp"
 
 namespace kansei
 {
@@ -67,7 +67,7 @@ public:
   double angle_raw_compensation;
 
 private:
-  ImuFilter filter;
+  MadgwickFilter filter;
   bool initialized;
   float last_seconds;
 
