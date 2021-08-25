@@ -15,14 +15,16 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/imu_filter.cpp"
-  "src/${PROJECT_NAME}/stateless_orientation.cpp"
-  "src/${PROJECT_NAME}/imu.cpp")
+  "src/${PROJECT_NAME}/imu.cpp"
+  "src/${PROJECT_NAME}/mpu.cpp"
+  "src/${PROJECT_NAME}/stateless_orientation.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -30,6 +32,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 ament_target_dependencies(${PROJECT_NAME}
   geometry_msgs
+  keisan
   rclcpp
   tf2
   tf2_geometry_msgs)
@@ -42,6 +45,16 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
 
+add_executable(check_orientation "src/check_orientation_main.cpp")
+target_include_directories(check_orientation PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(check_orientation ${PROJECT_NAME})
+
+install(TARGETS
+  check_orientation
+  DESTINATION lib/${PROJECT_NAME})
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
@@ -49,6 +62,7 @@ endif()
 
 ament_export_dependencies(
   geometry_msgs
+  keisan
   rclcpp
   tf2
   tf2_geometry_msgs)
