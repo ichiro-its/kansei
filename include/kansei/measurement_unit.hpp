@@ -44,6 +44,12 @@ public:
   keisan::Angle<double> get_pitch() const;
   keisan::Angle<double> get_orientation() const;
 
+  float get_roll_gy() const {return gy[0] - raw_gy_roll_center;}
+  float get_pitch_gy() const {return gy[1] - raw_gy_pitch_center;}
+
+  float get_roll_acc() const {return acc[0];}
+  float get_pitch_acc() const {return acc[1];}
+
   bool is_fallen() const;
   FallenStatus get_fallen_status() const;
 
@@ -67,7 +73,7 @@ public:
   double raw_acc_roll;
   double raw_acc_pitch_arr[15];
   double raw_acc_pitch;
-  int raw_rp_counter;
+  int raw_acc_rp_counter;
   // gyro variables
   keisan::Vector<3> gy_raw_mux;
   double raw_gy_roll_arr[100];

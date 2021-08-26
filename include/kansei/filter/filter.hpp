@@ -43,9 +43,6 @@ public:
   void set_orientation_to(const keisan::Angle<double> & target_orientation);
   void set_orientation_raw_to(const keisan::Angle<double> & target_raw_orientation);
 
-  float get_roll_gy() const {return gy_raw[0] - raw_gy_roll_center;}
-  float get_pitch_gy() const {return gy_raw[1] - raw_gy_pitch_center;}
-
   void load_data(std::string path);
 
 private:

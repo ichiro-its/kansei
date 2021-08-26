@@ -32,7 +32,7 @@ namespace kansei
 MeasurementUnit::MeasurementUnit()
   : rpy(0_deg, 0_deg, 0_deg), fallen_status(FallenStatus::STANDUP),
     is_calibrated(false), gy(keisan::Vector<3>::zero()), acc(keisan::Vector<3>::zero()),
-    seconds(0.0), raw_acc_roll(512.0), raw_acc_pitch(482.0), raw_rp_counter(0),
+    seconds(0.0), raw_acc_roll(512.0), raw_acc_pitch(482.0), raw_acc_rp_counter(0),
     fallen_back_raw_limit(491.0), fallen_front_raw_limit(458.0),
     fallen_right_raw_limit(519.0), fallen_left_raw_limit(498.0)
 {
@@ -88,12 +88,12 @@ void MeasurementUnit::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc,
   }
 
   if (is_calibrated) {
-    if (raw_rp_counter < 15) {
-      raw_acc_roll_arr[raw_rp_counter] = acc[0];
-      raw_acc_pitch_arr[raw_rp_counter] = acc[1];
-      raw_rp_counter++;
+    if (raw_acc_rp_counter < 15) {
+      raw_acc_roll_arr[raw_acc_rp_counter] = acc[0];
+      raw_acc_pitch_arr[raw_acc_rp_counter] = acc[1];
+      raw_acc_rp_counter++;
     } else {
-      raw_rp_counter = 0;
+      raw_acc_rp_counter = 0;
 
       double raw_acc_roll_sum = 0.0;
       double raw_acc_pitch_sum = 0.0;
@@ -105,6 +105,8 @@ void MeasurementUnit::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc,
       raw_acc_roll = raw_acc_roll_sum / 15.0;
       raw_acc_pitch = raw_acc_pitch_sum / 15.0;
     }
+
+    update_fallen_status();
   }
 }
 

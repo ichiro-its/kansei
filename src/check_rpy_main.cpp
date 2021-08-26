@@ -47,7 +47,7 @@ int main(int argc, char * argv[])
   }
 
   while (true) {
-    mpu.angle_update();
+    mpu.update_rpy();
 
     std::cout << "Roll: " << mpu.get_roll().degree() << std::endl;
     std::cout << "Pitch: " << mpu.get_pitch().degree() << std::endl;
