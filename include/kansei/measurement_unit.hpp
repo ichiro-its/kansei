@@ -31,14 +31,15 @@ class MeasurementUnit
 {
 public:
   MeasurementUnit();
+  virtual ~MeasurementUnit() {}
 
-  virtual void update_rpy();
+  virtual void update_rpy() {}
   void update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds);
 
   void update_fallen_status();
 
-  virtual void reset_orientation();
-  virtual void set_orientation_to(const keisan::Angle<double> & target_orientation);
+  virtual void reset_orientation() {}
+  virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
 
   keisan::Angle<double> get_roll() const;
   keisan::Angle<double> get_pitch() const;
@@ -56,7 +57,7 @@ public:
   keisan::EulerAngles rpy;
 
   FallenStatus fallen_status;
-  
+
   bool is_calibrated;
 
   // filter needs
@@ -75,7 +76,6 @@ public:
   double raw_acc_pitch;
   int raw_acc_rp_counter;
   // gyro variables
-  keisan::Vector<3> gy_raw_mux;
   double raw_gy_roll_arr[100];
   double raw_gy_roll_center;
   double raw_gy_pitch_arr[100];

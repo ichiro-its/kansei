@@ -24,7 +24,7 @@
 
 #include "kansei/sensor/mpu.hpp"
 
-#include "keisan/oreintation.hpp"
+#include "keisan/angle.hpp"
 
 #include "./errno.h"
 #include "./fcntl.h"
@@ -41,7 +41,7 @@ namespace kansei
 {
 
 MPU::MPU(const std::string & port_name)
-  : socket_fd(-1), oreintation_error(0_deg), oreintation_compensation(0_deg)
+: socket_fd(-1), oreintation_error(0_deg), oreintation_compensation(0_deg)
 {
   set_port_name(port_name);
 }

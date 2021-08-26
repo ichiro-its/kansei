@@ -23,8 +23,8 @@
 
 #include <string>
 
-#include "../measurement_unit.hpp"
-#include "keisan/oreintation.hpp"
+#include "kansei/measurement_unit.hpp"
+#include "keisan/angle.hpp"
 
 #include "./pthread.h"
 

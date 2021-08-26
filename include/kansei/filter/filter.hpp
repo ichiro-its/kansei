@@ -50,6 +50,7 @@ private:
   bool is_initialized;
 
   keisan::Angle<double> yaw_raw;
+  keisan::Vector<3> gy_raw_mux;
 
   keisan::Angle<double> orientation_compensation;
   keisan::Angle<double> raw_orientation_compensation;

@@ -35,23 +35,18 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2/LinearMath/Matrix3x3.h"
 
+using namespace keisan::literals;  // NOLINT
+
 namespace kansei
 {
 
 Filter::Filter()
-  : is_initialized(false), yaw_raw(0.0), gy_raw(keisan::Vector<3>::zero()),
-    gy_raw_mux(keisan::Vector<3>::zero()), raw_gy_roll_center(512.0),
-    raw_gy_pitch_center(512.0), raw_gy_rp_counter(0),
-    orientation_compensation(0.0), raw_orientation_compensation(0.0)
+: is_initialized(false), yaw_raw(0.0), gy_raw_mux(keisan::Vector<3>::zero()),
+  orientation_compensation(0.0), raw_orientation_compensation(0.0)
 {
   filter.set_world_frame(ENU);
   filter.set_algorithm_gain(0.1);
   filter.set_drift_bias_gain(0.0);
-
-  for (int i = 0; i < 100; i++) {
-    raw_gy_roll_arr[i] = raw_gy_roll_center;
-    raw_gy_pitch_arr[i] = raw_gy_pitch_center;
-  }
 }
 
 void Filter::update_rpy()
@@ -98,16 +93,16 @@ void Filter::update_rpy()
     tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(temp_roll, temp_pitch, temp_yaw);
 
     if (temp_yaw < 0) {
-      temp_yaw = (temp_yaw + M_PI) * -1;
+      temp_yaw = (temp_yaw + keisan::pi<double>) * -1;
     } else if (temp_yaw >= 0) {
-      temp_yaw = (temp_yaw - M_PI) * -1;
+      temp_yaw = (temp_yaw - keisan::pi<double>) * -1;
     } else {
       temp_yaw = temp_yaw;
     }
 
-    rpy.roll = keisan::make_radian(temp_roll).degree();
-    rpy.pitch = keisan::make_radian(temp_pitch).degree();
-    yaw_raw = keisan::make_radian(temp_yaw).degree();
+    rpy.roll = keisan::make_degree(temp_roll * 180.0 / keisan::pi<double>);
+    rpy.pitch = keisan::make_degree(temp_pitch * 180.0 / keisan::pi<double>);
+    yaw_raw = keisan::make_degree(temp_yaw * 180.0 / keisan::pi<double>);
     rpy.yaw = yaw_raw + orientation_compensation;
   }
 }
@@ -122,18 +117,18 @@ void Filter::load_data(std::string path)
   for (const auto &[key, val] : imu_data.items()) {
     if (key == "filter") {
       try {
-        val.at("gy_mux_x").get_to(gy_mux[0]);
-        val.at("gy_mux_y").get_to(gy_mux[1]);
-        val.at("gy_mux_z").get_to(gy_mux[2]);
+        val.at("gy_mux_x").get_to(gy_raw_mux[0]);
+        val.at("gy_mux_y").get_to(gy_raw_mux[1]);
+        val.at("gy_mux_z").get_to(gy_raw_mux[2]);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
       }
     } else if (key == "fallen_limit") {
       try {
-        val.at("fallen_back_limit").get_to(fallen_back_limit);
-        val.at("fallen_front_limit").get_to(fallen_front_limit);
-        val.at("fallen_right_limit").get_to(fallen_right_limit);
-        val.at("fallen_left_limit").get_to(fallen_left_limit);
+        val.at("fallen_back_limit").get_to(fallen_back_raw_limit);
+        val.at("fallen_front_limit").get_to(fallen_front_raw_limit);
+        val.at("fallen_right_limit").get_to(fallen_right_raw_limit);
+        val.at("fallen_left_limit").get_to(fallen_left_raw_limit);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
       }
@@ -143,8 +138,8 @@ void Filter::load_data(std::string path)
 
 void Filter::reset_orientation()
 {
-  set_orientation_raw_to(0.0);
-  set_orientation_to(0.0);
+  set_orientation_raw_to(0_deg);
+  set_orientation_to(0_deg);
 }
 
 void Filter::set_orientation_to(const keisan::Angle<double> & target_orientation)

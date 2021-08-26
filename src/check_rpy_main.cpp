@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "kansei/sensor/mpu.hpp"
+#include "kansei/measurement_unit.hpp"
 
 int main(int argc, char * argv[])
 {
@@ -51,7 +52,7 @@ int main(int argc, char * argv[])
 
     std::cout << "Roll: " << mpu.get_roll().degree() << std::endl;
     std::cout << "Pitch: " << mpu.get_pitch().degree() << std::endl;
-    std::cout << "Yaw: " << mpu.get_angle().degree() << std::endl;
+    std::cout << "Yaw: " << mpu.get_orientation().degree() << std::endl;
     std::cout << "\033c";
   }
 

@@ -30,15 +30,22 @@ namespace kansei
 {
 
 MeasurementUnit::MeasurementUnit()
-  : rpy(0_deg, 0_deg, 0_deg), fallen_status(FallenStatus::STANDUP),
-    is_calibrated(false), gy(keisan::Vector<3>::zero()), acc(keisan::Vector<3>::zero()),
-    seconds(0.0), raw_acc_roll(512.0), raw_acc_pitch(482.0), raw_acc_rp_counter(0),
-    fallen_back_raw_limit(491.0), fallen_front_raw_limit(458.0),
-    fallen_right_raw_limit(519.0), fallen_left_raw_limit(498.0)
+: rpy(0_deg, 0_deg, 0_deg), fallen_status(FallenStatus::STANDUP),
+  is_calibrated(false), gy(keisan::Vector<3>::zero()), acc(keisan::Vector<3>::zero()),
+  seconds(0.0), raw_acc_roll(512.0), raw_acc_pitch(482.0), raw_acc_rp_counter(0),
+  raw_gy_roll_center(512.0), raw_gy_pitch_center(512.0), raw_gy_rp_counter(0),
+  fallen_back_raw_limit(491.0), fallen_front_raw_limit(458.0),
+  fallen_right_raw_limit(519.0), fallen_left_raw_limit(498.0),
+  gy_raw(keisan::Vector<3>::zero()), acc_raw(keisan::Vector<3>::zero())
 {
-  for (int i = 0; i < 15; i++) {
-    raw_acc_roll_arr[i] = 512.0;
-    raw_acc_pitch_arr[i] = 512.0;
+  for (int i = 0; i < 100; i++) {
+    raw_gy_roll_arr[i] = raw_gy_roll_center;
+    raw_gy_pitch_arr[i] = raw_gy_pitch_center;
+
+    if (i < 15) {
+      raw_acc_roll_arr[i] = 512.0;
+      raw_acc_pitch_arr[i] = 512.0;
+    }
   }
 }
 
