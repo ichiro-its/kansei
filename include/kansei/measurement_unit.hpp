@@ -55,16 +55,26 @@ public:
 
   // filter needs
   keisan::Vector<3> gy;
+  keisan::Vector<3> gy_raw;
   keisan::Vector<3> acc;
+  keisan::Vector<3> acc_raw;
   double seconds;
+  double delta_seconds;
 
   // fallen status changes needs
   // accelero variables
-  double roll_arr[15];
-  double roll_raw;
-  double pitch_arr[15];
-  double pitch_raw;
-  int rp_counter;
+  double raw_acc_roll_arr[15];
+  double raw_acc_roll;
+  double raw_acc_pitch_arr[15];
+  double raw_acc_pitch;
+  int raw_rp_counter;
+  // gyro variables
+  keisan::Vector<3> gy_raw_mux;
+  double raw_gy_roll_arr[100];
+  double raw_gy_roll_center;
+  double raw_gy_pitch_arr[100];
+  double raw_gy_pitch_center;
+  int raw_gy_rp_counter;
   // fallen raw variables
   float fallen_back_raw_limit;
   float fallen_front_raw_limit;

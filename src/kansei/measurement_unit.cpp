@@ -32,13 +32,13 @@ namespace kansei
 MeasurementUnit::MeasurementUnit()
   : rpy(0_deg, 0_deg, 0_deg), fallen_status(FallenStatus::STANDUP),
     is_calibrated(false), gy(keisan::Vector<3>::zero()), acc(keisan::Vector<3>::zero()),
-    seconds(0.0), roll_raw(0.0), pitch_raw(0.0), rp_counter(0),
-    fallen_back_raw_limit(0.0), fallen_front_raw_limit(0.0), fallen_right_raw_limit(0.0),
-    fallen_left_raw_limit(0.0)
+    seconds(0.0), raw_acc_roll(512.0), raw_acc_pitch(482.0), raw_rp_counter(0),
+    fallen_back_raw_limit(491.0), fallen_front_raw_limit(458.0),
+    fallen_right_raw_limit(519.0), fallen_left_raw_limit(498.0)
 {
   for (int i = 0; i < 15; i++) {
-    roll_arr[i] = 0.0;
-    pitch_arr[i] = 0.0;
+    raw_acc_roll_arr[i] = 512.0;
+    raw_acc_pitch_arr[i] = 512.0;
   }
 }
 
@@ -47,23 +47,63 @@ void MeasurementUnit::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc,
   this->gy = gy;
   this->acc = acc;
 
-  if (is_calibrated) {
-    if (rp_counter < 15) {
-      roll_arr[rp_counter] = acc[0];
-      pitch_arr[rp_counter] = acc[1];
-      rp_counter++;
-    } else {
-      rp_counter = 0;
+  delta_seconds = seconds - this->seconds;
+  this->seconds = seconds;
 
-      double sum_roll_arr = 0.0;
-      double sum_pitch_arr = 0.0;
-      for (int i = 0; i < 15; i++) {
-        sum_roll_arr += roll_arr[i];
-        sum_pitch_arr += pitch_arr[i];
+  if (!is_calibrated) {
+    if (raw_gy_rp_counter < 100) {
+      raw_gy_roll_arr[raw_gy_rp_counter] = gy[0];
+      raw_gy_pitch_arr[raw_gy_rp_counter] = gy[1];
+      raw_gy_rp_counter++;
+    } else {
+      raw_gy_rp_counter = 0;
+
+      double raw_gy_pitch_sum = 0.0;
+      double raw_gy_roll_sum = 0.0;
+      for (int i = 0; i < 100; i++) {
+        raw_gy_pitch_sum += raw_gy_pitch_arr[i];
+        raw_gy_roll_sum += raw_gy_roll_arr[i];
       }
 
-      roll_raw = sum_roll_arr / 15.0;
-      pitch_raw = sum_pitch_arr / 15.0;
+      double pitch_mean = raw_gy_pitch_sum / 100;
+      double roll_mean = raw_gy_roll_sum / 100;
+      raw_gy_pitch_sum = 0.0;
+      raw_gy_roll_sum = 0.0;
+      for (int i = 0; i < 100; i++) {
+        raw_gy_pitch_sum += pow((raw_gy_pitch_arr[i] - pitch_mean), 2);
+        raw_gy_roll_sum += pow((raw_gy_roll_arr[i] - roll_mean), 2);
+      }
+
+      double raw_gy_pitch_sd = pow((raw_gy_pitch_sum / 100), 0.5);
+      double raw_gy_roll_sd = pow((raw_gy_roll_sum / 100), 0.5);
+      if (raw_gy_pitch_sd < 2.0 && raw_gy_roll_sd < 2.0) {
+        raw_gy_pitch_center = pitch_mean;
+        raw_gy_roll_center = roll_mean;
+        is_calibrated = true;
+      } else {
+        raw_gy_pitch_center = 512.0;
+        raw_gy_roll_center = 512.0;
+      }
+    }
+  }
+
+  if (is_calibrated) {
+    if (raw_rp_counter < 15) {
+      raw_acc_roll_arr[raw_rp_counter] = acc[0];
+      raw_acc_pitch_arr[raw_rp_counter] = acc[1];
+      raw_rp_counter++;
+    } else {
+      raw_rp_counter = 0;
+
+      double raw_acc_roll_sum = 0.0;
+      double raw_acc_pitch_sum = 0.0;
+      for (int i = 0; i < 15; i++) {
+        raw_acc_roll_sum += raw_acc_roll_arr[i];
+        raw_acc_pitch_sum += raw_acc_pitch_arr[i];
+      }
+
+      raw_acc_roll = raw_acc_roll_sum / 15.0;
+      raw_acc_pitch = raw_acc_pitch_sum / 15.0;
     }
   }
 }
@@ -72,13 +112,13 @@ void MeasurementUnit::update_fallen_status()
 {
   fallen_status = FallenStatus::STANDUP;
 
-  if (pitch_raw < fallen_front_raw_limit) {
+  if (raw_acc_pitch < fallen_front_raw_limit) {
     fallen_status = FallenStatus::FORWARD;
-  } else if (pitch_raw > fallen_back_raw_limit) {
+  } else if (raw_acc_pitch > fallen_back_raw_limit) {
     fallen_status = FallenStatus::BACKWARD;
-  } else if (roll_raw > fallen_right_raw_limit) {
+  } else if (raw_acc_roll > fallen_right_raw_limit) {
     fallen_status = FallenStatus::RIGHT;
-  } else if (roll_raw < fallen_left_raw_limit) {
+  } else if (raw_acc_roll < fallen_left_raw_limit) {
     fallen_status = FallenStatus::LEFT;
   }
 }

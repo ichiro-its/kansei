@@ -27,6 +27,7 @@
 #include "./madgwick.hpp"
 #include "../fallen_status.hpp"
 #include "../measurement_unit.hpp"
+#include "keisan/keisan.hpp"
 
 namespace kansei
 {
@@ -42,37 +43,19 @@ public:
   void set_orientation_to(const keisan::Angle<double> & target_orientation);
   void set_orientation_raw_to(double orientation);
 
-  float get_rl_gyro() const {return gyro[0] - rl_gyro_center;}
-  float get_fb_gyro() const {return gyro[1] - fb_gyro_center;}
-
-  const bool & is_calibrated() const {return calibration_status;}
+  float get_roll_gy() const {return gy_raw[0] - raw_gy_roll_center;}
+  float get_pitch_gy() const {return gy_raw[1] - raw_gy_pitch_center;}
 
   void load_data(std::string path);
 
-  double angle_compensation;
-  double angle_raw_compensation;
-
 private:
   MadgwickFilter filter;
-  bool initialized;
-  float last_seconds;
+  bool is_initialized;
 
-  double roll;
-  double pitch;
-  double yaw;
   double yaw_raw;
 
-  double initial_yaw;
-  double delta_yaw;
-  bool init_yaw;
-
-  double gyro[3];
-  double gyro_mux[3];
-  double rl_gyro_center;
-  double fb_gyro_center;
-  double rl_gyro_arr[100];
-  double fb_gyro_arr[100];
-  int rl_fb_gyro_counter;
+  double orientation_compensation;
+  double raw_orientation_compensation;
 };
 
 }  // namespace kansei
