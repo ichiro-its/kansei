@@ -30,6 +30,23 @@ namespace kansei
 class MeasurementUnit
 {
 public:
+  MeasurementUnit();
+
+  virtual void update_rpy();
+  void update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds);
+
+  void update_fallen_status();
+
+  virtual void reset_orientation();
+  virtual void set_orientation_to(const keisan::Angle<double> & target_orientation);
+
+  keisan::Angle<double> get_roll() const;
+  keisan::Angle<double> get_pitch() const;
+  keisan::Angle<double> get_orientation() const;
+
+  bool is_fallen() const;
+  FallenStatus get_fallen_status() const;
+
   keisan::EulerAngles rpy;
 
   FallenStatus fallen_status;
@@ -53,21 +70,6 @@ public:
   float fallen_front_raw_limit;
   float fallen_right_raw_limit;
   float fallen_left_raw_limit;
-
-  virtual void update_rpy();
-  void update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds);
-
-  void update_fallen_status();
-
-  virtual void reset_orientation();
-  virtual void set_orientation_to(const keisan::Angle<double> & target_orientation);
-
-  keisan::Angle<double> get_roll() const;
-  keisan::Angle<double> get_pitch() const;
-  keisan::Angle<double> get_orientation() const;
-
-  bool is_fallen() const;
-  FallenStatus get_fallen_status() const;
 };
 
 }  // namespace kansei

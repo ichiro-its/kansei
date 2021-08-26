@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__IMU_HPP_
-#define KANSEI__IMU_HPP_
+#ifndef KANSEI__FILTER__FILTER_HPP_
+#define KANSEI__FILTER__FILTER_HPP_
 
 #include <memory>
 #include <string>
@@ -73,22 +73,8 @@ private:
   double rl_gyro_arr[100];
   double fb_gyro_arr[100];
   int rl_fb_gyro_counter;
-
-  float fallen_back_limit;
-  float fallen_front_limit;
-  float fallen_right_limit;
-  float fallen_left_limit;
-  FallenStatus fallen_status;
-
-  bool print;
-  bool calibration_status;
-
-  int min_fb;
-  int max_fb;
-  int min_rl;
-  int max_rl;
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__IMU_HPP_
+#endif  // KANSEI__FILTER__FILTER_HPP_

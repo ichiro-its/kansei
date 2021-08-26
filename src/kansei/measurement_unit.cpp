@@ -22,10 +22,25 @@
 
 #include "kansei/fallen_status.hpp"
 
-#include "keisan/angle.hpp"
+#include "keisan/keisan.hpp"
+
+using namespace keisan::literals;  // NOLINT
 
 namespace kansei
 {
+
+MeasurementUnit::MeasurementUnit()
+  : rpy(0_deg, 0_deg, 0_deg), fallen_status(FallenStatus::STANDUP),
+    is_calibrated(false), gy(keisan::Vector<3>::zero()), acc(keisan::Vector<3>::zero()),
+    seconds(0.0), roll_raw(0.0), pitch_raw(0.0), rp_counter(0),
+    fallen_back_raw_limit(0.0), fallen_front_raw_limit(0.0), fallen_right_raw_limit(0.0),
+    fallen_left_raw_limit(0.0)
+{
+  for (int i = 0; i < 15; i++) {
+    roll_arr[i] = 0.0;
+    pitch_arr[i] = 0.0;
+  }
+}
 
 void MeasurementUnit::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds)
 {
