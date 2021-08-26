@@ -23,6 +23,7 @@
 
 #include <string>
 
+#include "../measurement_unit.hpp"
 #include "keisan/angle.hpp"
 
 #include "./pthread.h"
@@ -30,7 +31,7 @@
 namespace kansei
 {
 
-class MPU
+class MPU : public MeasurementUnit
 {
 public:
   explicit MPU(const std::string & port_name);
@@ -39,25 +40,17 @@ public:
   void set_port_name(const std::string & port_name);
   bool connect();
 
-  void angle_update();
+  void update_rpy();
 
-  void set_compensation(keisan::Angle<double> compensation);
-  void reset();
-
-  keisan::Angle<double> get_angle();
-  keisan::Angle<double> get_pitch();
-  keisan::Angle<double> get_roll();
+  void reset_orientation();
+  void set_orientation_to(const keisan::Angle<double> & target_orientation);
 
 private:
   int socket_fd;
   std::string port_name;
 
-  keisan::EulerAngles rpy;
-
   keisan::Angle<double> angle_compensation;
   keisan::Angle<double> angle_error;
-
-  bool is_calibrated;
 };
 
 }  // namespace kansei

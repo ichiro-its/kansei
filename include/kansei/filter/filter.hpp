@@ -24,40 +24,26 @@
 #include <memory>
 #include <string>
 
-#include "kansei/filter/madgwick.hpp"
+#include "./madgwick.hpp"
+#include "../fallen_status.hpp"
+#include "../measurement_unit.hpp"
 
 namespace kansei
 {
 
-enum FallenStatus
-{
-  LEFT,
-  BACKWARD,
-  STANDUP,
-  FORWARD,
-  RIGHT
-};
-
-class Imu
+class Filter : public MeasurementUnit
 {
 public:
-  Imu();
+  Filter();
+
+  void update_rpy();
 
   void reset_orientation();
-  void reset_orientation_to(double orientation);
-  void reset_orientation_raw_to(double orientation);
-
-  void compute_rpy(double gy[3], double acc[3], double seconds);
-
-  float get_roll() {return roll * 180.0 / M_PI;}
-  float get_pitch() {return pitch * 180.0 / M_PI;}
-  float get_yaw();
+  void set_orientation_to(const keisan::Angle<double> & target_orientation);
+  void set_orientation_raw_to(double orientation);
 
   float get_rl_gyro() const {return gyro[0] - rl_gyro_center;}
   float get_fb_gyro() const {return gyro[1] - fb_gyro_center;}
-
-  bool is_fallen() const {return fallen_status != FallenStatus::STANDUP;}
-  FallenStatus get_fallen_status();
 
   const bool & is_calibrated() const {return calibration_status;}
 
@@ -87,13 +73,6 @@ private:
   double rl_gyro_arr[100];
   double fb_gyro_arr[100];
   int rl_fb_gyro_counter;
-
-  double accelero[3];
-  double rl_accelero_arr[15];
-  double fb_accelero_arr[15];
-  double rl_accelero;
-  double fb_accelero;
-  int rl_fb_accelero_counter;
 
   float fallen_back_limit;
   float fallen_front_limit;

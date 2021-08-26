@@ -33,21 +33,21 @@ class MadgwickFilter
 {
 public:
   MadgwickFilter();
-  virtual ~MadgwickFilter();
+  ~MadgwickFilter();
 
   void set_algorithm_gain(double gain)
   {
-    gain_ = gain;
+    this->gain = gain;
   }
 
   void set_drift_bias_gain(double zeta)
   {
-    zeta_ = zeta;
+    this->zeta = zeta;
   }
 
   void set_world_frame(WorldFrame frame)
   {
-    world_frame_ = frame;
+    world_frame = frame;
   }
 
   void get_orientation(double & q0, double & q1, double & q2, double & q3)
@@ -96,9 +96,9 @@ public:
 
 private:
   // paramaters
-  double gain_;             // algorithm gain
-  double zeta_;             // gyro drift bias gain
-  WorldFrame world_frame_;  // NWU, ENU, NED
+  double gain;             // algorithm gain
+  double zeta;             // gyro drift bias gain
+  WorldFrame world_frame;  // NWU, ENU, NED
 
   // state variables
   double q0, q1, q2, q3;      // quaternion

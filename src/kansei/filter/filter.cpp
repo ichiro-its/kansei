@@ -26,7 +26,7 @@
 #include <memory>
 #include <string>
 
-#include "kansei/imu.hpp"
+#include "kansei/filter/filter.hpp"
 
 #include "kansei/filter/madgwick.hpp"
 #include "geometry_msgs/msg/vector3_stamped.hpp"
@@ -37,7 +37,7 @@
 namespace kansei
 {
 
-Imu::Imu()
+Filter::Filter()
 : initialized(false)
 {
   filter.set_world_frame(ENU);
@@ -93,7 +93,7 @@ Imu::Imu()
   rl_accelero = 512;
 }
 
-void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
+void Filter::compute_rpy(double gy[3], double acc[3], double seconds)
 {
   for (int i = 0; i < 3; i++) {
     gyro[i] = ((gy[i] - 512.0) * (17.4532925199 / 1023.0)) * gyro_mux[i];
@@ -222,24 +222,7 @@ void Imu::compute_rpy(double gy[3], double acc[3], double seconds)
   }
 }
 
-FallenStatus Imu::get_fallen_status()
-{
-  fallen_status = FallenStatus::STANDUP;
-
-  if (fb_accelero < fallen_front_limit) {
-    fallen_status = FallenStatus::FORWARD;
-  } else if (fb_accelero > fallen_back_limit) {
-    fallen_status = FallenStatus::BACKWARD;
-  } else if (rl_accelero > fallen_right_limit) {
-    fallen_status = FallenStatus::RIGHT;
-  } else if (rl_accelero < fallen_left_limit) {
-    fallen_status = FallenStatus::LEFT;
-  }
-
-  return fallen_status;
-}
-
-void Imu::load_data(std::string path)
+void Filter::load_data(std::string path)
 {
   std::string file_name =
     path + "imu/" + "kansei.json";
@@ -247,7 +230,7 @@ void Imu::load_data(std::string path)
   nlohmann::json imu_data = nlohmann::json::parse(file);
 
   for (const auto &[key, val] : imu_data.items()) {
-    if (key == "Imu") {
+    if (key == "Filter") {
       try {
         val.at("gyro_mux_x").get_to(gyro_mux[0]);
         val.at("gyro_mux_y").get_to(gyro_mux[1]);
@@ -268,23 +251,23 @@ void Imu::load_data(std::string path)
   }
 }
 
-void Imu::reset_orientation()
+void Filter::reset_orientation()
 {
   reset_orientation_raw_to(0.0);
   reset_orientation_to(0.0);
 }
 
-void Imu::reset_orientation_to(double orientation)
+void Filter::reset_orientation_to(double orientation)
 {
   angle_compensation = orientation - (yaw_raw + angle_raw_compensation);
 }
 
-void Imu::reset_orientation_raw_to(double orientation)
+void Filter::reset_orientation_raw_to(double orientation)
 {
   angle_raw_compensation = orientation - yaw_raw;
 }
 
-float Imu::get_yaw()
+float Filter::get_yaw()
 {
   double orientaion = (yaw * 180.0 / M_PI) + angle_compensation;
 

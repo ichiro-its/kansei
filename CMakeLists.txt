@@ -45,14 +45,14 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
 
-add_executable(check_orientation "src/check_orientation_main.cpp")
-target_include_directories(check_orientation PUBLIC
+add_executable(check_rpy "src/check_rpy_main.cpp")
+target_include_directories(check_rpy PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(check_orientation ${PROJECT_NAME})
+target_link_libraries(check_rpy ${PROJECT_NAME})
 
 install(TARGETS
-  check_orientation
+  check_rpy
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

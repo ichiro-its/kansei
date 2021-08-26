@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 
 #include <cmath>
+#include <iostream>
 #include <string>
 
 #include "kansei/sensor/mpu.hpp"

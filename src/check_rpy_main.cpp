@@ -49,7 +49,9 @@ int main(int argc, char * argv[])
   while (true) {
     mpu.angle_update();
 
-    std::cout << "Orientation: " << mpu.get_angle().degree() << std::endl;
+    std::cout << "Roll: " << mpu.get_roll().degree() << std::endl;
+    std::cout << "Pitch: " << mpu.get_pitch().degree() << std::endl;
+    std::cout << "Yaw: " << mpu.get_angle().degree() << std::endl;
     std::cout << "\033c";
   }
 

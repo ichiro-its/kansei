@@ -144,7 +144,7 @@ namespace kansei
 {
 
 MadgwickFilter::MadgwickFilter()
-: gain_(0.0), zeta_(0.0), world_frame_(ENU),
+: gain(0.0), zeta(0.0), world_frame(ENU),
   q0(1.0), q1(0.0), q2(0.0), q3(0.0),
   w_bx_(0.0), w_by_(0.0), w_bz_(0.0)
 {
@@ -188,7 +188,7 @@ void MadgwickFilter::madgwick_ahrs_update(
     s1 = 0.0;
     s2 = 0.0;
     s3 = 0.0;
-    switch (world_frame_) {
+    switch (world_frame) {
       case NED:
         // Gravity: [0, 0, -1]
         addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, -2.0, ax, ay, az, s0, s1, s2, s3);
@@ -215,15 +215,15 @@ void MadgwickFilter::madgwick_ahrs_update(
     normalizeQuaternion(s0, s1, s2, s3);
 
     // compute gyro drift bias
-    compensateGyroDrift(q0, q1, q2, q3, s0, s1, s2, s3, dt, zeta_, w_bx_, w_by_, w_bz_, gx, gy, gz);
+    compensateGyroDrift(q0, q1, q2, q3, s0, s1, s2, s3, dt, zeta, w_bx_, w_by_, w_bz_, gx, gy, gz);
 
     orientationChangeFromGyro(q0, q1, q2, q3, gx, gy, gz, qDot1, qDot2, qDot3, qDot4);
 
     // Apply feedback step
-    qDot1 -= gain_ * s0;
-    qDot2 -= gain_ * s1;
-    qDot3 -= gain_ * s2;
-    qDot4 -= gain_ * s3;
+    qDot1 -= gain * s0;
+    qDot2 -= gain * s1;
+    qDot3 -= gain * s2;
+    qDot4 -= gain * s3;
   } else {
     orientationChangeFromGyro(q0, q1, q2, q3, gx, gy, gz, qDot1, qDot2, qDot3, qDot4);
   }
@@ -260,7 +260,7 @@ void MadgwickFilter::madgwick_ahrs_update_imu(
     s1 = 0.0;
     s2 = 0.0;
     s3 = 0.0;
-    switch (world_frame_) {
+    switch (world_frame) {
       case NED:
         // Gravity: [0, 0, -1]
         addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, -2.0, ax, ay, az, s0, s1, s2, s3);
@@ -279,10 +279,10 @@ void MadgwickFilter::madgwick_ahrs_update_imu(
     normalizeQuaternion(s0, s1, s2, s3);
 
     // Apply feedback step
-    qDot1 -= gain_ * s0;
-    qDot2 -= gain_ * s1;
-    qDot3 -= gain_ * s2;
-    qDot4 -= gain_ * s3;
+    qDot1 -= gain * s0;
+    qDot2 -= gain * s1;
+    qDot3 -= gain * s2;
+    qDot4 -= gain * s3;
   }
 
   // Integrate rate of change of quaternion to yield quaternion
@@ -300,7 +300,7 @@ void MadgwickFilter::get_gravity(
   float gravity)
 {
   // Estimate gravity vector from current orientation
-  switch (world_frame_) {
+  switch (world_frame) {
     case NED:
       // Gravity: [0, 0, -1]
       rotateAndScaleVector(
