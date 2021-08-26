@@ -24,7 +24,7 @@
 #include <string>
 
 #include "../measurement_unit.hpp"
-#include "keisan/angle.hpp"
+#include "keisan/oreintation.hpp"
 
 #include "./pthread.h"
 
@@ -49,8 +49,8 @@ private:
   int socket_fd;
   std::string port_name;
 
-  keisan::Angle<double> angle_compensation;
-  keisan::Angle<double> angle_error;
+  keisan::Angle<double> oreintation_compensation;
+  keisan::Angle<double> oreintation_error;
 };
 
 }  // namespace kansei

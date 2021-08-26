@@ -105,7 +105,10 @@ void Filter::update_rpy()
       temp_yaw = temp_yaw;
     }
 
-    yaw_raw = temp_yaw * 180.0 / M_PI;
+    rpy.roll = keisan::make_radian(temp_roll).degree();
+    rpy.pitch = keisan::make_radian(temp_pitch).degree();
+    yaw_raw = keisan::make_radian(temp_yaw).degree();
+    rpy.yaw = yaw_raw + orientation_compensation;
   }
 }
 
@@ -117,7 +120,7 @@ void Filter::load_data(std::string path)
   nlohmann::json imu_data = nlohmann::json::parse(file);
 
   for (const auto &[key, val] : imu_data.items()) {
-    if (key == "Filter") {
+    if (key == "filter") {
       try {
         val.at("gy_mux_x").get_to(gy_mux[0]);
         val.at("gy_mux_y").get_to(gy_mux[1]);
@@ -125,7 +128,7 @@ void Filter::load_data(std::string path)
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
       }
-    } else if (key == "FallenLimit") {
+    } else if (key == "fallen_limit") {
       try {
         val.at("fallen_back_limit").get_to(fallen_back_limit);
         val.at("fallen_front_limit").get_to(fallen_front_limit);
@@ -140,31 +143,18 @@ void Filter::load_data(std::string path)
 
 void Filter::reset_orientation()
 {
-  reset_orientation_raw_to(0.0);
-  reset_orientation_to(0.0);
+  set_orientation_raw_to(0.0);
+  set_orientation_to(0.0);
 }
 
-void Filter::reset_orientation_to(double orientation)
+void Filter::set_orientation_to(const keisan::Angle<double> & target_orientation)
 {
-  orientation_compensation = orientation - (yaw_raw + raw_orientation_compensation);
+  orientation_compensation = target_orientation - (yaw_raw + raw_orientation_compensation);
 }
 
-void Filter::reset_orientation_raw_to(double orientation)
+void Filter::set_orientation_raw_to(const keisan::Angle<double> & target_raw_orientation)
 {
-  raw_orientation_compensation = orientation - yaw_raw;
-}
-
-float Filter::get_yaw()
-{
-  double orientaion = (yaw * 180.0 / M_PI) + orientation_compensation;
-
-  if (orientaion < -180.0) {
-    return orientaion + 360.0;
-  } else if (orientaion >= 180.0) {
-    return orientaion - 360.0;
-  } else {
-    return orientaion;
-  }
+  raw_orientation_compensation = target_raw_orientation - yaw_raw;
 }
 
 }  // namespace kansei

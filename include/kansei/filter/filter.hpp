@@ -41,7 +41,7 @@ public:
 
   void reset_orientation();
   void set_orientation_to(const keisan::Angle<double> & target_orientation);
-  void set_orientation_raw_to(double orientation);
+  void set_orientation_raw_to(const keisan::Angle<double> & target_raw_orientation);
 
   float get_roll_gy() const {return gy_raw[0] - raw_gy_roll_center;}
   float get_pitch_gy() const {return gy_raw[1] - raw_gy_pitch_center;}
@@ -52,10 +52,10 @@ private:
   MadgwickFilter filter;
   bool is_initialized;
 
-  double yaw_raw;
+  keisan::Angle<double> yaw_raw;
 
-  double orientation_compensation;
-  double raw_orientation_compensation;
+  keisan::Angle<double> orientation_compensation;
+  keisan::Angle<double> raw_orientation_compensation;
 };
 
 }  // namespace kansei

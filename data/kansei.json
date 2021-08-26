@@ -5,7 +5,7 @@
     "fallen_right_limit": 570.0,
     "fallen_left_limit": 400.0
   },
-  "imu": {
+  "filter": {
     "gyro_mux_x": 3.22,
     "gyro_mux_y": 3.22,
     "gyro_mux_z": 3.22

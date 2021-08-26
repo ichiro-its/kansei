@@ -24,7 +24,7 @@
 
 #include "kansei/sensor/mpu.hpp"
 
-#include "keisan/angle.hpp"
+#include "keisan/oreintation.hpp"
 
 #include "./errno.h"
 #include "./fcntl.h"
@@ -41,9 +41,7 @@ namespace kansei
 {
 
 MPU::MPU(const std::string & port_name)
-: rpy(0_deg, 0_deg, 0_deg),
-  angle_error(0_deg), angle_compensation(0_deg),
-  is_calibrated(false)
+  : socket_fd(-1), oreintation_error(0_deg), oreintation_compensation(0_deg)
 {
   set_port_name(port_name);
 }
@@ -53,6 +51,7 @@ MPU::~MPU()
   if (socket_fd != -1) {
     close(socket_fd);
   }
+
   socket_fd = -1;
 }
 
@@ -86,15 +85,15 @@ bool MPU::connect()
   }
 }
 
-void MPU::angle_update()
+void MPU::update_rpy()
 {
   unsigned char usart_data = 0;
   unsigned char usart_status = 0;
   unsigned char usart_buffer[4];
 
-  float orientation_angle = 0;
-  float pitch_angle = 0;
-  float roll_angle = 0;
+  float roll = 0;
+  float pitch = 0;
+  float yaw = 0;
   int count = 0;
 
   while (true) {
@@ -121,7 +120,7 @@ void MPU::angle_update()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memcpy(&orientation_angle, usart_buffer, 4);
+      memcpy(&yaw, usart_buffer, 4);
     } else if (usart_status == 7 && usart_data == ':') {
       usart_status++;
     } else if (usart_status == 8) {
@@ -137,7 +136,7 @@ void MPU::angle_update()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memcpy(&pitch_angle, usart_buffer, 4);
+      memcpy(&pitch, usart_buffer, 4);
     } else if (usart_status == 12 && usart_data == ':') {
       usart_status++;
     } else if (usart_status == 13) {
@@ -153,23 +152,23 @@ void MPU::angle_update()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memcpy(&roll_angle, usart_buffer, 4);
+      memcpy(&roll, usart_buffer, 4);
 
       if (!is_calibrated) {
         // validate the value to minimum error about 0.001
-        if (fabs(rpy.yaw.degree() - orientation_angle) < 0.001) {
+        if (fabs(rpy.yaw.degree() - yaw) < 0.001) {
           count++;
         }
 
         if (count > 50) {
           is_calibrated = true;
-          reset();
+          reset_orientation();
         }
       }
 
-      rpy.roll = keisan::make_degree(roll_angle);
-      rpy.pitch = keisan::make_degree(pitch_angle);
-      rpy.yaw = keisan::make_degree(orientation_angle);
+      rpy.roll = keisan::make_degree(roll);
+      rpy.pitch = keisan::make_degree(pitch);
+      rpy.yaw = keisan::make_degree(yaw) + oreintation_error + oreintation_compensation;
 
       break;
     } else {
@@ -183,31 +182,15 @@ void MPU::set_port_name(const std::string & port_name)
   this->port_name = port_name;
 }
 
-keisan::Angle<double> MPU::get_angle()
+void MPU::reset_orientation()
 {
-  auto angle = rpy.yaw + angle_error + angle_compensation;
-  return angle.normalize();
+  oreintation_error = -rpy.yaw;
+  oreintation_compensation = 0_deg;
 }
 
-keisan::Angle<double> MPU::get_pitch()
+void MPU::set_orientation_to(const keisan::Angle<double> & target_orientation)
 {
-  return rpy.pitch;
-}
-
-keisan::Angle<double> MPU::get_roll()
-{
-  return rpy.roll;
-}
-
-void MPU::reset()
-{
-  angle_error = -rpy.yaw;
-  angle_compensation = 0_deg;
-}
-
-void MPU::set_compensation(keisan::Angle<double> compensation)
-{
-  angle_compensation = compensation;
+  oreintation_compensation = target_orientation;
 }
 
 }  // namespace kansei
