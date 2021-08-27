@@ -25,7 +25,6 @@
 #include <string>
 
 #include "./madgwick.hpp"
-#include "../fallen_status.hpp"
 #include "../measurement_unit.hpp"
 #include "keisan/keisan.hpp"
 

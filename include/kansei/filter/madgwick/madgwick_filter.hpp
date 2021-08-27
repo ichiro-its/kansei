@@ -35,49 +35,12 @@ public:
   MadgwickFilter();
   ~MadgwickFilter();
 
-  void set_algorithm_gain(double gain)
-  {
-    this->gain = gain;
-  }
+  void set_algorithm_gain(double gain);
+  void set_drift_bias_gain(double zeta);
+  void set_world_frame(WorldFrame frame);
 
-  void set_drift_bias_gain(double zeta)
-  {
-    this->zeta = zeta;
-  }
-
-  void set_world_frame(WorldFrame frame)
-  {
-    world_frame = frame;
-  }
-
-  void get_orientation(double & q0, double & q1, double & q2, double & q3)
-  {
-    q0 = this->q0;
-    q1 = this->q1;
-    q2 = this->q2;
-    q3 = this->q3;
-
-    // perform precise normalization of the output, using 1/sqrt()
-    // instead of the fast invSqrt() approximation. Without this,
-    // TF2 complains that the quaternion is not normalized.
-    double recipNorm = 1 / sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
-    q0 *= recipNorm;
-    q1 *= recipNorm;
-    q2 *= recipNorm;
-    q3 *= recipNorm;
-  }
-
-  void set_orientation(double q0, double q1, double q2, double q3)
-  {
-    this->q0 = q0;
-    this->q1 = q1;
-    this->q2 = q2;
-    this->q3 = q3;
-
-    w_bx_ = 0;
-    w_by_ = 0;
-    w_bz_ = 0;
-  }
+  void get_orientation(double & q0, double & q1, double & q2, double & q3);
+  void set_orientation(double q0, double q1, double q2, double q3);
 
   void madgwick_ahrs_update(
     float gx, float gy, float gz,
