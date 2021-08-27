@@ -17,6 +17,8 @@ find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/measurement_unit.cpp"
@@ -32,7 +34,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 ament_target_dependencies(${PROJECT_NAME}
   geometry_msgs
   keisan
-  rclcpp)
+  rclcpp
+  tf2
+  tf2_geometry_msgs)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -60,7 +64,9 @@ endif()
 ament_export_dependencies(
   geometry_msgs
   keisan
-  rclcpp)
+  rclcpp
+  tf2
+  tf2_geometry_msgs)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 ament_package()
