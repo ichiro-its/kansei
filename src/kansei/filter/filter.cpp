@@ -28,12 +28,10 @@
 
 #include "kansei/filter/filter.hpp"
 
+#include "geometry_msgs/msg/vector3_stamped.hpp"
 #include "kansei/filter/madgwick.hpp"
 #include "keisan/keisan.hpp"
-#include "geometry_msgs/msg/vector3_stamped.hpp"
 #include "nlohmann/json.hpp"
-#include "tf2/LinearMath/Quaternion.h"
-#include "tf2/LinearMath/Matrix3x3.h"
 
 using namespace keisan::literals;  // NOLINT
 
@@ -52,8 +50,10 @@ Filter::Filter()
 void Filter::update_rpy()
 {
   for (int i = 0; i < 3; i++) {
-    gy_raw[i] = ((gy[i] - 512.0) * (17.4532925199 / 1023.0)) * gy_raw_mux[i];
-    acc_raw[i] = (acc[i] - 512.0) * (39.2266 / 512.0);
+    // value mapping refers to the link below:
+    // https://emanual.robotis.com/docs/en/platform/op2/getting_started/
+    gy_raw[i] = keisan::map(gy[i], 512.0, 1023.0, 0.0, 8.72665) * gy_raw_mux[i];
+    acc_raw[i] = keisan::map(acc[i], 512.0, 1023.0, 0.0, 39.2266);
   }
 
   if (is_calibrated) {
@@ -82,27 +82,11 @@ void Filter::update_rpy()
       lin_acc.x, lin_acc.y, lin_acc.z,
       delta_seconds);
 
-    double temp_roll = 0.0;
-    double temp_pitch = 0.0;
-    double temp_yaw = 0.0;
-    double q0 = 0.0;
-    double q1 = 0.0;
-    double q2 = 0.0;
-    double q3 = 0.0;
-    filter.get_orientation(q0, q1, q2, q3);
-    tf2::Matrix3x3(tf2::Quaternion(q1, q2, q3, q0)).getRPY(temp_roll, temp_pitch, temp_yaw);
+    auto temp_rpy = filter.get_orientation().euler();
 
-    if (temp_yaw < 0) {
-      temp_yaw = (temp_yaw + keisan::pi<double>) * -1;
-    } else if (temp_yaw >= 0) {
-      temp_yaw = (temp_yaw - keisan::pi<double>) * -1;
-    } else {
-      temp_yaw = temp_yaw;
-    }
-
-    rpy.roll = keisan::make_degree(temp_roll * 180.0 / keisan::pi<double>);
-    rpy.pitch = keisan::make_degree(temp_pitch * 180.0 / keisan::pi<double>);
-    yaw_raw = keisan::make_degree(temp_yaw * 180.0 / keisan::pi<double>);
+    rpy.roll = keisan::make_degree(temp_rpy.roll.degree());
+    rpy.pitch = keisan::make_degree(temp_rpy.pitch.degree());
+    yaw_raw = keisan::make_degree(temp_rpy.yaw.normalize().degree());
     rpy.yaw = yaw_raw + orientation_compensation;
   }
 }

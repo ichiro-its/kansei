@@ -22,6 +22,8 @@
 
 #include "kansei/filter/madgwick.hpp"
 
+#include "keisan/keisan.hpp"
+
 static float invSqrt(float x)
 {
   float xhalf = 0.5f * x;
@@ -169,21 +171,24 @@ void MadgwickFilter::set_world_frame(WorldFrame frame)
   world_frame = frame;
 }
 
-void MadgwickFilter::get_orientation(double & q0, double & q1, double & q2, double & q3)
+keisan::Quaternion MadgwickFilter::get_orientation()
 {
-  q0 = this->q0;
-  q1 = this->q1;
-  q2 = this->q2;
-  q3 = this->q3;
+  keisan::Quaternion q(
+    this->q0,
+    this->q1,
+    this->q2,
+    this->q3);
 
   // perform precise normalization of the output, using 1/sqrt()
   // instead of the fast invSqrt() approximation. Without this,
   // TF2 complains that the quaternion is not normalized.
-  double recipNorm = 1 / sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
-  q0 *= recipNorm;
-  q1 *= recipNorm;
-  q2 *= recipNorm;
-  q3 *= recipNorm;
+  double recipNorm = 1 / sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+  q.x *= recipNorm;
+  q.y *= recipNorm;
+  q.z *= recipNorm;
+  q.w *= recipNorm;
+
+  return q;
 }
 
 void MadgwickFilter::set_orientation(double q0, double q1, double q2, double q3)

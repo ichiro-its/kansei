@@ -25,6 +25,7 @@
 #include <iostream>
 
 #include "kansei/filter/madgwick/world_frame.hpp"
+#include "keisan/keisan.hpp"
 
 namespace kansei
 {
@@ -39,8 +40,8 @@ public:
   void set_drift_bias_gain(double zeta);
   void set_world_frame(WorldFrame frame);
 
-  void get_orientation(double & q0, double & q1, double & q2, double & q3);
   void set_orientation(double q0, double q1, double q2, double q3);
+  keisan::Quaternion get_orientation();
 
   void madgwick_ahrs_update(
     float gx, float gy, float gz,
