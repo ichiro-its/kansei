@@ -18,19 +18,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__WORLD_FRAME_HPP_
-#define KANSEI__WORLD_FRAME_HPP_
+#ifndef KANSEI__FILTER__FILTER_HPP_
+#define KANSEI__FILTER__FILTER_HPP_
+
+#include <memory>
+#include <string>
+
+#include "./madgwick.hpp"
+#include "../measurement_unit.hpp"
+#include "keisan/keisan.hpp"
 
 namespace kansei
 {
 
-enum WorldFrame
+class Filter : public MeasurementUnit
 {
-  ENU,
-  NED,
-  NWU
+public:
+  Filter();
+
+  void update_rpy();
+
+  void reset_orientation();
+  void set_orientation_to(const keisan::Angle<double> & target_orientation);
+  void set_orientation_raw_to(const keisan::Angle<double> & target_raw_orientation);
+
+  void load_data(std::string path);
+
+private:
+  MadgwickFilter filter;
+  bool is_initialized;
+
+  keisan::Angle<double> yaw_raw;
+  keisan::Vector<3> gy_raw_mux;
+
+  keisan::Angle<double> orientation_compensation;
+  keisan::Angle<double> raw_orientation_compensation;
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__WORLD_FRAME_HPP_
+#endif  // KANSEI__FILTER__FILTER_HPP_

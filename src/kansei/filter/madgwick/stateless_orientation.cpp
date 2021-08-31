@@ -18,11 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <tf2/LinearMath/Matrix3x3.h>
-#include <tf2/convert.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "kansei/filter/madgwick.hpp"
 
-#include <kansei/stateless_orientation.hpp>
+#include "tf2/LinearMath/Matrix3x3.h"
+#include "tf2/convert.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 template<typename T>
 static inline void crossProduct(
@@ -49,7 +49,7 @@ static inline T normalizeVector(T & vx, T & vy, T & vz)
 namespace kansei
 {
 
-bool StatelessOrientation::computeOrientation(
+bool StatelessOrientation::compute_orientation(
   WorldFrame frame,
   geometry_msgs::msg::Vector3 A,
   geometry_msgs::msg::Vector3 E,
@@ -161,7 +161,7 @@ bool StatelessOrientation::computeOrientation(
   return true;
 }
 
-bool StatelessOrientation::computeOrientation(
+bool StatelessOrientation::compute_orientation(
   WorldFrame frame,
   geometry_msgs::msg::Vector3 A,
   geometry_msgs::msg::Quaternion & orientation)
@@ -183,7 +183,7 @@ bool StatelessOrientation::computeOrientation(
     return false;
   }
 
-  return computeOrientation(frame, A, E, orientation);
+  return compute_orientation(frame, A, E, orientation);
 }
 
 }  // namespace kansei

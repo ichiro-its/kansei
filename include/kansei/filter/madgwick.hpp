@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Ichiro ITS
+// Copyright (c) 2021 ICHIRO ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,40 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <kansei/mpu.hpp>
+#ifndef KANSEI__FILTER__MADGWICK_HPP_
+#define KANSEI__FILTER__MADGWICK_HPP_
 
-#include <iostream>
-#include <iomanip>
-#include <vector>
-#include <numeric>
-#include <string>
+#include "kansei/filter/madgwick/madgwick_filter.hpp"
+#include "kansei/filter/madgwick/stateless_orientation.hpp"
+#include "kansei/filter/madgwick/world_frame.hpp"
 
-int main(int argc, char * argv[])
-{
-  std::string port_name = "/dev/ttyUSB1";
-
-  if (argc > 1) {
-    port_name = argv[1];
-  }
-
-  std::cout << "set the port name as " << port_name << "\n";
-  kansei::MPU mpu(port_name);
-
-  std::cout << "connect to mpu\n";
-  if (mpu.connect()) {
-    std::cout << "succeeded to connect to mpu!\n";
-  } else {
-    std::cout << "failed to connect to mpu!\n" <<
-      "try again!\n";
-    return 0;
-  }
-
-  while (true) {
-    mpu.angle_update();
-
-    std::cout << "Orientation: " << mpu.get_angle().degree() << std::endl;
-    std::cout << "\033c";
-  }
-
-  return 0;
-}
+#endif  // KANSEI__FILTER__MADGWICK_HPP_

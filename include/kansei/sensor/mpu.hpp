@@ -18,11 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef KANSEI__MPU_HPP_
-#define KANSEI__MPU_HPP_
+#ifndef KANSEI__SENSOR__MPU_HPP_
+#define KANSEI__SENSOR__MPU_HPP_
 
 #include <string>
 
+#include "kansei/measurement_unit.hpp"
 #include "keisan/angle.hpp"
 
 #include "./pthread.h"
@@ -30,41 +31,28 @@
 namespace kansei
 {
 
-class MPU
+class MPU : public MeasurementUnit
 {
 public:
   explicit MPU(const std::string & port_name);
   ~MPU();
 
+  void set_port_name(const std::string & port_name);
   bool connect();
 
-  void angle_update();
+  void update_rpy();
 
-  void reset();
-
-  void set_port_name(const std::string & port_name);
-
-  void set_compensation(keisan::Angle<double> compensation);
-
-  keisan::Angle<double> get_angle();
-  keisan::Angle<double> get_pitch();
-  keisan::Angle<double> get_roll();
-
-  keisan::Angle<double> angle_compensation;
-  keisan::Angle<double> angle_error;
-
-  bool left_;
-  bool right_;
-
-  bool calibrated_;
+  void reset_orientation();
+  void set_orientation_to(const keisan::Angle<double> & target_orientation);
 
 private:
-  int socket_fd_;
-  std::string serial_name_;
+  int socket_fd;
+  std::string port_name;
 
-  keisan::EulerAngles rpy;
+  keisan::Angle<double> oreintation_compensation;
+  keisan::Angle<double> oreintation_error;
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__MPU_HPP_
+#endif  // KANSEI__SENSOR__MPU_HPP_

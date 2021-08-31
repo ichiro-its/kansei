@@ -18,9 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <kansei/imu_filter.hpp>
-
 #include <cmath>
+
+#include "kansei/filter/madgwick.hpp"
+
+#include "keisan/keisan.hpp"
 
 static float invSqrt(float x)
 {
@@ -143,18 +145,65 @@ static inline void compensateMagneticDistortion(
 namespace kansei
 {
 
-ImuFilter::ImuFilter()
-: gain_(0.0), zeta_(0.0), world_frame_(ENU),
+MadgwickFilter::MadgwickFilter()
+: gain(0.0), zeta(0.0), world_frame(ENU),
   q0(1.0), q1(0.0), q2(0.0), q3(0.0),
   w_bx_(0.0), w_by_(0.0), w_bz_(0.0)
 {
 }
 
-ImuFilter::~ImuFilter()
+MadgwickFilter::~MadgwickFilter()
 {
 }
 
-void ImuFilter::madgwickAHRSupdate(
+void MadgwickFilter::set_algorithm_gain(double gain)
+{
+  this->gain = gain;
+}
+
+void MadgwickFilter::set_drift_bias_gain(double zeta)
+{
+  this->zeta = zeta;
+}
+
+void MadgwickFilter::set_world_frame(WorldFrame frame)
+{
+  world_frame = frame;
+}
+
+keisan::Quaternion MadgwickFilter::get_orientation()
+{
+  keisan::Quaternion q(
+    this->q0,
+    this->q1,
+    this->q2,
+    this->q3);
+
+  // perform precise normalization of the output, using 1/sqrt()
+  // instead of the fast invSqrt() approximation. Without this,
+  // TF2 complains that the quaternion is not normalized.
+  double recipNorm = 1 / sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+  q.x *= recipNorm;
+  q.y *= recipNorm;
+  q.z *= recipNorm;
+  q.w *= recipNorm;
+
+  return q;
+}
+
+void MadgwickFilter::set_orientation(double q0, double q1, double q2, double q3)
+{
+  this->q0 = q0;
+  this->q1 = q1;
+  this->q2 = q2;
+  this->q3 = q3;
+
+  w_bx_ = 0;
+  w_by_ = 0;
+  w_bz_ = 0;
+}
+
+void MadgwickFilter::madgwick_ahrs_update(
   float gx, float gy, float gz,
   float ax, float ay, float az,
   float mx, float my, float mz,
@@ -167,7 +216,7 @@ void ImuFilter::madgwickAHRSupdate(
   // Use IMU algorithm if magnetometer measurement invalid
   // (avoids NaN in magnetometer normalisation)
   if (!std::isfinite(mx) || !std::isfinite(my) || !std::isfinite(mz)) {
-    madgwickAHRSupdateIMU(gx, gy, gz, ax, ay, az, dt);
+    madgwick_ahrs_update_imu(gx, gy, gz, ax, ay, az, dt);
     return;
   }
 
@@ -188,7 +237,7 @@ void ImuFilter::madgwickAHRSupdate(
     s1 = 0.0;
     s2 = 0.0;
     s3 = 0.0;
-    switch (world_frame_) {
+    switch (world_frame) {
       case NED:
         // Gravity: [0, 0, -1]
         addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, -2.0, ax, ay, az, s0, s1, s2, s3);
@@ -215,15 +264,15 @@ void ImuFilter::madgwickAHRSupdate(
     normalizeQuaternion(s0, s1, s2, s3);
 
     // compute gyro drift bias
-    compensateGyroDrift(q0, q1, q2, q3, s0, s1, s2, s3, dt, zeta_, w_bx_, w_by_, w_bz_, gx, gy, gz);
+    compensateGyroDrift(q0, q1, q2, q3, s0, s1, s2, s3, dt, zeta, w_bx_, w_by_, w_bz_, gx, gy, gz);
 
     orientationChangeFromGyro(q0, q1, q2, q3, gx, gy, gz, qDot1, qDot2, qDot3, qDot4);
 
     // Apply feedback step
-    qDot1 -= gain_ * s0;
-    qDot2 -= gain_ * s1;
-    qDot3 -= gain_ * s2;
-    qDot4 -= gain_ * s3;
+    qDot1 -= gain * s0;
+    qDot2 -= gain * s1;
+    qDot3 -= gain * s2;
+    qDot4 -= gain * s3;
   } else {
     orientationChangeFromGyro(q0, q1, q2, q3, gx, gy, gz, qDot1, qDot2, qDot3, qDot4);
   }
@@ -238,7 +287,7 @@ void ImuFilter::madgwickAHRSupdate(
   normalizeQuaternion(q0, q1, q2, q3);
 }
 
-void ImuFilter::madgwickAHRSupdateIMU(
+void MadgwickFilter::madgwick_ahrs_update_imu(
   float gx, float gy, float gz,
   float ax, float ay, float az,
   float dt)
@@ -260,7 +309,7 @@ void ImuFilter::madgwickAHRSupdateIMU(
     s1 = 0.0;
     s2 = 0.0;
     s3 = 0.0;
-    switch (world_frame_) {
+    switch (world_frame) {
       case NED:
         // Gravity: [0, 0, -1]
         addGradientDescentStep(q0, q1, q2, q3, 0.0, 0.0, -2.0, ax, ay, az, s0, s1, s2, s3);
@@ -279,10 +328,10 @@ void ImuFilter::madgwickAHRSupdateIMU(
     normalizeQuaternion(s0, s1, s2, s3);
 
     // Apply feedback step
-    qDot1 -= gain_ * s0;
-    qDot2 -= gain_ * s1;
-    qDot3 -= gain_ * s2;
-    qDot4 -= gain_ * s3;
+    qDot1 -= gain * s0;
+    qDot2 -= gain * s1;
+    qDot3 -= gain * s2;
+    qDot4 -= gain * s3;
   }
 
   // Integrate rate of change of quaternion to yield quaternion
@@ -295,12 +344,12 @@ void ImuFilter::madgwickAHRSupdateIMU(
   normalizeQuaternion(q0, q1, q2, q3);
 }
 
-void ImuFilter::getGravity(
+void MadgwickFilter::get_gravity(
   float & rx, float & ry, float & rz,
   float gravity)
 {
   // Estimate gravity vector from current orientation
-  switch (world_frame_) {
+  switch (world_frame) {
     case NED:
       // Gravity: [0, 0, -1]
       rotateAndScaleVector(
