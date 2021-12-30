@@ -54,7 +54,7 @@ public:
   bool is_fallen() const;
   FallenStatus get_fallen_status() const;
 
-  keisan::EulerAngles rpy;
+  keisan::Euler<double> rpy;
 
   FallenStatus fallen_status;
 

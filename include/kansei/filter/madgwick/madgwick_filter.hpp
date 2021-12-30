@@ -41,7 +41,7 @@ public:
   void set_world_frame(WorldFrame frame);
 
   void set_orientation(double q0, double q1, double q2, double q3);
-  keisan::Quaternion get_orientation();
+  keisan::Quaternion<double> get_orientation();
 
   void madgwick_ahrs_update(
     float gx, float gy, float gz,

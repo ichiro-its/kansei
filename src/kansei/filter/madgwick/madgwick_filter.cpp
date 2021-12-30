@@ -171,9 +171,9 @@ void MadgwickFilter::set_world_frame(WorldFrame frame)
   world_frame = frame;
 }
 
-keisan::Quaternion MadgwickFilter::get_orientation()
+keisan::Quaternion<double> MadgwickFilter::get_orientation()
 {
-  keisan::Quaternion q(
+  keisan::Quaternion<double> q(
     this->q0,
     this->q1,
     this->q2,

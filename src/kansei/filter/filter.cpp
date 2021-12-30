@@ -39,8 +39,8 @@ namespace kansei
 {
 
 Filter::Filter()
-: is_initialized(false), yaw_raw(0.0), gy_raw_mux(keisan::Vector<3>::zero()),
-  orientation_compensation(0.0), raw_orientation_compensation(0.0)
+: is_initialized(false), yaw_raw(keisan::make_degree(0.0)), gy_raw_mux(keisan::Vector<3>::zero()),
+  orientation_compensation(keisan::make_degree(0.0)), raw_orientation_compensation(keisan::make_degree(0.0))
 {
   filter.set_world_frame(ENU);
   filter.set_algorithm_gain(0.1);
