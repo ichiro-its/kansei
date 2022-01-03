@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Ichiro ITS
+// Copyright (c) 2021 ICHIRO ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,41 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef KANSEI__SENSOR__MPU_HPP_
-#define KANSEI__SENSOR__MPU_HPP_
+#ifndef KANSEI__UNIT__FILTER__MADGWICK_HPP_
+#define KANSEI__UNIT__FILTER__MADGWICK_HPP_
 
-#include <string>
+#include "kansei/unit/filter/madgwick/madgwick_filter.hpp"
+#include "kansei/unit/filter/madgwick/stateless_orientation.hpp"
+#include "kansei/unit/filter/madgwick/world_frame.hpp"
 
-#include "kansei/measurement_unit.hpp"
-#include "keisan/angle.hpp"
-
-#include "./pthread.h"
-
-namespace kansei
-{
-
-class MPU : public MeasurementUnit
-{
-public:
-  explicit MPU(const std::string & port_name);
-  ~MPU();
-
-  void set_port_name(const std::string & port_name);
-  bool connect();
-
-  void update_rpy();
-
-  void reset_orientation();
-  void set_orientation_to(const keisan::Angle<double> & target_orientation);
-
-private:
-  int socket_fd;
-  std::string port_name;
-
-  keisan::Angle<double> oreintation_compensation;
-  keisan::Angle<double> oreintation_error;
-};
-
-}  // namespace kansei
-
-#endif  // KANSEI__SENSOR__MPU_HPP_
+#endif  // KANSEI__UNIT__FILTER__MADGWICK_HPP_

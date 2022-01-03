@@ -18,13 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
-#define KANSEI__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
+#ifndef KANSEI__UNIT__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
+#define KANSEI__UNIT__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
 
 #include <cmath>
 #include <iostream>
 
-#include "kansei/filter/madgwick/world_frame.hpp"
+#include "kansei/unit/filter/madgwick/world_frame.hpp"
 #include "keisan/keisan.hpp"
 
 namespace kansei
@@ -71,4 +71,4 @@ private:
 
 }  // namespace kansei
 
-#endif  // KANSEI__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
+#endif  // KANSEI__UNIT__FILTER__MADGWICK__MADGWICK_FILTER_HPP_

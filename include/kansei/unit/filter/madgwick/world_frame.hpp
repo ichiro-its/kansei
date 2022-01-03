@@ -1,4 +1,4 @@
-// Copyright (c) 2021 ICHIRO ITS
+// Copyright (c) 2021 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -7,22 +7,30 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
-#ifndef KANSEI__FILTER__MADGWICK_HPP_
-#define KANSEI__FILTER__MADGWICK_HPP_
+#ifndef KANSEI__UNIT__FILTER__MADGWICK__WORLD_FRAME_HPP_
+#define KANSEI__UNIT__FILTER__MADGWICK__WORLD_FRAME_HPP_
 
-#include "kansei/filter/madgwick/madgwick_filter.hpp"
-#include "kansei/filter/madgwick/stateless_orientation.hpp"
-#include "kansei/filter/madgwick/world_frame.hpp"
+namespace kansei
+{
 
-#endif  // KANSEI__FILTER__MADGWICK_HPP_
+enum WorldFrame
+{
+  ENU,
+  NED,
+  NWU
+};
+
+}  // namespace kansei
+
+#endif  // KANSEI__UNIT__FILTER__MADGWICK__WORLD_FRAME_HPP_

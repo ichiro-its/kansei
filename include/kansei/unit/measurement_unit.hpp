@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__MEASUREMENT_UNIT_HPP_
-#define KANSEI__MEASUREMENT_UNIT_HPP_
+#ifndef KANSEI__UNIT__MEASUREMENT_UNIT_HPP_
+#define KANSEI__UNIT__MEASUREMENT_UNIT_HPP_
 
 #include "./fallen_status.hpp"
 #include "keisan/keisan.hpp"
@@ -90,4 +90,4 @@ public:
 
 }  // namespace kansei
 
-#endif  // KANSEI__MEASUREMENT_UNIT_HPP_
+#endif  // KANSEI__UNIT__MEASUREMENT_UNIT_HPP_

@@ -22,7 +22,7 @@
 #include <iostream>
 #include <string>
 
-#include "kansei/sensor/mpu.hpp"
+#include "kansei/unit/sensor/mpu.hpp"
 
 #include "keisan/angle.hpp"
 

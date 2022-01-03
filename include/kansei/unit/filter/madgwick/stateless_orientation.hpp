@@ -18,43 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__FILTER__FILTER_HPP_
-#define KANSEI__FILTER__FILTER_HPP_
+#ifndef KANSEI__UNIT__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_
+#define KANSEI__UNIT__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_
 
-#include <memory>
-#include <string>
+#include "kansei/unit/filter/madgwick/world_frame.hpp"
 
-#include "./madgwick.hpp"
-#include "../measurement_unit.hpp"
-#include "keisan/keisan.hpp"
+#include "geometry_msgs/msg/quaternion.hpp"
+#include "geometry_msgs/msg/vector3.hpp"
 
 namespace kansei
 {
 
-class Filter : public MeasurementUnit
+class StatelessOrientation
 {
 public:
-  Filter();
+  static bool compute_orientation(
+    WorldFrame frame,
+    geometry_msgs::msg::Vector3 acceleration,
+    geometry_msgs::msg::Vector3 magneticField,
+    geometry_msgs::msg::Quaternion & orientation);
 
-  void update_rpy();
-
-  void reset_orientation();
-  void set_orientation_to(const keisan::Angle<double> & target_orientation);
-  void set_orientation_raw_to(const keisan::Angle<double> & target_raw_orientation);
-
-  void load_data(std::string path);
-
-private:
-  MadgwickFilter filter;
-  bool is_initialized;
-
-  keisan::Angle<double> yaw_raw;
-  keisan::Vector<3> gy_raw_mux;
-
-  keisan::Angle<double> orientation_compensation;
-  keisan::Angle<double> raw_orientation_compensation;
+  static bool compute_orientation(
+    WorldFrame frame,
+    geometry_msgs::msg::Vector3 acceleration,
+    geometry_msgs::msg::Quaternion & orientation);
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__FILTER__FILTER_HPP_
+#endif  // KANSEI__UNIT__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_
