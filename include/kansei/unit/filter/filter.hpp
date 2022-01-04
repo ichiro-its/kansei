@@ -36,6 +36,8 @@ class Filter : public MeasurementUnit
 public:
   Filter();
 
+  void load_data(const std::string & path);
+
   void update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds);
   void update_rpy();
 
@@ -48,8 +50,6 @@ public:
   void reset_orientation();
   void set_orientation_to(const keisan::Angle<double> & target_orientation);
   void set_orientation_raw_to(const keisan::Angle<double> & target_raw_orientation);
-
-  void load_data(std::string path);
 
 private:
   MadgwickFilter filter;
@@ -71,9 +71,7 @@ private:
 
   // accelero variables
   double raw_acc_roll_arr[15];
-  double raw_acc_roll;
   double raw_acc_pitch_arr[15];
-  double raw_acc_pitch;
   int raw_acc_rp_counter;
   // gyro variables
   double raw_gy_roll_arr[100];

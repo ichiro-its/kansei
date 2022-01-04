@@ -30,7 +30,7 @@ namespace kansei
 {
 
 MeasurementUnit::MeasurementUnit()
-: rpy(0_deg, 0_deg, 0_deg), is_calibrated(false)
+: rpy(0_deg, 0_deg, 0_deg), is_calibrated(false), acc_raw_rp(keisan::Vector<2>::zero())
 {
 }
 
@@ -47,6 +47,11 @@ keisan::Angle<double> MeasurementUnit::get_pitch() const
 keisan::Angle<double> MeasurementUnit::get_orientation() const
 {
   return rpy.yaw.normalize();
+}
+
+keisan::Vector<2> MeasurementUnit::get_acc_rp() const
+{
+  return acc_raw_rp;
 }
 
 }  // namespace kansei

@@ -18,32 +18,60 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <fstream>
+#include <memory>
+#include <string>
+
 #include "kansei/determinant/fallen_determinant.hpp"
 
 #include "kansei/determinant/fallen_status.hpp"
+#include "kansei/determinant/determinant_type.hpp"
+#include "nlohmann/json.hpp"
 
 namespace kansei
 {
 
-FallenDeterminant::FallenDeterminant()
-: rpy(0_deg, 0_deg, 0_deg), fallen_status(FallenStatus::STANDUP),
-  fallen_back_raw_limit(491.0), fallen_front_raw_limit(458.0),
-  fallen_right_raw_limit(519.0), fallen_left_raw_limit(498.0)
+FallenDeterminant::FallenDeterminant(const DeterminantType & type)
+: fallen_status(FallenStatus::STANDUP), determinant_type(type), fallen_back_raw_limit(491.0),
+  fallen_front_raw_limit(458.0), fallen_right_raw_limit(519.0), fallen_left_raw_limit(498.0)
 {
 }
 
-void FallenDeterminant::update_fallen_status()
+void FallenDeterminant::load_data(const std::string & path)
+{
+  std::string file_name =
+    path + "imu/" + "kansei.json";
+  std::ifstream file(file_name);
+  nlohmann::json imu_data = nlohmann::json::parse(file);
+
+  for (const auto &[key, val] : imu_data.items()) {
+    if (key == "fallen_limit") {
+      try {
+        val.at("fallen_back_limit").get_to(fallen_back_raw_limit);
+        val.at("fallen_front_limit").get_to(fallen_front_raw_limit);
+        val.at("fallen_right_limit").get_to(fallen_right_raw_limit);
+        val.at("fallen_left_limit").get_to(fallen_left_raw_limit);
+      } catch (nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+  }
+}
+
+void FallenDeterminant::update_fallen_status(std::shared_ptr<MeasurementUnit> measurement_unit)
 {
   fallen_status = FallenStatus::STANDUP;
 
-  if (raw_acc_pitch < fallen_front_raw_limit) {
-    fallen_status = FallenStatus::FORWARD;
-  } else if (raw_acc_pitch > fallen_back_raw_limit) {
-    fallen_status = FallenStatus::BACKWARD;
-  } else if (raw_acc_roll > fallen_right_raw_limit) {
-    fallen_status = FallenStatus::RIGHT;
-  } else if (raw_acc_roll < fallen_left_raw_limit) {
-    fallen_status = FallenStatus::LEFT;
+  if (determinant_type == DeterminantType::ACCELERO) {
+    if (measurement_unit->get_acc_rp()[1] < fallen_front_raw_limit) {
+      fallen_status = FallenStatus::FORWARD;
+    } else if (measurement_unit->get_acc_rp()[1] > fallen_back_raw_limit) {
+      fallen_status = FallenStatus::BACKWARD;
+    } else if (measurement_unit->get_acc_rp()[0] > fallen_right_raw_limit) {
+      fallen_status = FallenStatus::RIGHT;
+    } else if (measurement_unit->get_acc_rp()[0] < fallen_left_raw_limit) {
+      fallen_status = FallenStatus::LEFT;
+    }
   }
 }
 

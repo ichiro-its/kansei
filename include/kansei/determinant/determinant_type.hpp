@@ -18,45 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__DETERMINANT__FALLEN_DETERMINANT_HPP_
-#define KANSEI__DETERMINANT__FALLEN_DETERMINANT_HPP_
-
-#include <memory>
-
-#include "kansei/determinant/fallen_status.hpp"
-#include "kansei/determinant/determinant_type.hpp"
-#include "kansei/unit/measurement_unit.hpp"
-#include "keisan/keisan.hpp"
+#ifndef KANSEI__DETERMINANT__DETERMINANT_TYPE_HPP_
+#define KANSEI__DETERMINANT__DETERMINANT_TYPE_HPP_
 
 namespace kansei
 {
 
-class FallenDeterminant
+enum DeterminantType
 {
-public:
-  FallenDeterminant(const DeterminantType & type);
-
-  void load_data(const std::string & path);
-
-  void update_fallen_status(std::shared_ptr<MeasurementUnit> measurement_unit);
-
-  bool is_fallen() const;
-  FallenStatus get_fallen_status() const;
-
-private:
-  keisan::Euler<double> rpy;
-
-  FallenStatus fallen_status;
-
-  DeterminantType determinant_type;
-
-  // fallen raw variables
-  float fallen_back_raw_limit;
-  float fallen_front_raw_limit;
-  float fallen_right_raw_limit;
-  float fallen_left_raw_limit;
+  ACCELERO,
+  IMU
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__DETERMINANT__FALLEN_DETERMINANT_HPP_
+#endif  // KANSEI__DETERMINANT__DETERMINANT_TYPE_HPP_

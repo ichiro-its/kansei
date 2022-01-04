@@ -41,7 +41,12 @@ public:
   keisan::Angle<double> get_pitch() const;
   keisan::Angle<double> get_orientation() const;
 
+  keisan::Vector<2> get_acc_rp() const;
+
   keisan::Euler<double> rpy;
+
+  // accelero variables
+  keisan::Vector<2> acc_raw_rp;
 
   bool is_calibrated;
 };

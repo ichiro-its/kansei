@@ -60,10 +60,30 @@ Filter::Filter()
   }
 }
 
+void Filter::load_data(const std::string & path)
+{
+  std::string file_name =
+    path + "imu/" + "kansei.json";
+  std::ifstream file(file_name);
+  nlohmann::json imu_data = nlohmann::json::parse(file);
+
+  for (const auto &[key, val] : imu_data.items()) {
+    if (key == "filter") {
+      try {
+        val.at("gy_mux_x").get_to(gy_raw_mux[0]);
+        val.at("gy_mux_y").get_to(gy_raw_mux[1]);
+        val.at("gy_mux_z").get_to(gy_raw_mux[2]);
+      } catch (nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+  }
+}
+
 void Filter::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds)
 {
-  this->gy = gy;
-  this->acc = acc;
+  this->gy_raw = gy;
+  this->acc_raw = acc;
 
   delta_seconds = seconds - this->seconds;
   this->seconds = seconds;
@@ -120,8 +140,8 @@ void Filter::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double s
         raw_acc_pitch_sum += raw_acc_pitch_arr[i];
       }
 
-      raw_acc_roll = raw_acc_roll_sum / 15.0;
-      raw_acc_pitch = raw_acc_pitch_sum / 15.0;
+      acc_raw_rp[0] = raw_acc_roll_sum / 15.0;
+      acc_raw_rp[1] = raw_acc_pitch_sum / 15.0;
     }
   }
 }
@@ -131,20 +151,20 @@ void Filter::update_rpy()
   for (int i = 0; i < 3; i++) {
     // value mapping (for conversion) refers to the link below:
     // https://emanual.robotis.com/docs/en/platform/op2/getting_started/
-    gy_raw[i] = keisan::map(gy[i], 512.0, 1023.0, 0.0, 8.72665) * gy_raw_mux[i];
-    acc_raw[i] = keisan::map(acc[i], 512.0, 1023.0, 0.0, 39.2266);
+    gy[i] = keisan::map(gy_raw[i], 512.0, 1023.0, 0.0, 8.72665) * gy_raw_mux[i];
+    acc[i] = keisan::map(acc_raw[i], 512.0, 1023.0, 0.0, 39.2266);
   }
 
   if (is_calibrated) {
     geometry_msgs::msg::Vector3 ang_vel;
-    ang_vel.x = gy_raw[0];
-    ang_vel.y = gy_raw[1];
-    ang_vel.z = gy_raw[2];
+    ang_vel.x = gy[0];
+    ang_vel.y = gy[1];
+    ang_vel.z = gy[2];
 
     geometry_msgs::msg::Vector3 lin_acc;
-    lin_acc.x = acc_raw[0];
-    lin_acc.y = acc_raw[1];
-    lin_acc.z = acc_raw[2];
+    lin_acc.x = acc[0];
+    lin_acc.y = acc[1];
+    lin_acc.z = acc[2];
 
     if (!is_initialized) {
       geometry_msgs::msg::Quaternion init_q;
@@ -167,26 +187,6 @@ void Filter::update_rpy()
     rpy.pitch = keisan::make_degree(temp_rpy.pitch.degree());
     yaw_raw = keisan::make_degree(temp_rpy.yaw.normalize().degree());
     rpy.yaw = yaw_raw + orientation_compensation;
-  }
-}
-
-void Filter::load_data(std::string path)
-{
-  std::string file_name =
-    path + "imu/" + "kansei.json";
-  std::ifstream file(file_name);
-  nlohmann::json imu_data = nlohmann::json::parse(file);
-
-  for (const auto &[key, val] : imu_data.items()) {
-    if (key == "filter") {
-      try {
-        val.at("gy_mux_x").get_to(gy_raw_mux[0]);
-        val.at("gy_mux_y").get_to(gy_raw_mux[1]);
-        val.at("gy_mux_z").get_to(gy_raw_mux[2]);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-      }
-    }
   }
 }
 
