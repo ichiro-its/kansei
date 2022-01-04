@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Ichiro ITS
+// Copyright (c) 2021 ICHIRO ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,42 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <iomanip>
-#include <iostream>
-#include <numeric>
-#include <string>
-#include <vector>
+#ifndef KANSEI__UNIT__UNIT_HPP_
+#define KANSEI__UNIT__UNIT_HPP_
 
-#include "kansei/unit/unit.hpp"
+#include "kansei/unit/measurement_unit.hpp"
+#include "kansei/unit/sensor/mpu.hpp"
+#include "kansei/unit/filter/filter.hpp"
 
-int main(int argc, char * argv[])
-{
-  std::string port_name = "/dev/ttyUSB1";
-
-  if (argc > 1) {
-    port_name = argv[1];
-  }
-
-  std::cout << "set the port name as " << port_name << "\n";
-  kansei::MPU mpu(port_name);
-
-  std::cout << "connect to mpu\n";
-  if (mpu.connect()) {
-    std::cout << "succeeded to connect to mpu!\n";
-  } else {
-    std::cout << "failed to connect to mpu!\n" <<
-      "try again!\n";
-    return 0;
-  }
-
-  while (true) {
-    mpu.update_rpy();
-
-    std::cout << "Roll: " << mpu.get_roll().degree() << std::endl;
-    std::cout << "Pitch: " << mpu.get_pitch().degree() << std::endl;
-    std::cout << "Yaw: " << mpu.get_orientation().degree() << std::endl;
-    std::cout << "\033c";
-  }
-
-  return 0;
-}
+#endif  // KANSEI__UNIT__UNIT_HPP_

@@ -21,7 +21,6 @@
 #ifndef KANSEI__UNIT__FILTER__FILTER_HPP_
 #define KANSEI__UNIT__FILTER__FILTER_HPP_
 
-#include <memory>
 #include <string>
 
 #include "kansei/unit/filter/madgwick.hpp"
