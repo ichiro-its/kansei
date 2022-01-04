@@ -33,7 +33,6 @@ public:
   virtual ~MeasurementUnit() {}
 
   virtual void update_rpy() {}
-  void update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds);
 
   virtual void reset_orientation() {}
   virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
@@ -42,37 +41,9 @@ public:
   keisan::Angle<double> get_pitch() const;
   keisan::Angle<double> get_orientation() const;
 
-  float get_roll_gy() const {return gy[0] - raw_gy_roll_center;}
-  float get_pitch_gy() const {return gy[1] - raw_gy_pitch_center;}
-
-  float get_roll_acc() const {return acc[0];}
-  float get_pitch_acc() const {return acc[1];}
-
   keisan::Euler<double> rpy;
 
   bool is_calibrated;
-
-  // filter needs
-  keisan::Vector<3> gy;
-  keisan::Vector<3> gy_raw;
-  keisan::Vector<3> acc;
-  keisan::Vector<3> acc_raw;
-  double seconds;
-  double delta_seconds;
-
-  // fallen status changes needs
-  // accelero variables
-  double raw_acc_roll_arr[15];
-  double raw_acc_roll;
-  double raw_acc_pitch_arr[15];
-  double raw_acc_pitch;
-  int raw_acc_rp_counter;
-  // gyro variables
-  double raw_gy_roll_arr[100];
-  double raw_gy_roll_center;
-  double raw_gy_pitch_arr[100];
-  double raw_gy_pitch_center;
-  int raw_gy_rp_counter;
 };
 
 }  // namespace kansei

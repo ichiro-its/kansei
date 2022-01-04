@@ -38,6 +38,9 @@ public:
   bool is_fallen() const;
   FallenStatus get_fallen_status() const;
 
+  void load_data(std::string path);
+
+private:
   keisan::Euler<double> rpy;
 
   FallenStatus fallen_status;

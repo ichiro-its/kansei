@@ -30,87 +30,8 @@ namespace kansei
 {
 
 MeasurementUnit::MeasurementUnit()
-: rpy(0_deg, 0_deg, 0_deg),
-  is_calibrated(false), gy(keisan::Vector<3>::zero()), acc(keisan::Vector<3>::zero()),
-  seconds(0.0), raw_acc_roll(512.0), raw_acc_pitch(482.0), raw_acc_rp_counter(0),
-  raw_gy_roll_center(512.0), raw_gy_pitch_center(512.0), raw_gy_rp_counter(0),
-  gy_raw(keisan::Vector<3>::zero()), acc_raw(keisan::Vector<3>::zero())
+: rpy(0_deg, 0_deg, 0_deg), is_calibrated(false)
 {
-  for (int i = 0; i < 100; i++) {
-    raw_gy_roll_arr[i] = raw_gy_roll_center;
-    raw_gy_pitch_arr[i] = raw_gy_pitch_center;
-
-    if (i < 15) {
-      raw_acc_roll_arr[i] = 512.0;
-      raw_acc_pitch_arr[i] = 512.0;
-    }
-  }
-}
-
-void MeasurementUnit::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds)
-{
-  this->gy = gy;
-  this->acc = acc;
-
-  delta_seconds = seconds - this->seconds;
-  this->seconds = seconds;
-
-  if (!is_calibrated) {
-    if (raw_gy_rp_counter < 100) {
-      raw_gy_roll_arr[raw_gy_rp_counter] = gy[0];
-      raw_gy_pitch_arr[raw_gy_rp_counter] = gy[1];
-      raw_gy_rp_counter++;
-    } else {
-      raw_gy_rp_counter = 0;
-
-      double raw_gy_pitch_sum = 0.0;
-      double raw_gy_roll_sum = 0.0;
-      for (int i = 0; i < 100; i++) {
-        raw_gy_pitch_sum += raw_gy_pitch_arr[i];
-        raw_gy_roll_sum += raw_gy_roll_arr[i];
-      }
-
-      double pitch_mean = raw_gy_pitch_sum / 100;
-      double roll_mean = raw_gy_roll_sum / 100;
-      raw_gy_pitch_sum = 0.0;
-      raw_gy_roll_sum = 0.0;
-      for (int i = 0; i < 100; i++) {
-        raw_gy_pitch_sum += pow((raw_gy_pitch_arr[i] - pitch_mean), 2);
-        raw_gy_roll_sum += pow((raw_gy_roll_arr[i] - roll_mean), 2);
-      }
-
-      double raw_gy_pitch_sd = pow((raw_gy_pitch_sum / 100), 0.5);
-      double raw_gy_roll_sd = pow((raw_gy_roll_sum / 100), 0.5);
-      if (raw_gy_pitch_sd < 2.0 && raw_gy_roll_sd < 2.0) {
-        raw_gy_pitch_center = pitch_mean;
-        raw_gy_roll_center = roll_mean;
-        is_calibrated = true;
-      } else {
-        raw_gy_pitch_center = 512.0;
-        raw_gy_roll_center = 512.0;
-      }
-    }
-  }
-
-  if (is_calibrated) {
-    if (raw_acc_rp_counter < 15) {
-      raw_acc_roll_arr[raw_acc_rp_counter] = acc[0];
-      raw_acc_pitch_arr[raw_acc_rp_counter] = acc[1];
-      raw_acc_rp_counter++;
-    } else {
-      raw_acc_rp_counter = 0;
-
-      double raw_acc_roll_sum = 0.0;
-      double raw_acc_pitch_sum = 0.0;
-      for (int i = 0; i < 15; i++) {
-        raw_acc_roll_sum += raw_acc_roll_arr[i];
-        raw_acc_pitch_sum += raw_acc_pitch_arr[i];
-      }
-
-      raw_acc_roll = raw_acc_roll_sum / 15.0;
-      raw_acc_pitch = raw_acc_pitch_sum / 15.0;
-    }
-  }
 }
 
 keisan::Angle<double> MeasurementUnit::get_roll() const
