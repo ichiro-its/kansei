@@ -21,7 +21,6 @@
 #ifndef KANSEI__UNIT__MEASUREMENT_UNIT_HPP_
 #define KANSEI__UNIT__MEASUREMENT_UNIT_HPP_
 
-#include "./fallen_status.hpp"
 #include "keisan/keisan.hpp"
 
 namespace kansei
@@ -36,8 +35,6 @@ public:
   virtual void update_rpy() {}
   void update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds);
 
-  void update_fallen_status();
-
   virtual void reset_orientation() {}
   virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
 
@@ -51,12 +48,7 @@ public:
   float get_roll_acc() const {return acc[0];}
   float get_pitch_acc() const {return acc[1];}
 
-  bool is_fallen() const;
-  FallenStatus get_fallen_status() const;
-
   keisan::Euler<double> rpy;
-
-  FallenStatus fallen_status;
 
   bool is_calibrated;
 
@@ -81,11 +73,6 @@ public:
   double raw_gy_pitch_arr[100];
   double raw_gy_pitch_center;
   int raw_gy_rp_counter;
-  // fallen raw variables
-  float fallen_back_raw_limit;
-  float fallen_front_raw_limit;
-  float fallen_right_raw_limit;
-  float fallen_left_raw_limit;
 };
 
 }  // namespace kansei

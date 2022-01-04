@@ -30,12 +30,10 @@ namespace kansei
 {
 
 MeasurementUnit::MeasurementUnit()
-: rpy(0_deg, 0_deg, 0_deg), fallen_status(FallenStatus::STANDUP),
+: rpy(0_deg, 0_deg, 0_deg),
   is_calibrated(false), gy(keisan::Vector<3>::zero()), acc(keisan::Vector<3>::zero()),
   seconds(0.0), raw_acc_roll(512.0), raw_acc_pitch(482.0), raw_acc_rp_counter(0),
   raw_gy_roll_center(512.0), raw_gy_pitch_center(512.0), raw_gy_rp_counter(0),
-  fallen_back_raw_limit(491.0), fallen_front_raw_limit(458.0),
-  fallen_right_raw_limit(519.0), fallen_left_raw_limit(498.0),
   gy_raw(keisan::Vector<3>::zero()), acc_raw(keisan::Vector<3>::zero())
 {
   for (int i = 0; i < 100; i++) {
@@ -112,23 +110,6 @@ void MeasurementUnit::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc,
       raw_acc_roll = raw_acc_roll_sum / 15.0;
       raw_acc_pitch = raw_acc_pitch_sum / 15.0;
     }
-
-    update_fallen_status();
-  }
-}
-
-void MeasurementUnit::update_fallen_status()
-{
-  fallen_status = FallenStatus::STANDUP;
-
-  if (raw_acc_pitch < fallen_front_raw_limit) {
-    fallen_status = FallenStatus::FORWARD;
-  } else if (raw_acc_pitch > fallen_back_raw_limit) {
-    fallen_status = FallenStatus::BACKWARD;
-  } else if (raw_acc_roll > fallen_right_raw_limit) {
-    fallen_status = FallenStatus::RIGHT;
-  } else if (raw_acc_roll < fallen_left_raw_limit) {
-    fallen_status = FallenStatus::LEFT;
   }
 }
 
@@ -145,16 +126,6 @@ keisan::Angle<double> MeasurementUnit::get_pitch() const
 keisan::Angle<double> MeasurementUnit::get_orientation() const
 {
   return rpy.yaw.normalize();
-}
-
-bool MeasurementUnit::is_fallen() const
-{
-  return fallen_status != FallenStatus::STANDUP;
-}
-
-FallenStatus MeasurementUnit::get_fallen_status() const
-{
-  return fallen_status;
 }
 
 }  // namespace kansei

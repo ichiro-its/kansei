@@ -50,7 +50,7 @@ Filter::Filter()
 void Filter::update_rpy()
 {
   for (int i = 0; i < 3; i++) {
-    // value mapping refers to the link below:
+    // value mapping (for conversion) refers to the link below:
     // https://emanual.robotis.com/docs/en/platform/op2/getting_started/
     gy_raw[i] = keisan::map(gy[i], 512.0, 1023.0, 0.0, 8.72665) * gy_raw_mux[i];
     acc_raw[i] = keisan::map(acc[i], 512.0, 1023.0, 0.0, 39.2266);
@@ -104,15 +104,6 @@ void Filter::load_data(std::string path)
         val.at("gy_mux_x").get_to(gy_raw_mux[0]);
         val.at("gy_mux_y").get_to(gy_raw_mux[1]);
         val.at("gy_mux_z").get_to(gy_raw_mux[2]);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-      }
-    } else if (key == "fallen_limit") {
-      try {
-        val.at("fallen_back_limit").get_to(fallen_back_raw_limit);
-        val.at("fallen_front_limit").get_to(fallen_front_raw_limit);
-        val.at("fallen_right_limit").get_to(fallen_right_raw_limit);
-        val.at("fallen_left_limit").get_to(fallen_left_raw_limit);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
       }
