@@ -26,6 +26,7 @@
 
 #include "kansei/determinant/fallen_status.hpp"
 #include "kansei/determinant/determinant_type.hpp"
+#include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 
 namespace kansei
@@ -72,6 +73,9 @@ void FallenDeterminant::update_fallen_status(std::shared_ptr<MeasurementUnit> me
     } else if (measurement_unit->get_acc_rp()[0] < fallen_left_raw_limit) {
       fallen_status = FallenStatus::LEFT;
     }
+  } else if (determinant_type == DeterminantType::ORIENTATION) {
+    auto roll = measurement_unit->get_roll();
+    auto pitch = measurement_unit->get_pitch();
   }
 }
 

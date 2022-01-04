@@ -27,7 +27,7 @@ namespace kansei
 enum DeterminantType
 {
   ACCELERO,
-  IMU
+  ORIENTATION
 };
 
 }  // namespace kansei

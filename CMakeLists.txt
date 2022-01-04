@@ -15,6 +15,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(kansei_interfaces REQUIRED)
 find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(tf2 REQUIRED)
@@ -35,6 +36,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 ament_target_dependencies(${PROJECT_NAME}
   geometry_msgs
   keisan
+  kansei_interfaces
   rclcpp
   tf2
   tf2_geometry_msgs)
@@ -65,6 +67,7 @@ endif()
 ament_export_dependencies(
   geometry_msgs
   keisan
+  kansei_interfaces
   rclcpp
   tf2
   tf2_geometry_msgs)
