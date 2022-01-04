@@ -22,6 +22,7 @@
 #define KANSEI__DETERMINANT__FALLEN_DETERMINANT_HPP_
 
 #include <memory>
+#include <string>
 
 #include "kansei/determinant/fallen_status.hpp"
 #include "kansei/determinant/determinant_type.hpp"
@@ -34,7 +35,7 @@ namespace kansei
 class FallenDeterminant
 {
 public:
-  FallenDeterminant(const DeterminantType & type);
+  explicit FallenDeterminant(const DeterminantType & type);
 
   void load_data(const std::string & path);
 

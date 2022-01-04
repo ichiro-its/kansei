@@ -20,8 +20,6 @@
 
 #include "kansei/unit/measurement_unit.hpp"
 
-#include "kansei/fallen_status.hpp"
-
 #include "keisan/keisan.hpp"
 
 using namespace keisan::literals;  // NOLINT

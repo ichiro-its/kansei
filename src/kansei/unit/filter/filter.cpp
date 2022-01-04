@@ -40,10 +40,11 @@ namespace kansei
 
 Filter::Filter()
 : is_initialized(false), yaw_raw(keisan::make_degree(0.0)), gy_raw_mux(keisan::Vector<3>::zero()),
-  orientation_compensation(keisan::make_degree(0.0)), raw_orientation_compensation(keisan::make_degree(0.0)),
-  gy(keisan::Vector<3>::zero()), acc(keisan::Vector<3>::zero()), seconds(0.0), raw_acc_roll(512.0),
-  raw_acc_pitch(482.0), raw_acc_rp_counter(0), raw_gy_roll_center(512.0), raw_gy_pitch_center(512.0),
-  raw_gy_rp_counter(0), gy_raw(keisan::Vector<3>::zero()), acc_raw(keisan::Vector<3>::zero())
+  orientation_compensation(keisan::make_degree(0.0)),
+  raw_orientation_compensation(keisan::make_degree(0.0)), gy(keisan::Vector<3>::zero()),
+  acc(keisan::Vector<3>::zero()), seconds(0.0), raw_acc_rp_counter(0), raw_gy_roll_center(512.0),
+  raw_gy_pitch_center(512.0), raw_gy_rp_counter(0), gy_raw(keisan::Vector<3>::zero()),
+  acc_raw(keisan::Vector<3>::zero())
 {
   filter.set_world_frame(ENU);
   filter.set_algorithm_gain(0.1);
@@ -58,6 +59,9 @@ Filter::Filter()
       raw_acc_pitch_arr[i] = 512.0;
     }
   }
+
+  acc_raw_rp[0] = 512.0;
+  acc_raw_rp[1] = 482.0;
 }
 
 void Filter::load_data(const std::string & path)
