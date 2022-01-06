@@ -26,10 +26,10 @@
 #include <memory>
 #include <string>
 
-#include "kansei/unit/filter/filter.hpp"
+#include "kansei/measurement/filter/filter.hpp"
 
 #include "geometry_msgs/msg/vector3_stamped.hpp"
-#include "kansei/unit/filter/madgwick.hpp"
+#include "kansei/measurement/filter/madgwick/madgwick.hpp"
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 

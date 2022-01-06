@@ -43,6 +43,7 @@ public:
 
   keisan::Vector<2> get_acc_rp() const;
 
+protected:
   keisan::Euler<double> rpy;
 
   // accelero variables

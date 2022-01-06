@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "kansei/unit/measurement_unit.hpp"
+#include "kansei/measurement/node/measurement_unit.hpp"
 
 #include "keisan/keisan.hpp"
 

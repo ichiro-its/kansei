@@ -22,10 +22,8 @@
 #include <memory>
 #include <string>
 
-#include "kansei/determinant/fallen_determinant.hpp"
+#include "kansei/fallen/fallen.hpp"
 
-#include "kansei/determinant/fallen_status.hpp"
-#include "kansei/determinant/determinant_type.hpp"
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 
@@ -59,23 +57,23 @@ void FallenDeterminant::load_data(const std::string & path)
   }
 }
 
-void FallenDeterminant::update_fallen_status(std::shared_ptr<MeasurementUnit> measurement_unit)
+void FallenDeterminant::update_fallen_status(keisan::Euler<double> rpy)
+{
+  fallen_status = FallenStatus::STANDUP;
+}
+
+void FallenDeterminant::update_fallen_status(keisan::Vector<2> acc_rp)
 {
   fallen_status = FallenStatus::STANDUP;
 
-  if (determinant_type == DeterminantType::ACCELERO) {
-    if (measurement_unit->get_acc_rp()[1] < fallen_front_raw_limit) {
-      fallen_status = FallenStatus::FORWARD;
-    } else if (measurement_unit->get_acc_rp()[1] > fallen_back_raw_limit) {
-      fallen_status = FallenStatus::BACKWARD;
-    } else if (measurement_unit->get_acc_rp()[0] > fallen_right_raw_limit) {
-      fallen_status = FallenStatus::RIGHT;
-    } else if (measurement_unit->get_acc_rp()[0] < fallen_left_raw_limit) {
-      fallen_status = FallenStatus::LEFT;
-    }
-  } else if (determinant_type == DeterminantType::ORIENTATION) {
-    auto roll = measurement_unit->get_roll();
-    auto pitch = measurement_unit->get_pitch();
+  if (acc_rp[1] < fallen_front_raw_limit) {
+    fallen_status = FallenStatus::FORWARD;
+  } else if (acc_rp[1] > fallen_back_raw_limit) {
+    fallen_status = FallenStatus::BACKWARD;
+  } else if (acc_rp[0] > fallen_right_raw_limit) {
+    fallen_status = FallenStatus::RIGHT;
+  } else if (acc_rp[0] < fallen_left_raw_limit) {
+    fallen_status = FallenStatus::LEFT;
   }
 }
 
@@ -87,6 +85,11 @@ bool FallenDeterminant::is_fallen() const
 FallenStatus FallenDeterminant::get_fallen_status() const
 {
   return fallen_status;
+}
+
+DeterminantType FallenDeterminant::get_determinant_type() const
+{
+  return determinant_type;
 }
 
 }  // namespace kansei

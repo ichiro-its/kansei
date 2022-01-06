@@ -20,7 +20,7 @@
 
 #include <cmath>
 
-#include "kansei/unit/filter/madgwick.hpp"
+#include "kansei/measurement/filter/madgwick/madgwick.hpp"
 
 #include "keisan/keisan.hpp"
 

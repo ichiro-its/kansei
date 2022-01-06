@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "kansei/unit/filter/madgwick.hpp"
+#include "kansei/measurement/filter/madgwick/madgwick.hpp"
 
 #include "tf2/LinearMath/Matrix3x3.h"
 #include "tf2/convert.h"
