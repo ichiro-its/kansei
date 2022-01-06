@@ -18,13 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__UNIT__FILTER__FILTER_HPP_
-#define KANSEI__UNIT__FILTER__FILTER_HPP_
+#ifndef KANSEI__MEASUREMENT__FILTER__FILTER_HPP_
+#define KANSEI__MEASUREMENT__FILTER__FILTER_HPP_
 
 #include <string>
 
-#include "kansei/unit/filter/madgwick.hpp"
-#include "kansei/unit/measurement_unit.hpp"
+#include "kansei/measurement/filter/madgwick/madgwick.hpp"
+#include "kansei/measurement/node/measurement_unit.hpp"
 #include "keisan/keisan.hpp"
 
 namespace kansei
@@ -82,4 +82,4 @@ private:
 
 }  // namespace kansei
 
-#endif  // KANSEI__UNIT__FILTER__FILTER_HPP_
+#endif  // KANSEI__MEASUREMENT__FILTER__FILTER_HPP_

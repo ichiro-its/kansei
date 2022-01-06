@@ -18,57 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__UNIT__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
-#define KANSEI__UNIT__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
+#ifndef KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_
+#define KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_
 
-#include <cmath>
-#include <iostream>
-
-#include "kansei/unit/filter/madgwick/world_frame.hpp"
 #include "keisan/keisan.hpp"
 
 namespace kansei
 {
 
-class MadgwickFilter
+class MeasurementUnit
 {
 public:
-  MadgwickFilter();
-  ~MadgwickFilter();
+  MeasurementUnit();
+  virtual ~MeasurementUnit() {}
 
-  void set_algorithm_gain(double gain);
-  void set_drift_bias_gain(double zeta);
-  void set_world_frame(WorldFrame frame);
+  virtual void update_rpy() {}
 
-  void set_orientation(double q0, double q1, double q2, double q3);
-  keisan::Quaternion<double> get_orientation();
+  virtual void reset_orientation() {}
+  virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
 
-  void madgwick_ahrs_update(
-    float gx, float gy, float gz,
-    float ax, float ay, float az,
-    float mx, float my, float mz,
-    float dt);
+  keisan::Angle<double> get_roll() const;
+  keisan::Angle<double> get_pitch() const;
+  keisan::Angle<double> get_orientation() const;
 
-  void madgwick_ahrs_update_imu(
-    float gx, float gy, float gz,
-    float ax, float ay, float az,
-    float dt);
+  keisan::Vector<2> get_acc_rp() const;
 
-  void get_gravity(
-    float & rx, float & ry, float & rz,
-    float gravity = 9.80665);
+  keisan::Euler<double> rpy;
 
-private:
-  // paramaters
-  double gain;             // algorithm gain
-  double zeta;             // gyro drift bias gain
-  WorldFrame world_frame;  // NWU, ENU, NED
+  // accelero variables
+  keisan::Vector<2> acc_raw_rp;
 
-  // state variables
-  double q0, q1, q2, q3;      // quaternion
-  float w_bx_, w_by_, w_bz_;
+  bool is_calibrated;
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__UNIT__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
+#endif  // KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_

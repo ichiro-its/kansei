@@ -18,21 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__DETERMINANT__FALLEN_STATUS_HPP_
-#define KANSEI__DETERMINANT__FALLEN_STATUS_HPP_
+#ifndef KANSEI__MEASUREMENT__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_
+#define KANSEI__MEASUREMENT__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_
+
+#include "kansei/measurement/filter/madgwick/world_frame.hpp"
+
+#include "geometry_msgs/msg/quaternion.hpp"
+#include "geometry_msgs/msg/vector3.hpp"
 
 namespace kansei
 {
 
-enum FallenStatus
+class StatelessOrientation
 {
-  LEFT,
-  BACKWARD,
-  STANDUP,
-  FORWARD,
-  RIGHT
+public:
+  static bool compute_orientation(
+    WorldFrame frame,
+    geometry_msgs::msg::Vector3 acceleration,
+    geometry_msgs::msg::Vector3 magneticField,
+    geometry_msgs::msg::Quaternion & orientation);
+
+  static bool compute_orientation(
+    WorldFrame frame,
+    geometry_msgs::msg::Vector3 acceleration,
+    geometry_msgs::msg::Quaternion & orientation);
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__DETERMINANT__FALLEN_STATUS_HPP_
+#endif  // KANSEI__MEASUREMENT__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_

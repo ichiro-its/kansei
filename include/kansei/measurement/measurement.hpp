@@ -18,11 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef KANSEI__UNIT__UNIT_HPP_
-#define KANSEI__UNIT__UNIT_HPP_
+#ifndef KANSEI__MEASUREMENT__UNIT_HPP_
+#define KANSEI__MEASUREMENT__UNIT_HPP_
 
-#include "kansei/unit/measurement_unit.hpp"
-#include "kansei/unit/sensor/mpu.hpp"
-#include "kansei/unit/filter/filter.hpp"
+#include "kansei/measurement/node/measurement_unit.hpp"
+#include "kansei/measurement/sensor/mpu.hpp"
+#include "kansei/measurement/filter/filter.hpp"
 
-#endif  // KANSEI__UNIT__UNIT_HPP_
+#endif  // KANSEI__MEASUREMENT__UNIT_HPP_

@@ -18,15 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__DETERMINANT__FALLEN_DETERMINANT_HPP_
-#define KANSEI__DETERMINANT__FALLEN_DETERMINANT_HPP_
+#ifndef KANSEI__FALLEN__NODE__FALLEN_DETERMINANT_HPP_
+#define KANSEI__FALLEN__NODE__FALLEN_DETERMINANT_HPP_
 
 #include <memory>
 #include <string>
 
-#include "kansei/determinant/fallen_status.hpp"
-#include "kansei/determinant/determinant_type.hpp"
-#include "kansei/unit/measurement_unit.hpp"
+#include "kansei/fallen/node/fallen_status.hpp"
+#include "kansei/fallen/determinant/determinant_type.hpp"
 #include "keisan/keisan.hpp"
 
 namespace kansei
@@ -39,14 +38,15 @@ public:
 
   void load_data(const std::string & path);
 
-  void update_fallen_status(std::shared_ptr<MeasurementUnit> measurement_unit);
+  void update_fallen_status(keisan::Euler<double> rpy);
+  void update_fallen_status(keisan::Vector<2> acc_rp);
 
   bool is_fallen() const;
   FallenStatus get_fallen_status() const;
 
-private:
-  keisan::Euler<double> rpy;
+  DeterminantType get_determinant_type() const;
 
+private:
   FallenStatus fallen_status;
 
   DeterminantType determinant_type;
@@ -60,4 +60,4 @@ private:
 
 }  // namespace kansei
 
-#endif  // KANSEI__DETERMINANT__FALLEN_DETERMINANT_HPP_
+#endif  // KANSEI__FALLEN__NODE__FALLEN_DETERMINANT_HPP_

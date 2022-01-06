@@ -1,4 +1,4 @@
-// Copyright (c) 2021 ICHIRO ITS
+// Copyright (c) 2021 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,11 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef KANSEI__DETERMINANT__DETERMINANT_HPP_
-#define KANSEI__DETERMINANT__DETERMINANT_HPP_
+#ifndef KANSEI__MEASUREMENT__SENSOR__MPU_HPP_
+#define KANSEI__MEASUREMENT__SENSOR__MPU_HPP_
 
-#include "kansei/determinant/determinant_type.hpp"
-#include "kansei/determinant/fallen_determinant.hpp"
-#include "kansei/determinant/fallen_status.hpp"
+#include <string>
 
-#endif  // KANSEI__DETERMINANT__DETERMINANT_HPP_
+#include "kansei/measurement/node/measurement_unit.hpp"
+#include "keisan/angle.hpp"
+
+#include "./pthread.h"
+
+namespace kansei
+{
+
+class MPU : public MeasurementUnit
+{
+public:
+  explicit MPU(const std::string & port_name);
+  ~MPU();
+
+  void set_port_name(const std::string & port_name);
+  bool connect();
+
+  void update_rpy();
+
+  void reset_orientation();
+  void set_orientation_to(const keisan::Angle<double> & target_orientation);
+
+private:
+  int socket_fd;
+  std::string port_name;
+
+  keisan::Angle<double> oreintation_compensation;
+  keisan::Angle<double> oreintation_error;
+};
+
+}  // namespace kansei
+
+#endif  // KANSEI__MEASUREMENT__SENSOR__MPU_HPP_
