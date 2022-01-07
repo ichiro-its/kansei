@@ -21,10 +21,6 @@
 #ifndef KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_
 #define KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_
 
-#include <kansei_interfaces/msg/orientation.hpp>
-#include <kansei_interfaces/msg/unit.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <string>
 
 #include "keisan/keisan.hpp"
@@ -35,10 +31,8 @@ namespace kansei
 class MeasurementUnit
 {
 public:
-  explicit MeasurementUnit(rclcpp::Node::SharedPtr node);
+  explicit MeasurementUnit();
   virtual ~MeasurementUnit() {}
-
-  std::string get_node_prefix() {return "measurement";}
 
   virtual void update_rpy() {}
 
@@ -52,11 +46,6 @@ public:
   keisan::Vector<3> get_filtered_acc() const;
 
 protected:
-  void publish_orientation();
-
-  void publish_unit();
-  void subscribe_unit();
-
   keisan::Euler<double> rpy;
 
   keisan::Vector<3> raw_gy;
@@ -68,11 +57,6 @@ protected:
   keisan::Vector<3> filtered_acc;
 
   bool is_calibrated;
-
-  rclcpp::Publisher<kansei_interfaces::msg::Orientation> orientation_publisher;
-
-  rclcpp::Publisher<kansei_interfaces::msg::Unit> unit_publisher;
-  rclcpp::Subscription<kansei_interfaces::msg::Unit> unit_subscriber;
 };
 
 }  // namespace kansei

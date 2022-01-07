@@ -18,38 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_
-#define KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_
+#ifndef KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
+#define KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
 
 #include <kansei_interfaces/msg/orientation.hpp>
 #include <kansei_interfaces/msg/unit.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+#include <memory>
 #include <string>
 
-#include "keisan/keisan.hpp"
+#include "kansei/measurement/node/measurement_unit.hpp"
 
 namespace kansei
 {
 
-class MeasurementUnit
+class MeasurementNode
 {
 public:
-  explicit MeasurementUnit(rclcpp::Node::SharedPtr node);
-  virtual ~MeasurementUnit() {}
+  explicit MeasurementNode(rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> unit);
 
   std::string get_node_prefix() {return "measurement";}
 
-  virtual void update_rpy() {}
-
-  virtual void reset_orientation() {}
-  virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
-
-  keisan::Euler<double> get_orientation() const;
-
-  keisan::Vector<3> get_filtered_gy() const;
-
-  keisan::Vector<3> get_filtered_acc() const;
+  void update_measurement();
 
 protected:
   void publish_orientation();
@@ -57,24 +48,14 @@ protected:
   void publish_unit();
   void subscribe_unit();
 
-  keisan::Euler<double> rpy;
-
-  keisan::Vector<3> raw_gy;
-  keisan::Vector<3> gy;
-  keisan::Vector<3> filtered_gy;
-
-  keisan::Vector<3> raw_acc;
-  keisan::Vector<3> acc;
-  keisan::Vector<3> filtered_acc;
-
-  bool is_calibrated;
+  std::shared_ptr<MeasurementUnit> measurement_unit;
 
   rclcpp::Publisher<kansei_interfaces::msg::Orientation> orientation_publisher;
 
   rclcpp::Publisher<kansei_interfaces::msg::Unit> unit_publisher;
-  rclcpp::Subscription<kansei_interfaces::msg::Unit> unit_subscriber;
+  // need to declare some subscriber
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_
+#endif  // KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_

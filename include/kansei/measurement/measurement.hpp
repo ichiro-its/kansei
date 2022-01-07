@@ -21,8 +21,9 @@
 #ifndef KANSEI__MEASUREMENT__UNIT_HPP_
 #define KANSEI__MEASUREMENT__UNIT_HPP_
 
+#include "kansei/measurement/filter/filter.hpp"
+#include "kansei/measurement/node/measurement_node.hpp"
 #include "kansei/measurement/node/measurement_unit.hpp"
 #include "kansei/measurement/sensor/mpu.hpp"
-#include "kansei/measurement/filter/filter.hpp"
 
 #endif  // KANSEI__MEASUREMENT__UNIT_HPP_
