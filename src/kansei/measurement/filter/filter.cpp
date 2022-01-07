@@ -39,29 +39,28 @@ namespace kansei
 {
 
 Filter::Filter()
-: is_initialized(false), yaw_raw(keisan::make_degree(0.0)), gy_raw_mux(keisan::Vector<3>::zero()),
-  orientation_compensation(keisan::make_degree(0.0)),
+: is_initialized(false), yaw_raw(keisan::make_degree(0.0)), raw_gy_mux(keisan::Vector<3>::zero()),
+  orientation_compensation(keisan::make_degree(0.0)), raw_acc(keisan::Vector<3>::zero()),
   raw_orientation_compensation(keisan::make_degree(0.0)), gy(keisan::Vector<3>::zero()),
-  acc(keisan::Vector<3>::zero()), seconds(0.0), raw_acc_rp_counter(0), raw_gy_roll_center(512.0),
-  raw_gy_pitch_center(512.0), raw_gy_rp_counter(0), gy_raw(keisan::Vector<3>::zero()),
-  acc_raw(keisan::Vector<3>::zero())
+  acc(keisan::Vector<3>::zero()), seconds(0.0), filtered_acc_counter(0), filtered_gy_counter(0),
+  raw_gy(keisan::Vector<3>::zero())
 {
   filter.set_world_frame(ENU);
   filter.set_algorithm_gain(0.1);
   filter.set_drift_bias_gain(0.0);
 
-  for (int i = 0; i < 100; i++) {
-    raw_gy_roll_arr[i] = raw_gy_roll_center;
-    raw_gy_pitch_arr[i] = raw_gy_pitch_center;
+  for (int i = 0; i < 3; i++) {
+    filtered_gy_center[i] = 512.0;
+    filtered_acc[i] = 512.0;
 
-    if (i < 15) {
-      raw_acc_roll_arr[i] = 512.0;
-      raw_acc_pitch_arr[i] = 512.0;
+    for (int j = 0; j < 100; j++) {
+      filtered_gy_arr[i][j] = filtered_gy_center[i];
+
+      if (j < 15) {
+        filtered_acc_arr[i][j] = filtered_acc[i];
+      }
     }
   }
-
-  acc_raw_rp[0] = 512.0;
-  acc_raw_rp[1] = 482.0;
 }
 
 void Filter::load_data(const std::string & path)
@@ -74,9 +73,9 @@ void Filter::load_data(const std::string & path)
   for (const auto &[key, val] : imu_data.items()) {
     if (key == "filter") {
       try {
-        val.at("gy_mux_x").get_to(gy_raw_mux[0]);
-        val.at("gy_mux_y").get_to(gy_raw_mux[1]);
-        val.at("gy_mux_z").get_to(gy_raw_mux[2]);
+        val.at("gy_mux_x").get_to(raw_gy_mux[0]);
+        val.at("gy_mux_y").get_to(raw_gy_mux[1]);
+        val.at("gy_mux_z").get_to(raw_gy_mux[2]);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
       }
@@ -86,66 +85,75 @@ void Filter::load_data(const std::string & path)
 
 void Filter::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds)
 {
-  this->gy_raw = gy;
-  this->acc_raw = acc;
+  this->raw_gy = gy;
+  this->raw_acc = acc;
 
   delta_seconds = seconds - this->seconds;
   this->seconds = seconds;
 
   if (!is_calibrated) {
-    if (raw_gy_rp_counter < 100) {
-      raw_gy_roll_arr[raw_gy_rp_counter] = gy[0];
-      raw_gy_pitch_arr[raw_gy_rp_counter] = gy[1];
-      raw_gy_rp_counter++;
+    if (filtered_gy_counter < 100) {
+      for (int i = 0; i < 3; i++) {
+        filtered_gy_arr[i][filtered_gy_counter] = gy[i];
+      }
+
+      filtered_gy_counter++;
     } else {
-      raw_gy_rp_counter = 0;
-
-      double raw_gy_pitch_sum = 0.0;
-      double raw_gy_roll_sum = 0.0;
-      for (int i = 0; i < 100; i++) {
-        raw_gy_pitch_sum += raw_gy_pitch_arr[i];
-        raw_gy_roll_sum += raw_gy_roll_arr[i];
+      double filtered_gy_sum[3] = 0.0;
+      for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < filtered_gy_counter; j++) {
+          filtered_gy_sum[i] += filtered_gy_arr[i][j];
+        }
       }
 
-      double pitch_mean = raw_gy_pitch_sum / 100;
-      double roll_mean = raw_gy_roll_sum / 100;
-      raw_gy_pitch_sum = 0.0;
-      raw_gy_roll_sum = 0.0;
-      for (int i = 0; i < 100; i++) {
-        raw_gy_pitch_sum += pow((raw_gy_pitch_arr[i] - pitch_mean), 2);
-        raw_gy_roll_sum += pow((raw_gy_roll_arr[i] - roll_mean), 2);
+      double filtered_gy_mean[3];
+      for (int i = 0; i < 3; i++) {
+        filtered_gy_mean[i] = filtered_gy_sum[i] / filtered_gy_counter;
+        filtered_gy_sum[i] = 0.0;
       }
 
-      double raw_gy_pitch_sd = pow((raw_gy_pitch_sum / 100), 0.5);
-      double raw_gy_roll_sd = pow((raw_gy_roll_sum / 100), 0.5);
-      if (raw_gy_pitch_sd < 2.0 && raw_gy_roll_sd < 2.0) {
-        raw_gy_pitch_center = pitch_mean;
-        raw_gy_roll_center = roll_mean;
+      double filtered_gy_sd[3];
+      for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < filtered_gy_counter; j++) {
+          filtered_gy_sum[i] += pow((filtered_gy_arr[i][j] - filtered_gy_mean[i]), 2);
+        }
+
+        filtered_gy_sd[i] = pow((filtered_gy_sum[i] / filtered_gy_counter), 0.5);
+      }
+
+      if (filtered_gy_sd[0] < 2.0 && filtered_gy_sd[1] < 2.0) {
+        for (int i = 0; i < 3; i++) {
+          filtered_gy_center[i] = filtered_gy_mean[i];
+        }
+
         is_calibrated = true;
-      } else {
-        raw_gy_pitch_center = 512.0;
-        raw_gy_roll_center = 512.0;
       }
+
+      filtered_gy_counter = 0;
     }
   }
 
   if (is_calibrated) {
-    if (raw_acc_rp_counter < 15) {
-      raw_acc_roll_arr[raw_acc_rp_counter] = acc[0];
-      raw_acc_pitch_arr[raw_acc_rp_counter] = acc[1];
-      raw_acc_rp_counter++;
+    if (filtered_acc_counter < 15) {
+      filtered_acc_arr[filtered_acc_counter] = acc[0];
+      filtered_acc_counter++;
     } else {
-      raw_acc_rp_counter = 0;
-
-      double raw_acc_roll_sum = 0.0;
-      double raw_acc_pitch_sum = 0.0;
-      for (int i = 0; i < 15; i++) {
-        raw_acc_roll_sum += raw_acc_roll_arr[i];
-        raw_acc_pitch_sum += raw_acc_pitch_arr[i];
+      double filtered_acc_sum[3] = 0.0;
+      for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < filtered_acc_counter; j++) {
+          filtered_acc_sum[i] += filtered_acc_arr[j];
+        }
       }
 
-      acc_raw_rp[0] = raw_acc_roll_sum / 15.0;
-      acc_raw_rp[1] = raw_acc_pitch_sum / 15.0;
+      for (int i = 0; i < 3; i++) {
+        filtered_acc[i] = filtered_acc_sum[i] / filtered_acc_counter;
+      }
+
+      filtered_acc_counter = 0;
+    }
+
+    for (int i = 0; i < 3; i++) {
+      filtered_gy[i] = gy[i] / filtered_gy_center[i];
     }
   }
 }
@@ -155,8 +163,8 @@ void Filter::update_rpy()
   for (int i = 0; i < 3; i++) {
     // value mapping (for conversion) refers to the link below:
     // https://emanual.robotis.com/docs/en/platform/op2/getting_started/
-    gy[i] = keisan::map(gy_raw[i], 512.0, 1023.0, 0.0, 8.72665) * gy_raw_mux[i];
-    acc[i] = keisan::map(acc_raw[i], 512.0, 1023.0, 0.0, 39.2266);
+    gy[i] = keisan::map(raw_gy[i], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[i];
+    acc[i] = keisan::map(raw_acc[i], 512.0, 1023.0, 0.0, 39.2266);
   }
 
   if (is_calibrated) {

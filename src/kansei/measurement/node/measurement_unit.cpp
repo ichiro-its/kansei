@@ -18,6 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <kansei_interfaces/msg/orientation.hpp>
+#include <kansei_interfaces/msg/unit.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <array>
+
 #include "kansei/measurement/node/measurement_unit.hpp"
 
 #include "keisan/keisan.hpp"
@@ -27,29 +33,55 @@ using namespace keisan::literals;  // NOLINT
 namespace kansei
 {
 
-MeasurementUnit::MeasurementUnit()
-: rpy(0_deg, 0_deg, 0_deg), is_calibrated(false), acc_raw_rp(keisan::Vector<2>::zero())
+MeasurementUnit::MeasurementUnit(rclcpp::Node::SharedPtr node)
+: rpy(0_deg, 0_deg, 0_deg), is_calibrated(false), filtered_acc(keisan::Vector<3>::zero())
 {
+  orientation_publisher = node->create_publisher<kansei_interfaces::msg::Orientation>(
+    get_node_prefix() + "/orientation", 10);
+
+  unit_publisher = node->create_publisher<kansei_interfaces::msg::Unit>(
+    get_node_prefix() + "/unit", 10);
 }
 
-keisan::Angle<double> MeasurementUnit::get_roll() const
+keisan::Euler<double> MeasurementUnit::get_orientation() const
 {
-  return rpy.roll;
+  return keisan::Euler<double>(
+    rpy.roll.normalize(), rpy.pitch.normalize(), rpy.yaw.normalize());
 }
 
-keisan::Angle<double> MeasurementUnit::get_pitch() const
+keisan::Vector<3> MeasurementUnit::get_filtered_gy() const
 {
-  return rpy.pitch;
+  return filtered_gy;
 }
 
-keisan::Angle<double> MeasurementUnit::get_orientation() const
+keisan::Vector<3> MeasurementUnit::get_filtered_acc() const
 {
-  return rpy.yaw.normalize();
+  return filtered_acc;
 }
 
-keisan::Vector<2> MeasurementUnit::get_acc_rp() const
+void MeasurementUnit::publish_orientation()
 {
-  return acc_raw_rp;
+  auto orientation_msg = kansei_interfaces::msg::Orientation();
+
+  orientation_msg.orientation = std::array<float, 3>(
+    {rpy.roll.normalize(), rpy.pitch.normalize(), rpy.yaw.normalize()});
+
+  orientation_publisher->publish(orientation_msg);
+}
+
+void MeasurementUnit::publish_unit()
+{
+  auto unit_msg = kansei_interfaces::msg::Unit();
+
+  unit_msg.gyro = std::array<float, 3>(
+    {rpy.roll.normalize(), rpy.pitch.normalize(), rpy.yaw.normalize()});
+
+  unit_publisher->publish(unit_msg);
+}
+
+void MeasurementUnit::subscribe_unit()
+{
+
 }
 
 }  // namespace kansei

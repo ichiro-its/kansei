@@ -40,12 +40,6 @@ public:
   void update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds);
   void update_rpy();
 
-  float get_roll_gy() const {return gy[0] - raw_gy_roll_center;}
-  float get_pitch_gy() const {return gy[1] - raw_gy_pitch_center;}
-
-  float get_roll_acc() const {return acc[0];}
-  float get_pitch_acc() const {return acc[1];}
-
   void reset_orientation();
   void set_orientation_to(const keisan::Angle<double> & target_orientation);
   void set_orientation_raw_to(const keisan::Angle<double> & target_raw_orientation);
@@ -55,29 +49,22 @@ private:
   bool is_initialized;
 
   keisan::Angle<double> yaw_raw;
-  keisan::Vector<3> gy_raw_mux;
+  keisan::Vector<3> raw_gy_mux;
 
   keisan::Angle<double> orientation_compensation;
   keisan::Angle<double> raw_orientation_compensation;
 
   // filter needs
-  keisan::Vector<3> gy;
-  keisan::Vector<3> gy_raw;
-  keisan::Vector<3> acc;
-  keisan::Vector<3> acc_raw;
   double seconds;
   double delta_seconds;
 
   // accelero variables
-  double raw_acc_roll_arr[15];
-  double raw_acc_pitch_arr[15];
-  int raw_acc_rp_counter;
+  double filtered_acc_arr[3][15];
+  int filtered_acc_counter;
   // gyro variables
-  double raw_gy_roll_arr[100];
-  double raw_gy_roll_center;
-  double raw_gy_pitch_arr[100];
-  double raw_gy_pitch_center;
-  int raw_gy_rp_counter;
+  double filtered_gy_arr[3][100];
+  double filtered_gy_center[3];
+  int filtered_gy_counter;
 };
 
 }  // namespace kansei
