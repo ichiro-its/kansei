@@ -18,45 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
-#define KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
+#ifndef KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_
+#define KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_
 
-#include <kansei_interfaces/msg/orientation.hpp>
-#include <kansei_interfaces/msg/unit.hpp>
+#include <kansei_interfaces/msg/fallen.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 #include <string>
 
-#include "kansei/measurement/node/measurement_unit.hpp"
+#include "kansei/fallen/node/fallen_determinant.hpp"
 
 namespace kansei
 {
 
-class MeasurementNode
+class FallenNode
 {
 public:
-  explicit MeasurementNode(
-    rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit);
+  explicit FallenNode(
+    rclcpp::Node::SharedPtr node, std::shared_ptr<FallenDeterminant> fallen_determinant);
 
-  std::string get_node_prefix() {return "measurement";}
+  std::string get_node_prefix() {return "fallen";}
 
-  void update_measurement();
+  void update_fallen(keisan::Euler<double> rpy, keisan::Vector<3> acc);
 
 protected:
-  void publish_orientation();
+  void publish_fallen();
 
-  void publish_unit();
-  void subscribe_unit();
+  std::shared_ptr<FallenDeterminant> fallen_determinant;
 
-  std::shared_ptr<MeasurementUnit> measurement_unit;
-
-  rclcpp::Publisher<kansei_interfaces::msg::Orientation> orientation_publisher;
-
-  rclcpp::Publisher<kansei_interfaces::msg::Unit> unit_publisher;
-  // need to declare some subscriber
+  rclcpp::Publisher<kansei_interfaces::msg::Fallen> fallen_publisher;
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
+#endif  // KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_

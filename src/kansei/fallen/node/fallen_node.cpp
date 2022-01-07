@@ -18,45 +18,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
-#define KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
-
-#include <kansei_interfaces/msg/orientation.hpp>
-#include <kansei_interfaces/msg/unit.hpp>
+#include <kansei_interfaces/msg/fallen.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 #include <string>
 
-#include "kansei/measurement/node/measurement_unit.hpp"
+#include "kansei/fallen/fallen.hpp"
+#include "keisan/keisan.hpp"
+
+using namespace keisan::literals;  // NOLINT
 
 namespace kansei
 {
 
-class MeasurementNode
+FallenNode::FallenNode(
+  rclcpp::Node::SharedPtr node, std::shared_ptr<FallenDeterminant> fallen_determinant)
+: fallen_determinant(fallen_determinant)
 {
-public:
-  explicit MeasurementNode(
-    rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit);
+  fallen_publisher = node->create_publisher<kansei_interfaces::msg::Fallen>(
+    get_node_prefix() + "/fallen", 10);
+}
 
-  std::string get_node_prefix() {return "measurement";}
+void FallenNode::update_fallen(keisan::Euler<double> rpy, keisan::Vector<3> acc)
+{
+  if (fallen_determinant->get_determinant_type() == DeterminantType::ACCELERO) {
+    fallen_determinant->update_fallen_status(acc);
+  } else if (fallen_determinant->get_determinant_type() == DeterminantType::ORIENTATION) {
+    fallen_determinant->update_fallen_status(rpy);
+  } else {
+    // do some exception
+  }
 
-  void update_measurement();
+  if (fallen_determinant->is_fallen()) {
+    publish_fallen();
+  }
+}
 
-protected:
-  void publish_orientation();
+void FallenNode::publish_fallen()
+{
+  auto fallen_msg = kansei_interfaces::msg::Fallen();
 
-  void publish_unit();
-  void subscribe_unit();
+  fallen_msg.fallen_status = fallen_determinant->get_fallen_status();
 
-  std::shared_ptr<MeasurementUnit> measurement_unit;
-
-  rclcpp::Publisher<kansei_interfaces::msg::Orientation> orientation_publisher;
-
-  rclcpp::Publisher<kansei_interfaces::msg::Unit> unit_publisher;
-  // need to declare some subscriber
-};
+  fallen_publisher->publish(fallen_msg);
+}
 
 }  // namespace kansei
-
-#endif  // KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_

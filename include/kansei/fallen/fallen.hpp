@@ -23,6 +23,7 @@
 
 #include "kansei/fallen/determinant/determinant_type.hpp"
 #include "kansei/fallen/node/fallen_determinant.hpp"
+#include "kansei/fallen/node/fallen_node.hpp"
 #include "kansei/fallen/node/fallen_status.hpp"
 
 #endif  // KANSEI__FALLEN__FALLEN_HPP_

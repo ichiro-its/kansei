@@ -62,17 +62,17 @@ void FallenDeterminant::update_fallen_status(keisan::Euler<double> rpy)
   fallen_status = FallenStatus::STANDUP;
 }
 
-void FallenDeterminant::update_fallen_status(keisan::Vector<2> acc_rp)
+void FallenDeterminant::update_fallen_status(keisan::Vector<3> acc)
 {
   fallen_status = FallenStatus::STANDUP;
 
-  if (acc_rp[1] < fallen_front_raw_limit) {
+  if (acc[1] < fallen_front_raw_limit) {
     fallen_status = FallenStatus::FORWARD;
-  } else if (acc_rp[1] > fallen_back_raw_limit) {
+  } else if (acc[1] > fallen_back_raw_limit) {
     fallen_status = FallenStatus::BACKWARD;
-  } else if (acc_rp[0] > fallen_right_raw_limit) {
+  } else if (acc[0] > fallen_right_raw_limit) {
     fallen_status = FallenStatus::RIGHT;
-  } else if (acc_rp[0] < fallen_left_raw_limit) {
+  } else if (acc[0] < fallen_left_raw_limit) {
     fallen_status = FallenStatus::LEFT;
   }
 }
