@@ -39,9 +39,9 @@ public:
   explicit MeasurementNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit);
 
-  std::string get_node_prefix() {return "measurement";}
-
   void update_measurement();
+
+  std::shared_ptr<MeasurementUnit> get_measurement_unit() const;
 
 protected:
   void publish_orientation();
@@ -51,9 +51,9 @@ protected:
 
   std::shared_ptr<MeasurementUnit> measurement_unit;
 
-  rclcpp::Publisher<kansei_interfaces::msg::Orientation> orientation_publisher;
+  rclcpp::Publisher<kansei_interfaces::msg::Orientation>::SharedPtr orientation_publisher;
 
-  rclcpp::Publisher<kansei_interfaces::msg::Unit> unit_publisher;
+  rclcpp::Publisher<kansei_interfaces::msg::Unit>::SharedPtr unit_publisher;
   // need to declare some subscriber
 };
 

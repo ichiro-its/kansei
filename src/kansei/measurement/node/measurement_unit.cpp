@@ -28,7 +28,9 @@ namespace kansei
 {
 
 MeasurementUnit::MeasurementUnit()
-: rpy(0_deg, 0_deg, 0_deg), is_calibrated(false), filtered_acc(keisan::Vector<3>::zero())
+: rpy(0_deg, 0_deg, 0_deg), is_calibrated(false), filtered_acc(keisan::Vector<3>::zero()),
+  raw_acc(keisan::Vector<3>::zero()), gy(keisan::Vector<3>::zero()),
+  acc(keisan::Vector<3>::zero()), raw_gy(keisan::Vector<3>::zero())
 {
 }
 

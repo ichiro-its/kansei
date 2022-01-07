@@ -22,6 +22,7 @@
 #include <kansei_interfaces/msg/unit.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+#include <experimental/array>
 #include <array>
 #include <memory>
 #include <string>
@@ -36,25 +37,26 @@ namespace kansei
 
 MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
-: measurement_unit(measurement_unit)
 {
   orientation_publisher = node->create_publisher<kansei_interfaces::msg::Orientation>(
-    get_node_prefix() + "/orientation", 10);
+    "orientation", 10);
 
   unit_publisher = node->create_publisher<kansei_interfaces::msg::Unit>(
-    get_node_prefix() + "/unit", 10);
+    "unit", 10);
 
   // need to initialize some subscriber
+
+  this->measurement_unit = measurement_unit;
 }
 
 void MeasurementNode::update_measurement()
 {
-  if (dynamic_cast<std::shared_ptr<MPU>>(measurement_unit)) {
+  if (std::dynamic_pointer_cast<MPU>(measurement_unit)) {
     measurement_unit->update_rpy();
 
     publish_orientation();
-  } else if (dynamic_cast<std::shared_ptr<Filter>>(measurement_unit)) {
-    auto filter_measurement = dynamic_cast<std::shared_ptr<Filter>>(measurement_unit);
+  } else if (std::dynamic_pointer_cast<Filter>(measurement_unit)) {
+    auto filter_measurement = std::dynamic_pointer_cast<Filter>(measurement_unit);
 
     subscribe_unit();
 
@@ -68,14 +70,20 @@ void MeasurementNode::update_measurement()
   }
 }
 
+std::shared_ptr<MeasurementUnit> MeasurementNode::get_measurement_unit() const
+{
+  return measurement_unit;
+}
+
 void MeasurementNode::publish_orientation()
 {
   auto orientation_msg = kansei_interfaces::msg::Orientation();
 
-  keisan::Euler<double> rpy = unit->get_orientation();
+  keisan::Euler<double> rpy = measurement_unit->get_orientation();
 
-  orientation_msg.orientation = std::array<float, 3>(
-    {rpy.roll.normalize(), rpy.pitch.normalize(), rpy.yaw.normalize()});
+  orientation_msg.orientation = std::experimental::make_array(
+    static_cast<float>(rpy.roll.degree()), static_cast<float>(rpy.pitch.degree()),
+    static_cast<float>(rpy.yaw.degree()));
 
   orientation_publisher->publish(orientation_msg);
 }
@@ -84,11 +92,13 @@ void MeasurementNode::publish_unit()
 {
   auto unit_msg = kansei_interfaces::msg::Unit();
 
-  keisan::Vector<3> gy = unit->get_filtered_gy();
-  keisan::Vector<3> acc = unit->get_filtered_acc();
+  keisan::Vector<3> gy = measurement_unit->get_filtered_gy();
+  keisan::Vector<3> acc = measurement_unit->get_filtered_acc();
 
-  unit_msg.gyro = std::array<float, 3>({gy[0], gy[1], gy[2]});
-  unit_msg.accelero = std::array<float, 3>({acc[0], acc[1], acc[2]});
+  unit_msg.gyro = std::experimental::make_array(
+    static_cast<float>(gy[0]), static_cast<float>(gy[1]), static_cast<float>(gy[2]));
+  unit_msg.accelero = std::experimental::make_array(
+    static_cast<float>(acc[0]), static_cast<float>(acc[1]), static_cast<float>(acc[2]));
 
   unit_publisher->publish(unit_msg);
 }

@@ -24,7 +24,8 @@
 #include <string>
 #include <vector>
 
-#include "kansei/unit/unit.hpp"
+#include "kansei/measurement/measurement.hpp"
+#include "keisan/keisan.hpp"
 
 int main(int argc, char * argv[])
 {
@@ -49,9 +50,11 @@ int main(int argc, char * argv[])
   while (true) {
     mpu.update_rpy();
 
-    std::cout << "Roll: " << mpu.get_roll().degree() << std::endl;
-    std::cout << "Pitch: " << mpu.get_pitch().degree() << std::endl;
-    std::cout << "Yaw: " << mpu.get_orientation().degree() << std::endl;
+    keisan::Euler<double> rpy = mpu.get_orientation();
+
+    std::cout << "Roll: " << rpy.roll.degree() << std::endl;
+    std::cout << "Pitch: " << rpy.pitch.degree() << std::endl;
+    std::cout << "Yaw: " << rpy.yaw.degree() << std::endl;
     std::cout << "\033c";
   }
 

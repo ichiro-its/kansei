@@ -37,10 +37,10 @@ FallenNode::FallenNode(
 : fallen_determinant(fallen_determinant)
 {
   fallen_publisher = node->create_publisher<kansei_interfaces::msg::Fallen>(
-    get_node_prefix() + "/fallen", 10);
+    "fallen", 10);
 }
 
-void FallenNode::update_fallen(keisan::Euler<double> rpy, keisan::Vector<3> acc)
+void FallenNode::update_fallen(const keisan::Euler<double> & rpy, const keisan::Vector<3> & acc)
 {
   if (fallen_determinant->get_determinant_type() == DeterminantType::ACCELERO) {
     fallen_determinant->update_fallen_status(acc);

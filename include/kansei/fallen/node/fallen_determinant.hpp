@@ -38,8 +38,8 @@ public:
 
   void load_data(const std::string & path);
 
-  void update_fallen_status(keisan::Euler<double> rpy);
-  void update_fallen_status(keisan::Vector<3> acc);
+  void update_fallen_status(const keisan::Euler<double> & rpy);
+  void update_fallen_status(const keisan::Vector<3> & acc);
 
   bool is_fallen() const;
   FallenStatus get_fallen_status() const;

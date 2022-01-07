@@ -40,10 +40,8 @@ namespace kansei
 
 Filter::Filter()
 : is_initialized(false), yaw_raw(keisan::make_degree(0.0)), raw_gy_mux(keisan::Vector<3>::zero()),
-  orientation_compensation(keisan::make_degree(0.0)), raw_acc(keisan::Vector<3>::zero()),
-  raw_orientation_compensation(keisan::make_degree(0.0)), gy(keisan::Vector<3>::zero()),
-  acc(keisan::Vector<3>::zero()), seconds(0.0), filtered_acc_counter(0), filtered_gy_counter(0),
-  raw_gy(keisan::Vector<3>::zero())
+  orientation_compensation(keisan::make_degree(0.0)), filtered_gy_counter(0),
+  raw_orientation_compensation(keisan::make_degree(0.0)), seconds(0.0), filtered_acc_counter(0)
 {
   filter.set_world_frame(ENU);
   filter.set_algorithm_gain(0.1);
@@ -83,7 +81,9 @@ void Filter::load_data(const std::string & path)
   }
 }
 
-void Filter::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds)
+void Filter::update_gy_acc(
+  const keisan::Vector<3> & gy, const keisan::Vector<3> & acc,
+  const double & seconds)
 {
   this->raw_gy = gy;
   this->raw_acc = acc;
@@ -99,8 +99,10 @@ void Filter::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double s
 
       filtered_gy_counter++;
     } else {
-      double filtered_gy_sum[3] = 0.0;
+      double filtered_gy_sum[3];
       for (int i = 0; i < 3; i++) {
+        filtered_gy_sum[i] = 0.0;
+
         for (int j = 0; j < filtered_gy_counter; j++) {
           filtered_gy_sum[i] += filtered_gy_arr[i][j];
         }
@@ -135,13 +137,18 @@ void Filter::update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double s
 
   if (is_calibrated) {
     if (filtered_acc_counter < 15) {
-      filtered_acc_arr[filtered_acc_counter] = acc[0];
+      for (int i = 0; i < 3; i++) {
+        filtered_acc_arr[i][filtered_acc_counter] = acc[i];
+      }
+
       filtered_acc_counter++;
     } else {
-      double filtered_acc_sum[3] = 0.0;
+      double filtered_acc_sum[3];
       for (int i = 0; i < 3; i++) {
+        filtered_acc_sum[i] = 0.0;
+
         for (int j = 0; j < filtered_acc_counter; j++) {
-          filtered_acc_sum[i] += filtered_acc_arr[j];
+          filtered_acc_sum[i] += filtered_acc_arr[i][j];
         }
       }
 

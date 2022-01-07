@@ -57,12 +57,12 @@ void FallenDeterminant::load_data(const std::string & path)
   }
 }
 
-void FallenDeterminant::update_fallen_status(keisan::Euler<double> rpy)
+void FallenDeterminant::update_fallen_status(const keisan::Euler<double> & rpy)
 {
   fallen_status = FallenStatus::STANDUP;
 }
 
-void FallenDeterminant::update_fallen_status(keisan::Vector<3> acc)
+void FallenDeterminant::update_fallen_status(const keisan::Vector<3> & acc)
 {
   fallen_status = FallenStatus::STANDUP;
 

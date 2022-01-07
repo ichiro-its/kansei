@@ -31,7 +31,7 @@ namespace kansei
 class MeasurementUnit
 {
 public:
-  explicit MeasurementUnit();
+  MeasurementUnit();
   virtual ~MeasurementUnit() {}
 
   virtual void update_rpy() {}

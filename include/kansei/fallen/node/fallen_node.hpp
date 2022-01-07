@@ -38,16 +38,14 @@ public:
   explicit FallenNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<FallenDeterminant> fallen_determinant);
 
-  std::string get_node_prefix() {return "fallen";}
-
-  void update_fallen(keisan::Euler<double> rpy, keisan::Vector<3> acc);
+  void update_fallen(const keisan::Euler<double> & rpy, const keisan::Vector<3> & acc);
 
 protected:
   void publish_fallen();
 
   std::shared_ptr<FallenDeterminant> fallen_determinant;
 
-  rclcpp::Publisher<kansei_interfaces::msg::Fallen> fallen_publisher;
+  rclcpp::Publisher<kansei_interfaces::msg::Fallen>::SharedPtr fallen_publisher;
 };
 
 }  // namespace kansei

@@ -37,7 +37,9 @@ public:
 
   void load_data(const std::string & path);
 
-  void update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds);
+  void update_gy_acc(
+    const keisan::Vector<3> & gy, const keisan::Vector<3> & acc,
+    const double & seconds);
   void update_rpy();
 
   void reset_orientation();
