@@ -30,7 +30,7 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/measurement/filter/madgwick/madgwick_filter.cpp"
   "src/${PROJECT_NAME}/measurement/filter/madgwick/stateless_orientation.cpp"
   "src/${PROJECT_NAME}/measurement/sensor/mpu.cpp"
-  "src/${PROJECT_NAME}/node/inertial_manager.cpp")
+  "src/${PROJECT_NAME}/node/kansei_node.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

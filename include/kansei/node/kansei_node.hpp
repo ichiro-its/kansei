@@ -18,52 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef KANSEI__NODE__KANSEI_NODE_HPP_
+#define KANSEI__NODE__KANSEI_NODE_HPP_
+
 #include <rclcpp/rclcpp.hpp>
 
-#include <chrono>
 #include <memory>
 #include <string>
-
-#include "kansei/node/inertial_manager.hpp"
 
 #include "kansei/fallen/fallen.hpp"
 #include "kansei/measurement/measurement.hpp"
 
-using namespace std::chrono_literals;
-
 namespace kansei
 {
 
-InertialManager::InertialManager(const std::string & node_name)
-: rclcpp::Node(node_name), measurement_node(nullptr), fallen_node(nullptr)
+class KanseiNode : public rclcpp::Node
 {
-  node_timer = this->create_wall_timer(
-    8ms,
-    [this]() {
-      if (measurement_node) {
-        measurement_node->update_measurement();
+public:
+  explicit KanseiNode(const std::string & node_name);
 
-        if (fallen_node) {
-          auto measurement_unit = measurement_node->get_measurement_unit();
+  void set_measurement_unit(std::shared_ptr<MeasurementUnit> measurement_unit);
 
-          fallen_node->update_fallen(
-            measurement_unit->get_orientation(), measurement_unit->get_filtered_acc());
-        }
-      }
-    }
-  );
-}
+  void set_fallen_determinant(std::shared_ptr<FallenDeterminant> fallen_determinant);
 
-void InertialManager::set_measurement_unit(std::shared_ptr<MeasurementUnit> measurement_unit)
-{
-  measurement_node = std::make_shared<MeasurementNode>(
-    this->create_sub_node(
-      "measurement"), measurement_unit);
-}
+private:
+  rclcpp::TimerBase::SharedPtr node_timer;
 
-void InertialManager::set_fallen_determinant(std::shared_ptr<FallenDeterminant> fallen_determinant)
-{
-  fallen_node = std::make_shared<FallenNode>(this->create_sub_node("fallen"), fallen_determinant);
-}
+  std::shared_ptr<MeasurementNode> measurement_node;
+
+  std::shared_ptr<FallenNode> fallen_node;
+};
 
 }  // namespace kansei
+
+#endif  // KANSEI__NODE__KANSEI_NODE_HPP_
