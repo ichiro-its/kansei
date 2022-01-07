@@ -37,6 +37,7 @@ namespace kansei
 
 MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
+: measurement_unit(measurement_unit)
 {
   orientation_publisher = node->create_publisher<kansei_interfaces::msg::Orientation>(
     "orientation", 10);
@@ -45,8 +46,6 @@ MeasurementNode::MeasurementNode(
     "unit", 10);
 
   // need to initialize some subscriber
-
-  this->measurement_unit = measurement_unit;
 }
 
 void MeasurementNode::update_measurement()
