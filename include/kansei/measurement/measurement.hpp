@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Ichiro ITS
+// Copyright (c) 2021 ICHIRO ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,45 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <iomanip>
-#include <iostream>
-#include <numeric>
-#include <string>
-#include <vector>
+#ifndef KANSEI__MEASUREMENT__MEASUREMENT_HPP_
+#define KANSEI__MEASUREMENT__MEASUREMENT_HPP_
 
-#include "kansei/measurement/measurement.hpp"
-#include "keisan/keisan.hpp"
+#include "kansei/measurement/filter/filter.hpp"
+#include "kansei/measurement/node/measurement_node.hpp"
+#include "kansei/measurement/node/measurement_unit.hpp"
+#include "kansei/measurement/sensor/mpu.hpp"
 
-int main(int argc, char * argv[])
-{
-  std::string port_name = "/dev/ttyUSB1";
-
-  if (argc > 1) {
-    port_name = argv[1];
-  }
-
-  std::cout << "set the port name as " << port_name << "\n";
-  kansei::MPU mpu(port_name);
-
-  std::cout << "connect to mpu\n";
-  if (mpu.connect()) {
-    std::cout << "succeeded to connect to mpu!\n";
-  } else {
-    std::cout << "failed to connect to mpu!\n" <<
-      "try again!\n";
-    return 0;
-  }
-
-  while (true) {
-    mpu.update_rpy();
-
-    keisan::Euler<double> rpy = mpu.get_orientation();
-
-    std::cout << "Roll: " << rpy.roll.degree() << std::endl;
-    std::cout << "Pitch: " << rpy.pitch.degree() << std::endl;
-    std::cout << "Yaw: " << rpy.yaw.degree() << std::endl;
-    std::cout << "\033c";
-  }
-
-  return 0;
-}
+#endif  // KANSEI__MEASUREMENT__MEASUREMENT_HPP_

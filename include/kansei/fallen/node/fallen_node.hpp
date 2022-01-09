@@ -18,19 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__FILTER__MADGWICK__WORLD_FRAME_HPP_
-#define KANSEI__FILTER__MADGWICK__WORLD_FRAME_HPP_
+#ifndef KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_
+#define KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_
+
+#include <kansei_interfaces/msg/fallen.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <memory>
+#include <string>
+
+#include "kansei/fallen/node/fallen_determinant.hpp"
 
 namespace kansei
 {
 
-enum WorldFrame
+class FallenNode
 {
-  ENU,
-  NED,
-  NWU
+public:
+  explicit FallenNode(
+    rclcpp::Node::SharedPtr node, std::shared_ptr<FallenDeterminant> fallen_determinant);
+
+  void update_fallen(const keisan::Euler<double> & rpy, const keisan::Vector<3> & acc);
+
+protected:
+  void publish_fallen();
+
+  std::shared_ptr<FallenDeterminant> fallen_determinant;
+
+  rclcpp::Publisher<kansei_interfaces::msg::Fallen>::SharedPtr fallen_publisher;
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__FILTER__MADGWICK__WORLD_FRAME_HPP_
+#endif  // KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_

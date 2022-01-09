@@ -18,11 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef KANSEI__FILTER__MADGWICK_HPP_
-#define KANSEI__FILTER__MADGWICK_HPP_
+#ifndef KANSEI__MEASUREMENT__FILTER__MADGWICK__MADGWICK_HPP_
+#define KANSEI__MEASUREMENT__FILTER__MADGWICK__MADGWICK_HPP_
 
-#include "kansei/filter/madgwick/madgwick_filter.hpp"
-#include "kansei/filter/madgwick/stateless_orientation.hpp"
-#include "kansei/filter/madgwick/world_frame.hpp"
+#include "kansei/measurement/filter/madgwick/madgwick_filter.hpp"
+#include "kansei/measurement/filter/madgwick/stateless_orientation.hpp"
+#include "kansei/measurement/filter/madgwick/world_frame.hpp"
 
-#endif  // KANSEI__FILTER__MADGWICK_HPP_
+#endif  // KANSEI__MEASUREMENT__FILTER__MADGWICK__MADGWICK_HPP_

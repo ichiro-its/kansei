@@ -18,57 +18,57 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
-#define KANSEI__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
+#ifndef KANSEI__MEASUREMENT__FILTER__FILTER_HPP_
+#define KANSEI__MEASUREMENT__FILTER__FILTER_HPP_
 
-#include <cmath>
-#include <iostream>
+#include <string>
 
-#include "kansei/filter/madgwick/world_frame.hpp"
+#include "kansei/measurement/filter/madgwick/madgwick.hpp"
+#include "kansei/measurement/node/measurement_unit.hpp"
 #include "keisan/keisan.hpp"
 
 namespace kansei
 {
 
-class MadgwickFilter
+class Filter : public MeasurementUnit
 {
 public:
-  MadgwickFilter();
-  ~MadgwickFilter();
+  Filter();
 
-  void set_algorithm_gain(double gain);
-  void set_drift_bias_gain(double zeta);
-  void set_world_frame(WorldFrame frame);
+  void load_data(const std::string & path);
 
-  void set_orientation(double q0, double q1, double q2, double q3);
-  keisan::Quaternion get_orientation();
+  void update_gy_acc(
+    const keisan::Vector<3> & gy, const keisan::Vector<3> & acc,
+    const double & seconds);
+  void update_rpy();
 
-  void madgwick_ahrs_update(
-    float gx, float gy, float gz,
-    float ax, float ay, float az,
-    float mx, float my, float mz,
-    float dt);
-
-  void madgwick_ahrs_update_imu(
-    float gx, float gy, float gz,
-    float ax, float ay, float az,
-    float dt);
-
-  void get_gravity(
-    float & rx, float & ry, float & rz,
-    float gravity = 9.80665);
+  void reset_orientation();
+  void set_orientation_to(const keisan::Angle<double> & target_orientation);
+  void set_orientation_raw_to(const keisan::Angle<double> & target_raw_orientation);
 
 private:
-  // paramaters
-  double gain;             // algorithm gain
-  double zeta;             // gyro drift bias gain
-  WorldFrame world_frame;  // NWU, ENU, NED
+  MadgwickFilter filter;
+  bool is_initialized;
 
-  // state variables
-  double q0, q1, q2, q3;      // quaternion
-  float w_bx_, w_by_, w_bz_;
+  keisan::Angle<double> yaw_raw;
+  keisan::Vector<3> raw_gy_mux;
+
+  keisan::Angle<double> orientation_compensation;
+  keisan::Angle<double> raw_orientation_compensation;
+
+  // filter needs
+  double seconds;
+  double delta_seconds;
+
+  // accelero variables
+  double filtered_acc_arr[3][15];
+  int filtered_acc_counter;
+  // gyro variables
+  double filtered_gy_arr[3][100];
+  double filtered_gy_center[3];
+  int filtered_gy_counter;
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__FILTER__MADGWICK__MADGWICK_FILTER_HPP_
+#endif  // KANSEI__MEASUREMENT__FILTER__FILTER_HPP_

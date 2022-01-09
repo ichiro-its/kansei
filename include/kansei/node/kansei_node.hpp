@@ -18,45 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <iomanip>
-#include <iostream>
-#include <numeric>
+#ifndef KANSEI__NODE__KANSEI_NODE_HPP_
+#define KANSEI__NODE__KANSEI_NODE_HPP_
+
+#include <rclcpp/rclcpp.hpp>
+
+#include <memory>
 #include <string>
-#include <vector>
 
+#include "kansei/fallen/fallen.hpp"
 #include "kansei/measurement/measurement.hpp"
-#include "keisan/keisan.hpp"
 
-int main(int argc, char * argv[])
+namespace kansei
 {
-  std::string port_name = "/dev/ttyUSB1";
 
-  if (argc > 1) {
-    port_name = argv[1];
-  }
+class KanseiNode : public rclcpp::Node
+{
+public:
+  explicit KanseiNode(const std::string & node_name);
 
-  std::cout << "set the port name as " << port_name << "\n";
-  kansei::MPU mpu(port_name);
+  void set_measurement_unit(std::shared_ptr<MeasurementUnit> measurement_unit);
 
-  std::cout << "connect to mpu\n";
-  if (mpu.connect()) {
-    std::cout << "succeeded to connect to mpu!\n";
-  } else {
-    std::cout << "failed to connect to mpu!\n" <<
-      "try again!\n";
-    return 0;
-  }
+  void set_fallen_determinant(std::shared_ptr<FallenDeterminant> fallen_determinant);
 
-  while (true) {
-    mpu.update_rpy();
+private:
+  rclcpp::TimerBase::SharedPtr node_timer;
 
-    keisan::Euler<double> rpy = mpu.get_orientation();
+  std::shared_ptr<MeasurementNode> measurement_node;
 
-    std::cout << "Roll: " << rpy.roll.degree() << std::endl;
-    std::cout << "Pitch: " << rpy.pitch.degree() << std::endl;
-    std::cout << "Yaw: " << rpy.yaw.degree() << std::endl;
-    std::cout << "\033c";
-  }
+  std::shared_ptr<FallenNode> fallen_node;
+};
 
-  return 0;
-}
+}  // namespace kansei
+
+#endif  // KANSEI__NODE__KANSEI_NODE_HPP_

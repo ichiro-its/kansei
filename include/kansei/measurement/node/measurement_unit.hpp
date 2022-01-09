@@ -18,21 +18,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__FALLEN_STATUS_HPP_
-#define KANSEI__FALLEN_STATUS_HPP_
+#ifndef KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_
+#define KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_
+
+#include <string>
+
+#include "keisan/keisan.hpp"
 
 namespace kansei
 {
 
-enum FallenStatus
+class MeasurementUnit
 {
-  LEFT,
-  BACKWARD,
-  STANDUP,
-  FORWARD,
-  RIGHT
+public:
+  MeasurementUnit();
+  virtual ~MeasurementUnit() {}
+
+  virtual void update_rpy() {}
+
+  virtual void reset_orientation() {}
+  virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
+
+  keisan::Euler<double> get_orientation() const;
+
+  keisan::Vector<3> get_filtered_gy() const;
+
+  keisan::Vector<3> get_filtered_acc() const;
+
+protected:
+  keisan::Euler<double> rpy;
+
+  keisan::Vector<3> raw_gy;
+  keisan::Vector<3> gy;
+  keisan::Vector<3> filtered_gy;
+
+  keisan::Vector<3> raw_acc;
+  keisan::Vector<3> acc;
+  keisan::Vector<3> filtered_acc;
+
+  bool is_calibrated;
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__FALLEN_STATUS_HPP_
+#endif  // KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_

@@ -18,12 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef KANSEI__SENSOR__MPU_HPP_
-#define KANSEI__SENSOR__MPU_HPP_
+#ifndef KANSEI__MEASUREMENT__SENSOR__MPU_HPP_
+#define KANSEI__MEASUREMENT__SENSOR__MPU_HPP_
 
 #include <string>
 
-#include "kansei/measurement_unit.hpp"
+#include "kansei/measurement/node/measurement_unit.hpp"
 #include "keisan/angle.hpp"
 
 #include "./pthread.h"
@@ -55,4 +55,4 @@ private:
 
 }  // namespace kansei
 
-#endif  // KANSEI__SENSOR__MPU_HPP_
+#endif  // KANSEI__MEASUREMENT__SENSOR__MPU_HPP_

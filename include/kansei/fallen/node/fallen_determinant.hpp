@@ -18,69 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__MEASUREMENT_UNIT_HPP_
-#define KANSEI__MEASUREMENT_UNIT_HPP_
+#ifndef KANSEI__FALLEN__NODE__FALLEN_DETERMINANT_HPP_
+#define KANSEI__FALLEN__NODE__FALLEN_DETERMINANT_HPP_
 
-#include "./fallen_status.hpp"
+#include <memory>
+#include <string>
+
+#include "kansei/fallen/node/fallen_status.hpp"
+#include "kansei/fallen/determinant/determinant_type.hpp"
 #include "keisan/keisan.hpp"
 
 namespace kansei
 {
 
-class MeasurementUnit
+class FallenDeterminant
 {
 public:
-  MeasurementUnit();
-  virtual ~MeasurementUnit() {}
+  explicit FallenDeterminant(const DeterminantType & type);
 
-  virtual void update_rpy() {}
-  void update_gy_acc(keisan::Vector<3> gy, keisan::Vector<3> acc, double seconds);
+  void load_data(const std::string & path);
 
-  void update_fallen_status();
-
-  virtual void reset_orientation() {}
-  virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
-
-  keisan::Angle<double> get_roll() const;
-  keisan::Angle<double> get_pitch() const;
-  keisan::Angle<double> get_orientation() const;
-
-  float get_roll_gy() const {return gy[0] - raw_gy_roll_center;}
-  float get_pitch_gy() const {return gy[1] - raw_gy_pitch_center;}
-
-  float get_roll_acc() const {return acc[0];}
-  float get_pitch_acc() const {return acc[1];}
+  void update_fallen_status(const keisan::Euler<double> & rpy);
+  void update_fallen_status(const keisan::Vector<3> & acc);
 
   bool is_fallen() const;
   FallenStatus get_fallen_status() const;
 
-  keisan::EulerAngles rpy;
+  DeterminantType get_determinant_type() const;
 
+private:
   FallenStatus fallen_status;
 
-  bool is_calibrated;
+  DeterminantType determinant_type;
 
-  // filter needs
-  keisan::Vector<3> gy;
-  keisan::Vector<3> gy_raw;
-  keisan::Vector<3> acc;
-  keisan::Vector<3> acc_raw;
-  double seconds;
-  double delta_seconds;
-
-  // fallen status changes needs
-  // accelero variables
-  double raw_acc_roll_arr[15];
-  double raw_acc_roll;
-  double raw_acc_pitch_arr[15];
-  double raw_acc_pitch;
-  int raw_acc_rp_counter;
-  // gyro variables
-  double raw_gy_roll_arr[100];
-  double raw_gy_roll_center;
-  double raw_gy_pitch_arr[100];
-  double raw_gy_pitch_center;
-  int raw_gy_rp_counter;
   // fallen raw variables
   float fallen_back_raw_limit;
   float fallen_front_raw_limit;
@@ -90,4 +60,4 @@ public:
 
 }  // namespace kansei
 
-#endif  // KANSEI__MEASUREMENT_UNIT_HPP_
+#endif  // KANSEI__FALLEN__NODE__FALLEN_DETERMINANT_HPP_

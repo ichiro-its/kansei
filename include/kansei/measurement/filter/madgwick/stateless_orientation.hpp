@@ -18,10 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_
-#define KANSEI__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_
+#ifndef KANSEI__MEASUREMENT__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_
+#define KANSEI__MEASUREMENT__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_
 
-#include "kansei/filter/madgwick/world_frame.hpp"
+#include "kansei/measurement/filter/madgwick/world_frame.hpp"
 
 #include "geometry_msgs/msg/quaternion.hpp"
 #include "geometry_msgs/msg/vector3.hpp"
@@ -46,4 +46,4 @@ public:
 
 }  // namespace kansei
 
-#endif  // KANSEI__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_
+#endif  // KANSEI__MEASUREMENT__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_

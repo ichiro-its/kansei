@@ -15,17 +15,22 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(kansei_interfaces REQUIRED)
 find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
-  "src/${PROJECT_NAME}/measurement_unit.cpp"
-  "src/${PROJECT_NAME}/filter/filter.cpp"
-  "src/${PROJECT_NAME}/filter/madgwick/madgwick_filter.cpp"
-  "src/${PROJECT_NAME}/filter/madgwick/stateless_orientation.cpp"
-  "src/${PROJECT_NAME}/sensor/mpu.cpp")
+  "src/${PROJECT_NAME}/fallen/node/fallen_determinant.cpp"
+  "src/${PROJECT_NAME}/fallen/node/fallen_node.cpp"
+  "src/${PROJECT_NAME}/measurement/node/measurement_unit.cpp"
+  "src/${PROJECT_NAME}/measurement/node/measurement_node.cpp"
+  "src/${PROJECT_NAME}/measurement/filter/filter.cpp"
+  "src/${PROJECT_NAME}/measurement/filter/madgwick/madgwick_filter.cpp"
+  "src/${PROJECT_NAME}/measurement/filter/madgwick/stateless_orientation.cpp"
+  "src/${PROJECT_NAME}/measurement/sensor/mpu.cpp"
+  "src/${PROJECT_NAME}/node/kansei_node.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -34,6 +39,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 ament_target_dependencies(${PROJECT_NAME}
   geometry_msgs
   keisan
+  kansei_interfaces
   rclcpp
   tf2
   tf2_geometry_msgs)
@@ -64,6 +70,7 @@ endif()
 ament_export_dependencies(
   geometry_msgs
   keisan
+  kansei_interfaces
   rclcpp
   tf2
   tf2_geometry_msgs)

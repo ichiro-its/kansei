@@ -18,45 +18,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <iomanip>
-#include <iostream>
-#include <numeric>
+#include <rclcpp/rclcpp.hpp>
+
+#include <chrono>
+#include <memory>
 #include <string>
-#include <vector>
 
+#include "kansei/node/kansei_node.hpp"
+
+#include "kansei/fallen/fallen.hpp"
 #include "kansei/measurement/measurement.hpp"
-#include "keisan/keisan.hpp"
 
-int main(int argc, char * argv[])
+using namespace std::chrono_literals;
+
+namespace kansei
 {
-  std::string port_name = "/dev/ttyUSB1";
 
-  if (argc > 1) {
-    port_name = argv[1];
-  }
+KanseiNode::KanseiNode(const std::string & node_name)
+: rclcpp::Node(node_name), measurement_node(nullptr), fallen_node(nullptr)
+{
+  node_timer = this->create_wall_timer(
+    8ms,
+    [this]() {
+      if (measurement_node) {
+        measurement_node->update_measurement();
 
-  std::cout << "set the port name as " << port_name << "\n";
-  kansei::MPU mpu(port_name);
+        if (fallen_node) {
+          auto measurement_unit = measurement_node->get_measurement_unit();
 
-  std::cout << "connect to mpu\n";
-  if (mpu.connect()) {
-    std::cout << "succeeded to connect to mpu!\n";
-  } else {
-    std::cout << "failed to connect to mpu!\n" <<
-      "try again!\n";
-    return 0;
-  }
-
-  while (true) {
-    mpu.update_rpy();
-
-    keisan::Euler<double> rpy = mpu.get_orientation();
-
-    std::cout << "Roll: " << rpy.roll.degree() << std::endl;
-    std::cout << "Pitch: " << rpy.pitch.degree() << std::endl;
-    std::cout << "Yaw: " << rpy.yaw.degree() << std::endl;
-    std::cout << "\033c";
-  }
-
-  return 0;
+          fallen_node->update_fallen(
+            measurement_unit->get_orientation(), measurement_unit->get_filtered_acc());
+        }
+      }
+    }
+  );
 }
+
+void KanseiNode::set_measurement_unit(std::shared_ptr<MeasurementUnit> measurement_unit)
+{
+  measurement_node = std::make_shared<MeasurementNode>(
+    this->create_sub_node(
+      "measurement"), measurement_unit);
+}
+
+void KanseiNode::set_fallen_determinant(std::shared_ptr<FallenDeterminant> fallen_determinant)
+{
+  fallen_node = std::make_shared<FallenNode>(this->create_sub_node("fallen"), fallen_determinant);
+}
+
+}  // namespace kansei

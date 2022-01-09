@@ -18,43 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef KANSEI__FILTER__FILTER_HPP_
-#define KANSEI__FILTER__FILTER_HPP_
+#ifndef KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
+#define KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
+
+#include <kansei_interfaces/msg/orientation.hpp>
+#include <kansei_interfaces/msg/unit.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 #include <string>
 
-#include "./madgwick.hpp"
-#include "../measurement_unit.hpp"
-#include "keisan/keisan.hpp"
+#include "kansei/measurement/node/measurement_unit.hpp"
 
 namespace kansei
 {
 
-class Filter : public MeasurementUnit
+class MeasurementNode
 {
 public:
-  Filter();
+  explicit MeasurementNode(
+    rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit);
 
-  void update_rpy();
+  void update_measurement();
 
-  void reset_orientation();
-  void set_orientation_to(const keisan::Angle<double> & target_orientation);
-  void set_orientation_raw_to(const keisan::Angle<double> & target_raw_orientation);
+  std::shared_ptr<MeasurementUnit> get_measurement_unit() const;
 
-  void load_data(std::string path);
+protected:
+  void publish_orientation();
 
-private:
-  MadgwickFilter filter;
-  bool is_initialized;
+  void publish_unit();
+  void subscribe_unit();
 
-  keisan::Angle<double> yaw_raw;
-  keisan::Vector<3> gy_raw_mux;
+  std::shared_ptr<MeasurementUnit> measurement_unit;
 
-  keisan::Angle<double> orientation_compensation;
-  keisan::Angle<double> raw_orientation_compensation;
+  rclcpp::Publisher<kansei_interfaces::msg::Orientation>::SharedPtr orientation_publisher;
+
+  rclcpp::Publisher<kansei_interfaces::msg::Unit>::SharedPtr unit_publisher;
+  // need to declare some subscriber
 };
 
 }  // namespace kansei
 
-#endif  // KANSEI__FILTER__FILTER_HPP_
+#endif  // KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
