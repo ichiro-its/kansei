@@ -27,6 +27,9 @@ using namespace keisan::literals;  // NOLINT
 namespace kansei
 {
 
+namespace measurement
+{
+
 MeasurementUnit::MeasurementUnit()
 : rpy(0_deg, 0_deg, 0_deg), is_calibrated(false), filtered_acc(keisan::Vector<3>::zero()),
   raw_acc(keisan::Vector<3>::zero()), gy(keisan::Vector<3>::zero()),
@@ -49,5 +52,7 @@ keisan::Vector<3> MeasurementUnit::get_filtered_acc() const
 {
   return filtered_acc;
 }
+
+}  // namespace measurement
 
 }  // namespace kansei

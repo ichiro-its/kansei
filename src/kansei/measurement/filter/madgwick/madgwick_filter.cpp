@@ -145,6 +145,9 @@ static inline void compensateMagneticDistortion(
 namespace kansei
 {
 
+namespace measurement
+{
+
 MadgwickFilter::MadgwickFilter()
 : gain(0.0), zeta(0.0), world_frame(ENU),
   q0(1.0), q1(0.0), q2(0.0), q3(0.0),
@@ -374,5 +377,7 @@ void MadgwickFilter::get_gravity(
       break;
   }
 }
+
+}  // namespace measurement
 
 }  // namespace kansei

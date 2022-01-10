@@ -18,21 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <kansei_interfaces/msg/orientation.hpp>
-#include <kansei_interfaces/msg/unit.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <experimental/array>
 #include <array>
 #include <memory>
 #include <string>
 
+#include "kansei_interfaces/msg/orientation.hpp"
+#include "kansei_interfaces/msg/unit.hpp"
 #include "kansei/measurement/measurement.hpp"
 #include "keisan/keisan.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 using namespace keisan::literals;  // NOLINT
 
 namespace kansei
+{
+
+namespace measurement
 {
 
 MeasurementNode::MeasurementNode(
@@ -106,5 +108,7 @@ void MeasurementNode::subscribe_unit()
 {
   // do unit value subscribing
 }
+
+}  // namespace measurement
 
 }  // namespace kansei

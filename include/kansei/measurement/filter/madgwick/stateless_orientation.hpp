@@ -29,6 +29,9 @@
 namespace kansei
 {
 
+namespace measurement
+{
+
 class StatelessOrientation
 {
 public:
@@ -43,6 +46,8 @@ public:
     geometry_msgs::msg::Vector3 acceleration,
     geometry_msgs::msg::Quaternion & orientation);
 };
+
+}  // namespace measurement
 
 }  // namespace kansei
 

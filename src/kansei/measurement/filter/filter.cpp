@@ -38,6 +38,9 @@ using namespace keisan::literals;  // NOLINT
 namespace kansei
 {
 
+namespace measurement
+{
+
 Filter::Filter()
 : is_initialized(false), yaw_raw(keisan::make_degree(0.0)), raw_gy_mux(keisan::Vector<3>::zero()),
   orientation_compensation(keisan::make_degree(0.0)), filtered_gy_counter(0),
@@ -224,5 +227,7 @@ void Filter::set_orientation_raw_to(const keisan::Angle<double> & target_raw_ori
 {
   raw_orientation_compensation = target_raw_orientation - yaw_raw;
 }
+
+}  // namespace measurement
 
 }  // namespace kansei

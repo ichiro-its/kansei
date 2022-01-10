@@ -26,9 +26,12 @@
 #include "kansei/measurement/node/measurement_unit.hpp"
 #include "keisan/angle.hpp"
 
-#include "./pthread.h"
+#include "pthread.h"
 
 namespace kansei
+{
+
+namespace measurement
 {
 
 class MPU : public MeasurementUnit
@@ -52,6 +55,8 @@ private:
   keisan::Angle<double> oreintation_compensation;
   keisan::Angle<double> oreintation_error;
 };
+
+}  // namespace measurement
 
 }  // namespace kansei
 
