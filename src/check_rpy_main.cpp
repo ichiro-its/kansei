@@ -36,7 +36,7 @@ int main(int argc, char * argv[])
   }
 
   std::cout << "set the port name as " << port_name << "\n";
-  kansei::MPU mpu(port_name);
+  kansei::measurement::MPU mpu(port_name);
 
   std::cout << "connect to mpu\n";
   if (mpu.connect()) {

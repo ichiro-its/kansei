@@ -54,16 +54,16 @@ KanseiNode::KanseiNode(const std::string & node_name)
   );
 }
 
-void KanseiNode::set_measurement_unit(std::shared_ptr<MeasurementUnit> measurement_unit)
+void KanseiNode::set_measurement_unit(std::shared_ptr<measurement::MeasurementUnit> measurement_unit)
 {
-  measurement_node = std::make_shared<MeasurementNode>(
+  measurement_node = std::make_shared<measurement::MeasurementNode>(
     this->create_sub_node(
       "measurement"), measurement_unit);
 }
 
-void KanseiNode::set_fallen_determinant(std::shared_ptr<FallenDeterminant> fallen_determinant)
+void KanseiNode::set_fallen_determinant(std::shared_ptr<fallen::FallenDeterminant> fallen_determinant)
 {
-  fallen_node = std::make_shared<FallenNode>(this->create_sub_node("fallen"), fallen_determinant);
+  fallen_node = std::make_shared<fallen::FallenNode>(this->create_sub_node("fallen"), fallen_determinant);
 }
 
 }  // namespace kansei
