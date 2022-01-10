@@ -21,15 +21,17 @@
 #ifndef KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_
 #define KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_
 
-#include <kansei_interfaces/msg/fallen.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <memory>
 #include <string>
 
 #include "kansei/fallen/node/fallen_determinant.hpp"
+#include "kansei_interfaces/msg/fallen.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace kansei
+{
+
+namespace fallen
 {
 
 class FallenNode
@@ -47,6 +49,8 @@ protected:
 
   rclcpp::Publisher<kansei_interfaces::msg::Fallen>::SharedPtr fallen_publisher;
 };
+
+}  // namespace fallen
 
 }  // namespace kansei
 

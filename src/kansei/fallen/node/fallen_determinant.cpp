@@ -30,6 +30,9 @@
 namespace kansei
 {
 
+namespace fallen
+{
+
 FallenDeterminant::FallenDeterminant(const DeterminantType & type)
 : fallen_status(FallenStatus::STANDUP), determinant_type(type), fallen_back_raw_limit(491.0),
   fallen_front_raw_limit(458.0), fallen_right_raw_limit(519.0), fallen_left_raw_limit(498.0)
@@ -91,5 +94,7 @@ DeterminantType FallenDeterminant::get_determinant_type() const
 {
   return determinant_type;
 }
+
+}  // namespace fallen
 
 }  // namespace kansei

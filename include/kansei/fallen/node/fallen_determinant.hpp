@@ -31,6 +31,9 @@
 namespace kansei
 {
 
+namespace fallen
+{
+
 class FallenDeterminant
 {
 public:
@@ -57,6 +60,8 @@ private:
   float fallen_right_raw_limit;
   float fallen_left_raw_limit;
 };
+
+}  // namespace fallen
 
 }  // namespace kansei
 

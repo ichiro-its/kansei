@@ -32,6 +32,9 @@ using namespace keisan::literals;  // NOLINT
 namespace kansei
 {
 
+namespace fallen
+{
+
 FallenNode::FallenNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<FallenDeterminant> fallen_determinant)
 : fallen_determinant(fallen_determinant)
@@ -63,5 +66,7 @@ void FallenNode::publish_fallen()
 
   fallen_publisher->publish(fallen_msg);
 }
+
+}  // namespace fallen
 
 }  // namespace kansei

@@ -24,6 +24,9 @@
 namespace kansei
 {
 
+namespace fallen
+{
+
 enum FallenStatus
 {
   LEFT,
@@ -32,6 +35,8 @@ enum FallenStatus
   FORWARD,
   RIGHT
 };
+
+}  // namespace fallen
 
 }  // namespace kansei
 
