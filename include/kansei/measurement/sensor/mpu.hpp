@@ -26,7 +26,7 @@
 #include "kansei/measurement/node/measurement_unit.hpp"
 #include "keisan/angle.hpp"
 
-#include "pthread.h"
+#include "pthread.h"  // NOLINT
 
 namespace kansei
 {

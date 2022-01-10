@@ -26,12 +26,12 @@
 
 #include "keisan/angle.hpp"
 
-#include "errno.h"
-#include "fcntl.h"
-#include "stdio.h"
-#include "string.h"
-#include "termios.h"
-#include "unistd.h"
+#include "errno.h"  // NOLINT
+#include "fcntl.h"  // NOLINT
+#include "stdio.h"  // NOLINT
+#include "string.h"  // NOLINT
+#include "termios.h"  // NOLINT
+#include "unistd.h"  // NOLINT
 #include "sys/stat.h"
 #include "sys/ioctl.h"
 

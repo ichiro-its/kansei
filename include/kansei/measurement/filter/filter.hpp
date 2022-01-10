@@ -30,6 +30,9 @@
 namespace kansei
 {
 
+namespace measurement
+{
+
 class Filter : public MeasurementUnit
 {
 public:
@@ -68,6 +71,8 @@ private:
   double filtered_gy_center[3];
   int filtered_gy_counter;
 };
+
+}  // namespace measurement
 
 }  // namespace kansei
 
