@@ -31,16 +31,17 @@
 namespace kansei
 {
 
-class KanseiNode : public rclcpp::Node
+class KanseiNode
 {
 public:
-  explicit KanseiNode(const std::string & node_name);
+  explicit KanseiNode(rclcpp::Node::SharedPtr node);
 
   void set_measurement_unit(std::shared_ptr<measurement::MeasurementUnit> measurement_unit);
 
   void set_fallen_determinant(std::shared_ptr<fallen::FallenDeterminant> fallen_determinant);
 
 private:
+  rclcpp::Node::SharedPtr node;
   rclcpp::TimerBase::SharedPtr node_timer;
 
   std::shared_ptr<measurement::MeasurementNode> measurement_node;

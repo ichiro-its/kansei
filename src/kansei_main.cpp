@@ -35,7 +35,8 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto kansei_node = std::make_shared<kansei::KanseiNode>("kansei_node");
+  auto node = std::make_shared<rclcpp::Node>("kansei_node"); 
+  auto kansei_node = std::make_shared<kansei::KanseiNode>(node);
 
   auto filter = std::make_shared<kansei::measurement::Filter>();
   auto fallen = std::make_shared<kansei::fallen::FallenDeterminant>(
@@ -44,7 +45,7 @@ int main(int argc, char * argv[])
   kansei_node->set_measurement_unit(filter);
   kansei_node->set_fallen_determinant(fallen);
 
-  rclcpp::spin(kansei_node);
+  rclcpp::spin(node);
   rclcpp::shutdown();
 
   return 0;
