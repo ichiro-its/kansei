@@ -42,10 +42,10 @@ MeasurementNode::MeasurementNode(
 : measurement_unit(measurement_unit)
 {
   orientation_publisher = node->create_publisher<kansei_interfaces::msg::Orientation>(
-    "orientation", 10);
+    get_node_prefix() + "/orientation", 10);
 
   unit_publisher = node->create_publisher<kansei_interfaces::msg::Unit>(
-    "unit", 10);
+    get_node_prefix() + "/unit", 10);
 
   // need to initialize some subscriber
 }
@@ -74,6 +74,11 @@ void MeasurementNode::update_measurement()
 std::shared_ptr<MeasurementUnit> MeasurementNode::get_measurement_unit() const
 {
   return measurement_unit;
+}
+
+std::string MeasurementNode::get_node_prefix() const
+{
+  return "measurement";
 }
 
 void MeasurementNode::publish_orientation()

@@ -40,7 +40,7 @@ FallenNode::FallenNode(
 : fallen_determinant(fallen_determinant)
 {
   fallen_publisher = node->create_publisher<kansei_interfaces::msg::Fallen>(
-    "fallen", 10);
+    get_node_prefix() + "/fallen", 10);
 }
 
 void FallenNode::update_fallen(const keisan::Euler<double> & rpy, const keisan::Vector<3> & acc)
@@ -56,6 +56,11 @@ void FallenNode::update_fallen(const keisan::Euler<double> & rpy, const keisan::
   if (fallen_determinant->is_fallen()) {
     publish_fallen();
   }
+}
+
+std::string FallenNode::get_node_prefix() const
+{
+  return "fallen";
 }
 
 void FallenNode::publish_fallen()
