@@ -23,8 +23,7 @@
 #include "kansei/fallen/fallen.hpp"
 
 TEST(DeterminantTest, DeterminantType) {
-  auto fallen_determinant = new kansei::fallen::FallenDeterminant(
-    kansei::fallen::DeterminantType::ACCELERO);
+  kansei::fallen::FallenDeterminant fallen_determinant(kansei::fallen::DeterminantType::ACCELERO);
 
-  ASSERT_EQ(kansei::fallen::DeterminantType::ACCELERO, fallen_determinant->get_determinant_type());
+  ASSERT_EQ(kansei::fallen::DeterminantType::ACCELERO, fallen_determinant.get_determinant_type());
 }
