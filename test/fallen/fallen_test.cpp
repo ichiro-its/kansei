@@ -18,27 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <memory>
-
 #include "gtest/gtest.h"
 
 #include "kansei/fallen/fallen.hpp"
 #include "keisan/keisan.hpp"
 
-class FallenTest : public ::testing::Test
+class FallenTest : public testing::Test
 {
 protected:
   FallenTest()
+  : fallen_determinant(kansei::fallen::FallenDeterminant(
+        kansei::fallen::DeterminantType::ACCELERO))
   {
-    fallen_determinant = std::make_unique<kansei::fallen::FallenDeterminant>(
-      kansei::fallen::DeterminantType::ACCELERO);
   }
 
-  std::unique_ptr<kansei::fallen::FallenDeterminant> fallen_determinant;
+  kansei::fallen::FallenDeterminant fallen_determinant;
 };
 
 TEST_F(FallenTest, ClassInitialization) {
-  ASSERT_EQ(kansei::fallen::FallenStatus::STANDUP, fallen_determinant->get_fallen_status());
+  ASSERT_EQ(kansei::fallen::FallenStatus::STANDUP, fallen_determinant.get_fallen_status());
 }
 
 struct fallen_status_args
@@ -48,17 +46,18 @@ struct fallen_status_args
 };
 
 class FallenStatusTest : public FallenTest,
-  public ::testing::WithParamInterface<fallen_status_args>
+  public testing::WithParamInterface<fallen_status_args>
 {
 protected:
   FallenStatusTest()
   {
-    fallen_determinant->update_fallen_status(GetParam().acc);
+    fallen_determinant.update_fallen_status(GetParam().acc);
   }
 };
 
 TEST_P(FallenStatusTest, StatusUpdate) {
-  ASSERT_EQ(GetParam().status, fallen_determinant->get_fallen_status());
+  ASSERT_TRUE(fallen_determinant.is_fallen());
+  ASSERT_EQ(GetParam().status, fallen_determinant.get_fallen_status());
 }
 
 INSTANTIATE_TEST_CASE_P(
