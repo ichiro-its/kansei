@@ -35,7 +35,7 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<rclcpp::Node>("kansei_node"); 
+  auto node = std::make_shared<rclcpp::Node>("kansei_node");
   auto kansei_node = std::make_shared<kansei::KanseiNode>(node);
 
   auto filter = std::make_shared<kansei::measurement::Filter>();

@@ -45,7 +45,7 @@ public:
 
   std::shared_ptr<MeasurementUnit> get_measurement_unit() const;
 
-protected:
+private:
   std::string get_node_prefix() const;
 
   void publish_orientation();

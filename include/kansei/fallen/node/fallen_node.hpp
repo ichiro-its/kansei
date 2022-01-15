@@ -42,7 +42,7 @@ public:
 
   void update_fallen(const keisan::Euler<double> & rpy, const keisan::Vector<3> & acc);
 
-protected:
+private:
   std::string get_node_prefix() const;
 
   void publish_fallen();
