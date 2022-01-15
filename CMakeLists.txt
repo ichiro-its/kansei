@@ -76,7 +76,8 @@ if(BUILD_TESTING)
   ament_add_gtest(${PROJECT_NAME}_tests
     "test/fallen/determinant_test.cpp"
     "test/fallen/fallen_test.cpp"
-    "test/measurement/measurement_test.cpp")
+    "test/measurement/measurement_test.cpp"
+    "test/node/kansei_node_test.cpp")
 
   target_include_directories(${PROJECT_NAME}_tests PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
