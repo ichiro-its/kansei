@@ -74,6 +74,7 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
 
   ament_add_gtest(${PROJECT_NAME}_tests
+    "test/fallen/determinant_test.cpp"
     "test/fallen/fallen_test.cpp")
 
   target_include_directories(${PROJECT_NAME}_tests PUBLIC

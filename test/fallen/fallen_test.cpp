@@ -18,6 +18,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <gtest/gtest.h>
+#include <memory>
 
+#include "gtest/gtest.h"
 
+#include "kansei/fallen/fallen.hpp"
+#include "keisan/keisan.hpp"
+
+class FallenTest : public ::testing::Test
+{
+protected:
+  FallenTest()
+  {
+    fallen_determinant = std::make_unique<kansei::fallen::FallenDeterminant>(
+      kansei::fallen::DeterminantType::ACCELERO);
+  }
+
+  std::unique_ptr<kansei::fallen::FallenDeterminant> fallen_determinant;
+};
+
+TEST_F(FallenTest, ClassInitialization) {
+  ASSERT_EQ(kansei::fallen::FallenStatus::STANDUP, fallen_determinant->get_fallen_status());
+}
+
+struct fallen_status_args
+{
+  keisan::Vector<3> acc;
+  kansei::fallen::FallenStatus status;
+};
+
+class FallenStatusTest : public FallenTest,
+  public ::testing::WithParamInterface<fallen_status_args>
+{
+protected:
+  FallenStatusTest()
+  {
+    fallen_determinant->update_fallen_status(GetParam().acc);
+  }
+};
+
+TEST_P(FallenStatusTest, StatusUpdate) {
+  ASSERT_EQ(GetParam().status, fallen_determinant->get_fallen_status());
+}
+
+INSTANTIATE_TEST_CASE_P(
+  StatusUpdateTestCase, FallenStatusTest, testing::Values(
+    fallen_status_args {keisan::Vector<3>(510.0, 450.0, 0.0),
+      kansei::fallen::FallenStatus::FORWARD},
+    fallen_status_args {keisan::Vector<3>(510.0, 500.0, 0.0),
+      kansei::fallen::FallenStatus::BACKWARD},
+    fallen_status_args {keisan::Vector<3>(530.0, 470.0, 0.0),
+      kansei::fallen::FallenStatus::RIGHT},
+    fallen_status_args {keisan::Vector<3>(490.0, 470.0, 0.0),
+      kansei::fallen::FallenStatus::LEFT}));
