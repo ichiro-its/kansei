@@ -43,10 +43,10 @@ public:
   void set_port_name(const std::string & port_name);
   bool connect();
 
-  void update_rpy();
+  void update_rpy() override;
 
-  void reset_orientation();
-  void set_orientation_to(const keisan::Angle<double> & target_orientation);
+  void reset_orientation() override;
+  void set_orientation_to(const keisan::Angle<double> & target_orientation) override;
 
 private:
   int socket_fd;

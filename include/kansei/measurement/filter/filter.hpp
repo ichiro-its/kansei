@@ -43,10 +43,10 @@ public:
   void update_gy_acc(
     const keisan::Vector<3> & gy, const keisan::Vector<3> & acc,
     const double & seconds);
-  void update_rpy();
+  void update_rpy() override;
 
-  void reset_orientation();
-  void set_orientation_to(const keisan::Angle<double> & target_orientation);
+  void reset_orientation() override;
+  void set_orientation_to(const keisan::Angle<double> & target_orientation) override;
   void set_orientation_raw_to(const keisan::Angle<double> & target_raw_orientation);
 
 private:
