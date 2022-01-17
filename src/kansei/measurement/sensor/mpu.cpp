@@ -26,18 +26,21 @@
 
 #include "keisan/angle.hpp"
 
-#include "./errno.h"
-#include "./fcntl.h"
-#include "./stdio.h"
-#include "./string.h"
-#include "./termios.h"
-#include "./unistd.h"
+#include "errno.h"  // NOLINT
+#include "fcntl.h"  // NOLINT
+#include "stdio.h"  // NOLINT
+#include "string.h"  // NOLINT
+#include "termios.h"  // NOLINT
+#include "unistd.h"  // NOLINT
 #include "sys/stat.h"
 #include "sys/ioctl.h"
 
 using namespace keisan::literals;  // NOLINT
 
 namespace kansei
+{
+
+namespace measurement
 {
 
 MPU::MPU(const std::string & port_name)
@@ -192,5 +195,7 @@ void MPU::set_orientation_to(const keisan::Angle<double> & target_orientation)
 {
   oreintation_compensation = target_orientation;
 }
+
+}  // namespace measurement
 
 }  // namespace kansei

@@ -30,6 +30,9 @@
 namespace kansei
 {
 
+namespace measurement
+{
+
 class MadgwickFilter
 {
 public:
@@ -68,6 +71,8 @@ private:
   double q0, q1, q2, q3;      // quaternion
   float w_bx_, w_by_, w_bz_;
 };
+
+}  // namespace measurement
 
 }  // namespace kansei
 

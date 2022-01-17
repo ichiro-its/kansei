@@ -32,12 +32,15 @@ using namespace keisan::literals;  // NOLINT
 namespace kansei
 {
 
+namespace fallen
+{
+
 FallenNode::FallenNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<FallenDeterminant> fallen_determinant)
 : fallen_determinant(fallen_determinant)
 {
   fallen_publisher = node->create_publisher<kansei_interfaces::msg::Fallen>(
-    "fallen", 10);
+    get_node_prefix() + "/fallen", 10);
 }
 
 void FallenNode::update_fallen(const keisan::Euler<double> & rpy, const keisan::Vector<3> & acc)
@@ -55,6 +58,11 @@ void FallenNode::update_fallen(const keisan::Euler<double> & rpy, const keisan::
   }
 }
 
+std::string FallenNode::get_node_prefix() const
+{
+  return "fallen";
+}
+
 void FallenNode::publish_fallen()
 {
   auto fallen_msg = kansei_interfaces::msg::Fallen();
@@ -63,5 +71,7 @@ void FallenNode::publish_fallen()
 
   fallen_publisher->publish(fallen_msg);
 }
+
+}  // namespace fallen
 
 }  // namespace kansei

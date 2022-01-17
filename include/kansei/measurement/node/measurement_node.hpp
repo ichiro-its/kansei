@@ -21,16 +21,18 @@
 #ifndef KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
 #define KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_
 
-#include <kansei_interfaces/msg/orientation.hpp>
-#include <kansei_interfaces/msg/unit.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <memory>
 #include <string>
 
 #include "kansei/measurement/node/measurement_unit.hpp"
+#include "kansei_interfaces/msg/orientation.hpp"
+#include "kansei_interfaces/msg/unit.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace kansei
+{
+
+namespace measurement
 {
 
 class MeasurementNode
@@ -43,7 +45,9 @@ public:
 
   std::shared_ptr<MeasurementUnit> get_measurement_unit() const;
 
-protected:
+private:
+  std::string get_node_prefix() const;
+
   void publish_orientation();
 
   void publish_unit();
@@ -56,6 +60,8 @@ protected:
   rclcpp::Publisher<kansei_interfaces::msg::Unit>::SharedPtr unit_publisher;
   // need to declare some subscriber
 };
+
+}  // namespace measurement
 
 }  // namespace kansei
 

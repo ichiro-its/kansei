@@ -26,9 +26,12 @@
 #include "kansei/measurement/node/measurement_unit.hpp"
 #include "keisan/angle.hpp"
 
-#include "./pthread.h"
+#include "pthread.h"  // NOLINT
 
 namespace kansei
+{
+
+namespace measurement
 {
 
 class MPU : public MeasurementUnit
@@ -40,10 +43,10 @@ public:
   void set_port_name(const std::string & port_name);
   bool connect();
 
-  void update_rpy();
+  void update_rpy() override;
 
-  void reset_orientation();
-  void set_orientation_to(const keisan::Angle<double> & target_orientation);
+  void reset_orientation() override;
+  void set_orientation_to(const keisan::Angle<double> & target_orientation) override;
 
 private:
   int socket_fd;
@@ -52,6 +55,8 @@ private:
   keisan::Angle<double> oreintation_compensation;
   keisan::Angle<double> oreintation_error;
 };
+
+}  // namespace measurement
 
 }  // namespace kansei
 

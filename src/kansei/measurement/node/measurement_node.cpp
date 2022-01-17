@@ -18,21 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <kansei_interfaces/msg/orientation.hpp>
-#include <kansei_interfaces/msg/unit.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <experimental/array>
 #include <array>
 #include <memory>
 #include <string>
 
+#include "kansei_interfaces/msg/orientation.hpp"
+#include "kansei_interfaces/msg/unit.hpp"
 #include "kansei/measurement/measurement.hpp"
 #include "keisan/keisan.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 using namespace keisan::literals;  // NOLINT
 
 namespace kansei
+{
+
+namespace measurement
 {
 
 MeasurementNode::MeasurementNode(
@@ -40,10 +42,10 @@ MeasurementNode::MeasurementNode(
 : measurement_unit(measurement_unit)
 {
   orientation_publisher = node->create_publisher<kansei_interfaces::msg::Orientation>(
-    "orientation", 10);
+    get_node_prefix() + "/orientation", 10);
 
   unit_publisher = node->create_publisher<kansei_interfaces::msg::Unit>(
-    "unit", 10);
+    get_node_prefix() + "/unit", 10);
 
   // need to initialize some subscriber
 }
@@ -72,6 +74,11 @@ void MeasurementNode::update_measurement()
 std::shared_ptr<MeasurementUnit> MeasurementNode::get_measurement_unit() const
 {
   return measurement_unit;
+}
+
+std::string MeasurementNode::get_node_prefix() const
+{
+  return "measurement";
 }
 
 void MeasurementNode::publish_orientation()
@@ -106,5 +113,7 @@ void MeasurementNode::subscribe_unit()
 {
   // do unit value subscribing
 }
+
+}  // namespace measurement
 
 }  // namespace kansei

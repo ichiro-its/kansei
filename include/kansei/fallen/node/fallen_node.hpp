@@ -21,15 +21,17 @@
 #ifndef KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_
 #define KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_
 
-#include <kansei_interfaces/msg/fallen.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <memory>
 #include <string>
 
 #include "kansei/fallen/node/fallen_determinant.hpp"
+#include "kansei_interfaces/msg/fallen.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace kansei
+{
+
+namespace fallen
 {
 
 class FallenNode
@@ -40,13 +42,17 @@ public:
 
   void update_fallen(const keisan::Euler<double> & rpy, const keisan::Vector<3> & acc);
 
-protected:
+private:
+  std::string get_node_prefix() const;
+
   void publish_fallen();
 
   std::shared_ptr<FallenDeterminant> fallen_determinant;
 
   rclcpp::Publisher<kansei_interfaces::msg::Fallen>::SharedPtr fallen_publisher;
 };
+
+}  // namespace fallen
 
 }  // namespace kansei
 

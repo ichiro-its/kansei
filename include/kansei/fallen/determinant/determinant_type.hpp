@@ -24,11 +24,16 @@
 namespace kansei
 {
 
+namespace fallen
+{
+
 enum DeterminantType
 {
   ACCELERO,
   ORIENTATION
 };
+
+}  // namespace fallen
 
 }  // namespace kansei
 

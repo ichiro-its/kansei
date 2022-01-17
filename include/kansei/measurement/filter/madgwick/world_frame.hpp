@@ -24,12 +24,17 @@
 namespace kansei
 {
 
+namespace measurement
+{
+
 enum WorldFrame
 {
   ENU,
   NED,
   NWU
 };
+
+}  // namespace measurement
 
 }  // namespace kansei
 

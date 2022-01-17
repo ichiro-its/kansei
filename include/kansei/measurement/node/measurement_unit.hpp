@@ -28,6 +28,9 @@
 namespace kansei
 {
 
+namespace measurement
+{
+
 class MeasurementUnit
 {
 public:
@@ -58,6 +61,8 @@ protected:
 
   bool is_calibrated;
 };
+
+}  // namespace measurement
 
 }  // namespace kansei
 

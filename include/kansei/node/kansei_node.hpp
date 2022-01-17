@@ -21,32 +21,32 @@
 #ifndef KANSEI__NODE__KANSEI_NODE_HPP_
 #define KANSEI__NODE__KANSEI_NODE_HPP_
 
-#include <rclcpp/rclcpp.hpp>
-
 #include <memory>
 #include <string>
 
 #include "kansei/fallen/fallen.hpp"
 #include "kansei/measurement/measurement.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace kansei
 {
 
-class KanseiNode : public rclcpp::Node
+class KanseiNode
 {
 public:
-  explicit KanseiNode(const std::string & node_name);
+  explicit KanseiNode(rclcpp::Node::SharedPtr node);
 
-  void set_measurement_unit(std::shared_ptr<MeasurementUnit> measurement_unit);
+  void set_measurement_unit(std::shared_ptr<measurement::MeasurementUnit> measurement_unit);
 
-  void set_fallen_determinant(std::shared_ptr<FallenDeterminant> fallen_determinant);
+  void set_fallen_determinant(std::shared_ptr<fallen::FallenDeterminant> fallen_determinant);
 
 private:
+  rclcpp::Node::SharedPtr node;
   rclcpp::TimerBase::SharedPtr node_timer;
 
-  std::shared_ptr<MeasurementNode> measurement_node;
+  std::shared_ptr<measurement::MeasurementNode> measurement_node;
 
-  std::shared_ptr<FallenNode> fallen_node;
+  std::shared_ptr<fallen::FallenNode> fallen_node;
 };
 
 }  // namespace kansei

@@ -34,10 +34,10 @@ using namespace std::chrono_literals;
 namespace kansei
 {
 
-KanseiNode::KanseiNode(const std::string & node_name)
-: rclcpp::Node(node_name), measurement_node(nullptr), fallen_node(nullptr)
+KanseiNode::KanseiNode(rclcpp::Node::SharedPtr node)
+: node(node), measurement_node(nullptr), fallen_node(nullptr)
 {
-  node_timer = this->create_wall_timer(
+  node_timer = node->create_wall_timer(
     8ms,
     [this]() {
       if (measurement_node) {
@@ -54,16 +54,18 @@ KanseiNode::KanseiNode(const std::string & node_name)
   );
 }
 
-void KanseiNode::set_measurement_unit(std::shared_ptr<MeasurementUnit> measurement_unit)
+void KanseiNode::set_measurement_unit(
+  std::shared_ptr<measurement::MeasurementUnit> measurement_unit)
 {
-  measurement_node = std::make_shared<MeasurementNode>(
-    this->create_sub_node(
-      "measurement"), measurement_unit);
+  measurement_node = std::make_shared<measurement::MeasurementNode>(
+    node, measurement_unit);
 }
 
-void KanseiNode::set_fallen_determinant(std::shared_ptr<FallenDeterminant> fallen_determinant)
+void KanseiNode::set_fallen_determinant(
+  std::shared_ptr<fallen::FallenDeterminant> fallen_determinant)
 {
-  fallen_node = std::make_shared<FallenNode>(this->create_sub_node("fallen"), fallen_determinant);
+  fallen_node = std::make_shared<fallen::FallenNode>(
+    node, fallen_determinant);
 }
 
 }  // namespace kansei
