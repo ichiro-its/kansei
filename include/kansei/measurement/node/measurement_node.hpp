@@ -25,7 +25,7 @@
 #include <string>
 
 #include "kansei/measurement/node/measurement_unit.hpp"
-#include "kansei_interfaces/msg/orientation.hpp"
+#include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "rclcpp/rclcpp.hpp"
 
@@ -55,7 +55,7 @@ private:
 
   std::shared_ptr<MeasurementUnit> measurement_unit;
 
-  rclcpp::Publisher<kansei_interfaces::msg::Orientation>::SharedPtr orientation_publisher;
+  rclcpp::Publisher<kansei_interfaces::msg::Axis>::SharedPtr orientation_publisher;
 
   rclcpp::Publisher<kansei_interfaces::msg::Unit>::SharedPtr unit_publisher;
   // need to declare some subscriber

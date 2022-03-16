@@ -23,7 +23,7 @@
 #include <memory>
 #include <string>
 
-#include "kansei_interfaces/msg/orientation.hpp"
+#include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "kansei/measurement/measurement.hpp"
 #include "keisan/keisan.hpp"
@@ -41,7 +41,7 @@ MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
 : measurement_unit(measurement_unit)
 {
-  orientation_publisher = node->create_publisher<kansei_interfaces::msg::Orientation>(
+  orientation_publisher = node->create_publisher<kansei_interfaces::msg::Axis>(
     get_node_prefix() + "/orientation", 10);
 
   unit_publisher = node->create_publisher<kansei_interfaces::msg::Unit>(
@@ -83,13 +83,13 @@ std::string MeasurementNode::get_node_prefix() const
 
 void MeasurementNode::publish_orientation()
 {
-  auto orientation_msg = kansei_interfaces::msg::Orientation();
+  auto orientation_msg = kansei_interfaces::msg::Axis();
 
   keisan::Euler<double> rpy = measurement_unit->get_orientation();
 
-  orientation_msg.orientation = std::experimental::make_array(
-    static_cast<float>(rpy.roll.degree()), static_cast<float>(rpy.pitch.degree()),
-    static_cast<float>(rpy.yaw.degree()));
+  orientation_msg.roll = rpy.roll.degree();
+  orientation_msg.pitch = rpy.pitch.degree();
+  orientation_msg.yaw = rpy.yaw.degree();
 
   orientation_publisher->publish(orientation_msg);
 }
@@ -98,13 +98,16 @@ void MeasurementNode::publish_unit()
 {
   auto unit_msg = kansei_interfaces::msg::Unit();
 
-  keisan::Vector<3> gy = measurement_unit->get_filtered_gy();
-  keisan::Vector<3> acc = measurement_unit->get_filtered_acc();
+  keisan::Vector<3> gyro = measurement_unit->get_filtered_gy();
+  keisan::Vector<3> accelero = measurement_unit->get_filtered_acc();
 
-  unit_msg.gyro = std::experimental::make_array(
-    static_cast<float>(gy[0]), static_cast<float>(gy[1]), static_cast<float>(gy[2]));
-  unit_msg.accelero = std::experimental::make_array(
-    static_cast<float>(acc[0]), static_cast<float>(acc[1]), static_cast<float>(acc[2]));
+  unit_msg.gyro.roll = gyro[0];
+  unit_msg.gyro.pitch = gyro[1];
+  unit_msg.gyro.yaw = gyro[2];
+
+  unit_msg.accelero.roll = accelero[0];
+  unit_msg.accelero.pitch = accelero[1];
+  unit_msg.accelero.yaw = accelero[2];
 
   unit_publisher->publish(unit_msg);
 }
