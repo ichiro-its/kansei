@@ -105,9 +105,9 @@ void MeasurementNode::publish_unit()
   unit_msg.gyro.pitch = gyro[1];
   unit_msg.gyro.yaw = gyro[2];
 
-  unit_msg.accelero.roll = accelero[0];
-  unit_msg.accelero.pitch = accelero[1];
-  unit_msg.accelero.yaw = accelero[2];
+  unit_msg.accelero.x = accelero[0];
+  unit_msg.accelero.y = accelero[1];
+  unit_msg.accelero.z = accelero[2];
 
   unit_publisher->publish(unit_msg);
 }
