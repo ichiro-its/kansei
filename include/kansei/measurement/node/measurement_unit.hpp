@@ -41,8 +41,9 @@ public:
 
   keisan::Euler<double> get_orientation() const;
 
+  void update_gy_acc(
+    const keisan::Vector<3> & gy, const keisan::Vector<3> & acc);
   keisan::Vector<3> get_filtered_gy() const;
-
   keisan::Vector<3> get_filtered_acc() const;
 
 protected:
@@ -51,10 +52,17 @@ protected:
   keisan::Vector<3> raw_gy;
   keisan::Vector<3> gy;
   keisan::Vector<3> filtered_gy;
+  // gyro variables
+  double filtered_gy_arr[3][100];
+  double filtered_gy_center[3];
+  int filtered_gy_counter;
 
   keisan::Vector<3> raw_acc;
   keisan::Vector<3> acc;
   keisan::Vector<3> filtered_acc;
+  // accelero variables
+  double filtered_acc_arr[3][15];
+  int filtered_acc_counter;
 
   bool is_calibrated;
 };

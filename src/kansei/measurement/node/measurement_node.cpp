@@ -38,13 +38,17 @@ MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
 : measurement_unit(measurement_unit)
 {
-  orientation_publisher = node->create_publisher<kansei_interfaces::msg::Axis>(
+  orientation_publisher = node->create_publisher<Axis>(
     get_node_prefix() + "/orientation", 10);
 
-  unit_publisher = node->create_publisher<kansei_interfaces::msg::Unit>(
+  unit_publisher = node->create_publisher<Unit>(
     get_node_prefix() + "/unit", 10);
 
-  // need to initialize some subscriber
+  unit_subscriber = node->create_subscription<Unit>(
+    "/imu/unit", 10,
+    [this](const Unit::SharedPtr message) {
+      
+    });
 }
 
 void MeasurementNode::update_measurement()
@@ -54,17 +58,13 @@ void MeasurementNode::update_measurement()
 
     publish_orientation();
   } else if (std::dynamic_pointer_cast<Filter>(measurement_unit)) {
-    auto filter_measurement = std::dynamic_pointer_cast<Filter>(measurement_unit);
-
-    subscribe_unit();
-
     // filter_measurement->update_gy_acc();
-    filter_measurement->update_rpy();
+    measurement_unit->update_rpy();
 
     publish_orientation();
     publish_unit();
   } else {
-    // do some exception
+    // TODO(maroqijalil): do some exception
   }
 }
 

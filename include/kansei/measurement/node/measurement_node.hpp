@@ -35,6 +35,9 @@ namespace kansei::measurement
 class MeasurementNode
 {
 public:
+  using Axis = kansei_interfaces::msg::Axis;
+  using Unit = kansei_interfaces::msg::Unit;
+
   explicit MeasurementNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit);
 
@@ -52,10 +55,10 @@ private:
 
   std::shared_ptr<MeasurementUnit> measurement_unit;
 
-  rclcpp::Publisher<kansei_interfaces::msg::Axis>::SharedPtr orientation_publisher;
+  rclcpp::Publisher<Axis>::SharedPtr orientation_publisher;
 
-  rclcpp::Publisher<kansei_interfaces::msg::Unit>::SharedPtr unit_publisher;
-  // need to declare some subscriber
+  rclcpp::Publisher<Unit>::SharedPtr unit_publisher;
+  rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 };
 
 }  // namespace kansei::measurement
