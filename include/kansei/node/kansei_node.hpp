@@ -44,6 +44,8 @@ private:
   rclcpp::Node::SharedPtr node;
   rclcpp::TimerBase::SharedPtr node_timer;
 
+  double start_seconds;
+
   std::shared_ptr<measurement::MeasurementNode> measurement_node;
 
   std::shared_ptr<fallen::FallenNode> fallen_node;

@@ -37,7 +37,7 @@ public:
   explicit FallenNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<FallenDeterminant> fallen_determinant);
 
-  void update_fallen(const keisan::Euler<double> & rpy, const keisan::Vector<3> & acc);
+  void update(const keisan::Euler<double> & rpy, const keisan::Vector<3> & acc);
 
 private:
   std::string get_node_prefix() const;
