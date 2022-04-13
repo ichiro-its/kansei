@@ -35,10 +35,7 @@
 
 using namespace keisan::literals;  // NOLINT
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 Filter::Filter()
@@ -228,6 +225,4 @@ void Filter::set_orientation_raw_to(const keisan::Angle<double> & target_raw_ori
   raw_orientation_compensation = target_raw_orientation - yaw_raw;
 }
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement

@@ -21,10 +21,7 @@
 #ifndef KANSEI__FALLEN__DETERMINANT__DETERMINANT_TYPE_HPP_
 #define KANSEI__FALLEN__DETERMINANT__DETERMINANT_TYPE_HPP_
 
-namespace kansei
-{
-
-namespace fallen
+namespace kansei::fallen
 {
 
 enum DeterminantType
@@ -33,8 +30,6 @@ enum DeterminantType
   ORIENTATION
 };
 
-}  // namespace fallen
-
-}  // namespace kansei
+}  // namespace kansei::fallen
 
 #endif  // KANSEI__FALLEN__DETERMINANT__DETERMINANT_TYPE_HPP_

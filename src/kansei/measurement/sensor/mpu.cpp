@@ -37,10 +37,7 @@
 
 using namespace keisan::literals;  // NOLINT
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 MPU::MPU(const std::string & port_name)
@@ -196,6 +193,4 @@ void MPU::set_orientation_to(const keisan::Angle<double> & target_orientation)
   oreintation_compensation = target_orientation;
 }
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement

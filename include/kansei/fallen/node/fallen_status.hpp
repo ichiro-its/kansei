@@ -21,10 +21,7 @@
 #ifndef KANSEI__FALLEN__NODE__FALLEN_STATUS_HPP_
 #define KANSEI__FALLEN__NODE__FALLEN_STATUS_HPP_
 
-namespace kansei
-{
-
-namespace fallen
+namespace kansei::fallen
 {
 
 enum FallenStatus
@@ -36,8 +33,6 @@ enum FallenStatus
   RIGHT
 };
 
-}  // namespace fallen
-
-}  // namespace kansei
+}  // namespace kansei::fallen
 
 #endif  // KANSEI__FALLEN__NODE__FALLEN_STATUS_HPP_

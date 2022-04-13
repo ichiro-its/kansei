@@ -25,10 +25,7 @@
 
 #include "keisan/keisan.hpp"
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 class MeasurementUnit
@@ -62,8 +59,6 @@ protected:
   bool is_calibrated;
 };
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement
 
 #endif  // KANSEI__MEASUREMENT__NODE__MEASUREMENT_UNIT_HPP_

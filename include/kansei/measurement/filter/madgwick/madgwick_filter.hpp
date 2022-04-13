@@ -27,10 +27,7 @@
 #include "kansei/measurement/filter/madgwick/world_frame.hpp"
 #include "keisan/keisan.hpp"
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 class MadgwickFilter
@@ -72,8 +69,6 @@ private:
   float w_bx_, w_by_, w_bz_;
 };
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement
 
 #endif  // KANSEI__MEASUREMENT__FILTER__MADGWICK__MADGWICK_FILTER_HPP_

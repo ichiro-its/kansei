@@ -29,10 +29,7 @@
 #include "kansei_interfaces/msg/unit.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 class MeasurementNode
@@ -61,8 +58,6 @@ private:
   // need to declare some subscriber
 };
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement
 
 #endif  // KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_

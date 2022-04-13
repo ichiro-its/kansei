@@ -31,10 +31,7 @@
 
 using namespace keisan::literals;  // NOLINT
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 MeasurementNode::MeasurementNode(
@@ -117,6 +114,4 @@ void MeasurementNode::subscribe_unit()
   // do unit value subscribing
 }
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement

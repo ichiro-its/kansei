@@ -24,10 +24,7 @@
 
 using namespace keisan::literals;  // NOLINT
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 MeasurementUnit::MeasurementUnit()
@@ -53,6 +50,4 @@ keisan::Vector<3> MeasurementUnit::get_filtered_acc() const
   return filtered_acc;
 }
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement

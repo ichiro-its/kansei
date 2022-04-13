@@ -28,10 +28,7 @@
 
 #include "pthread.h"  // NOLINT
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 class MPU : public MeasurementUnit
@@ -56,8 +53,6 @@ private:
   keisan::Angle<double> oreintation_error;
 };
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement
 
 #endif  // KANSEI__MEASUREMENT__SENSOR__MPU_HPP_

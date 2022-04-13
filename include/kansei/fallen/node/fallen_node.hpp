@@ -28,10 +28,7 @@
 #include "kansei_interfaces/msg/fallen.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace kansei
-{
-
-namespace fallen
+namespace kansei::fallen
 {
 
 class FallenNode
@@ -52,8 +49,6 @@ private:
   rclcpp::Publisher<kansei_interfaces::msg::Fallen>::SharedPtr fallen_publisher;
 };
 
-}  // namespace fallen
-
-}  // namespace kansei
+}  // namespace kansei::fallen
 
 #endif  // KANSEI__FALLEN__NODE__FALLEN_NODE_HPP_

@@ -142,10 +142,7 @@ static inline void compensateMagneticDistortion(
   _2bz = 4.0f * hz;
 }
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 MadgwickFilter::MadgwickFilter()
@@ -378,6 +375,4 @@ void MadgwickFilter::get_gravity(
   }
 }
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement

@@ -27,10 +27,7 @@
 #include "kansei/measurement/node/measurement_unit.hpp"
 #include "keisan/keisan.hpp"
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 class Filter : public MeasurementUnit
@@ -72,8 +69,6 @@ private:
   int filtered_gy_counter;
 };
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement
 
 #endif  // KANSEI__MEASUREMENT__FILTER__FILTER_HPP_

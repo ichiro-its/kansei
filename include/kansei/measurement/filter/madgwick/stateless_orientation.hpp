@@ -26,10 +26,7 @@
 #include "geometry_msgs/msg/quaternion.hpp"
 #include "geometry_msgs/msg/vector3.hpp"
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 class StatelessOrientation
@@ -47,8 +44,6 @@ public:
     geometry_msgs::msg::Quaternion & orientation);
 };
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement
 
 #endif  // KANSEI__MEASUREMENT__FILTER__MADGWICK__STATELESS_ORIENTATION_HPP_

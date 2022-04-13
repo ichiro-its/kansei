@@ -46,10 +46,7 @@ static inline T normalizeVector(T & vx, T & vy, T & vz)
   return norm;
 }
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 bool StatelessOrientation::compute_orientation(
@@ -189,6 +186,4 @@ bool StatelessOrientation::compute_orientation(
   return compute_orientation(frame, A, E, orientation);
 }
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement

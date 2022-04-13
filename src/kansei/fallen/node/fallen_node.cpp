@@ -29,10 +29,7 @@
 
 using namespace keisan::literals;  // NOLINT
 
-namespace kansei
-{
-
-namespace fallen
+namespace kansei::fallen
 {
 
 FallenNode::FallenNode(
@@ -72,6 +69,4 @@ void FallenNode::publish_fallen()
   fallen_publisher->publish(fallen_msg);
 }
 
-}  // namespace fallen
-
-}  // namespace kansei
+}  // namespace kansei::fallen
