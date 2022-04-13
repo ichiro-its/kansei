@@ -68,7 +68,7 @@ void Filter::load_data(const std::string & path)
   }
 }
 
-void Filter::update_second(double seconds)
+void Filter::update_seconds(double seconds)
 {
   delta_seconds = seconds - this->seconds;
   this->seconds = seconds;
@@ -76,23 +76,29 @@ void Filter::update_second(double seconds)
 
 void Filter::update_rpy()
 {
-  for (int i = 0; i < 3; i++) {
-    // value mapping (for conversion) refers to the link below:
-    // https://emanual.robotis.com/docs/en/platform/op2/getting_started/
-    gy[i] = keisan::map(raw_gy[i], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[i];
-    acc[i] = keisan::map(raw_acc[i], 512.0, 1023.0, 0.0, 39.2266);
-  }
+  // value mapping (for conversion) refers to the link below:
+  // https://emanual.robotis.com/docs/en/platform/op2/getting_started/
+  gy.roll = keisan::make_degree(
+    keisan::map(raw_gy[0], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[0]);
+  gy.pitch = keisan::make_degree(
+    keisan::map(raw_gy[1], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[1]);
+  gy.yaw = keisan::make_degree(
+    keisan::map(raw_gy[2], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[2]);
+
+  acc.x = keisan::map(raw_acc[0], 512.0, 1023.0, 0.0, 39.2266);
+  acc.y = keisan::map(raw_acc[1], 512.0, 1023.0, 0.0, 39.2266);
+  acc.z = keisan::map(raw_acc[2], 512.0, 1023.0, 0.0, 39.2266);
 
   if (is_calibrated) {
     geometry_msgs::msg::Vector3 ang_vel;
-    ang_vel.x = gy[0];
-    ang_vel.y = gy[1];
-    ang_vel.z = gy[2];
+    ang_vel.x = gy.roll.degree();
+    ang_vel.y = gy.pitch.degree();
+    ang_vel.z = gy.yaw.degree();
 
     geometry_msgs::msg::Vector3 lin_acc;
-    lin_acc.x = acc[0];
-    lin_acc.y = acc[1];
-    lin_acc.z = acc[2];
+    lin_acc.x = acc.x;
+    lin_acc.y = acc.y;
+    lin_acc.z = acc.z;
 
     if (!is_initialized) {
       geometry_msgs::msg::Quaternion init_q;

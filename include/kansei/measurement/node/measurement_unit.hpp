@@ -50,7 +50,7 @@ protected:
   keisan::Euler<double> rpy;
 
   keisan::Vector<3> raw_gy;
-  keisan::Vector<3> gy;
+  keisan::Euler<double> gy;
   keisan::Vector<3> filtered_gy;
   // gyro variables
   double filtered_gy_arr[3][100];
@@ -58,7 +58,7 @@ protected:
   int filtered_gy_counter;
 
   keisan::Vector<3> raw_acc;
-  keisan::Vector<3> acc;
+  keisan::Point3 acc;
   keisan::Vector<3> filtered_acc;
   // accelero variables
   double filtered_acc_arr[3][15];

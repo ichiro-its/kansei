@@ -37,7 +37,7 @@ public:
 
   void load_data(const std::string & path);
 
-  void update_second(double seconds);
+  void update_seconds(double seconds);
   void update_rpy() override;
 
   void reset_orientation() override;

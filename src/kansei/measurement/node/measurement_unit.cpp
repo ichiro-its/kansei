@@ -22,15 +22,15 @@
 
 #include "keisan/keisan.hpp"
 
-using namespace keisan::literals;  // NOLINT
+using keisan::literals::operator""_deg;
 
 namespace kansei::measurement
 {
 
 MeasurementUnit::MeasurementUnit()
 : rpy(0_deg, 0_deg, 0_deg), is_calibrated(false), filtered_acc(keisan::Vector<3>::zero()),
-  raw_acc(keisan::Vector<3>::zero()), gy(keisan::Vector<3>::zero()),
-  acc(keisan::Vector<3>::zero()), raw_gy(keisan::Vector<3>::zero()),
+  raw_acc(keisan::Vector<3>::zero()), gy(0_deg, 0_deg, 0_deg),
+  acc(keisan::Point3::zero()), raw_gy(keisan::Vector<3>::zero()),
   filtered_acc_counter(0), filtered_gy_counter(0)
 {
   for (int i = 0; i < 3; i++) {

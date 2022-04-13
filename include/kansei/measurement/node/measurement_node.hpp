@@ -41,7 +41,7 @@ public:
   explicit MeasurementNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit);
 
-  void update_measurement();
+  void update(double seconds);
 
   std::shared_ptr<MeasurementUnit> get_measurement_unit() const;
 

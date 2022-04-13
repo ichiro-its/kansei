@@ -47,19 +47,30 @@ MeasurementNode::MeasurementNode(
   unit_subscriber = node->create_subscription<Unit>(
     "/imu/unit", 10,
     [this](const Unit::SharedPtr message) {
-      
+      keisan::Vector<3> gy(
+        message->gyro.roll,
+        message->gyro.pitch,
+        message->gyro.yaw);
+      keisan::Vector<3> acc(
+        message->accelero.x,
+        message->accelero.y,
+        message->accelero.z);
+
+      this->measurement_unit->update_gy_acc(gy, acc);
     });
 }
 
-void MeasurementNode::update_measurement()
+void MeasurementNode::update(double seconds)
 {
   if (std::dynamic_pointer_cast<MPU>(measurement_unit)) {
     measurement_unit->update_rpy();
 
     publish_orientation();
   } else if (std::dynamic_pointer_cast<Filter>(measurement_unit)) {
-    // filter_measurement->update_gy_acc();
-    measurement_unit->update_rpy();
+    auto filter_measurement = std::dynamic_pointer_cast<Filter>(measurement_unit);
+
+    filter_measurement->update_seconds(seconds);
+    filter_measurement->update_rpy();
 
     publish_orientation();
     publish_unit();
@@ -95,8 +106,8 @@ void MeasurementNode::publish_unit()
 {
   auto unit_msg = kansei_interfaces::msg::Unit();
 
-  keisan::Vector<3> gyro = measurement_unit->get_filtered_gy();
-  keisan::Vector<3> accelero = measurement_unit->get_filtered_acc();
+  auto gyro = measurement_unit->get_filtered_gy();
+  auto accelero = measurement_unit->get_filtered_acc();
 
   unit_msg.gyro.roll = gyro[0];
   unit_msg.gyro.pitch = gyro[1];
