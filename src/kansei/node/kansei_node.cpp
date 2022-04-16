@@ -35,18 +35,20 @@ namespace kansei
 {
 
 KanseiNode::KanseiNode(rclcpp::Node::SharedPtr node)
-: node(node), measurement_node(nullptr), fallen_node(nullptr)
+: node(node), measurement_node(nullptr), fallen_node(nullptr),
+  start_seconds(node->now().seconds())
 {
   node_timer = node->create_wall_timer(
     8ms,
     [this]() {
-      if (measurement_node) {
-        measurement_node->update_measurement();
+      if (this->measurement_node) {
+        this->measurement_node->update(
+          this->node->now().seconds() - this->start_seconds);
 
-        if (fallen_node) {
-          auto measurement_unit = measurement_node->get_measurement_unit();
+        if (this->fallen_node) {
+          auto measurement_unit = this->measurement_node->get_measurement_unit();
 
-          fallen_node->update_fallen(
+          this->fallen_node->update(
             measurement_unit->get_orientation(), measurement_unit->get_filtered_acc());
         }
       }

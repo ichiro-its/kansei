@@ -35,33 +35,17 @@
 
 using namespace keisan::literals;  // NOLINT
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 Filter::Filter()
 : is_initialized(false), yaw_raw(keisan::make_degree(0.0)), raw_gy_mux(keisan::Vector<3>::zero()),
-  orientation_compensation(keisan::make_degree(0.0)), filtered_gy_counter(0),
-  raw_orientation_compensation(keisan::make_degree(0.0)), seconds(0.0), filtered_acc_counter(0)
+  orientation_compensation(keisan::make_degree(0.0)), seconds(0.0),
+  raw_orientation_compensation(keisan::make_degree(0.0))
 {
   filter.set_world_frame(ENU);
   filter.set_algorithm_gain(0.1);
   filter.set_drift_bias_gain(0.0);
-
-  for (int i = 0; i < 3; i++) {
-    filtered_gy_center[i] = 512.0;
-    filtered_acc[i] = 512.0;
-
-    for (int j = 0; j < 100; j++) {
-      filtered_gy_arr[i][j] = filtered_gy_center[i];
-
-      if (j < 15) {
-        filtered_acc_arr[i][j] = filtered_acc[i];
-      }
-    }
-  }
 }
 
 void Filter::load_data(const std::string & path)
@@ -84,109 +68,37 @@ void Filter::load_data(const std::string & path)
   }
 }
 
-void Filter::update_gy_acc(
-  const keisan::Vector<3> & gy, const keisan::Vector<3> & acc,
-  const double & seconds)
+void Filter::update_seconds(double seconds)
 {
-  this->raw_gy = gy;
-  this->raw_acc = acc;
-
   delta_seconds = seconds - this->seconds;
   this->seconds = seconds;
-
-  if (!is_calibrated) {
-    if (filtered_gy_counter < 100) {
-      for (int i = 0; i < 3; i++) {
-        filtered_gy_arr[i][filtered_gy_counter] = gy[i];
-      }
-
-      filtered_gy_counter++;
-    } else {
-      double filtered_gy_sum[3];
-      for (int i = 0; i < 3; i++) {
-        filtered_gy_sum[i] = 0.0;
-
-        for (int j = 0; j < filtered_gy_counter; j++) {
-          filtered_gy_sum[i] += filtered_gy_arr[i][j];
-        }
-      }
-
-      double filtered_gy_mean[3];
-      for (int i = 0; i < 3; i++) {
-        filtered_gy_mean[i] = filtered_gy_sum[i] / filtered_gy_counter;
-        filtered_gy_sum[i] = 0.0;
-      }
-
-      double filtered_gy_sd[3];
-      for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < filtered_gy_counter; j++) {
-          filtered_gy_sum[i] += pow((filtered_gy_arr[i][j] - filtered_gy_mean[i]), 2);
-        }
-
-        filtered_gy_sd[i] = pow((filtered_gy_sum[i] / filtered_gy_counter), 0.5);
-      }
-
-      if (filtered_gy_sd[0] < 2.0 && filtered_gy_sd[1] < 2.0) {
-        for (int i = 0; i < 3; i++) {
-          filtered_gy_center[i] = filtered_gy_mean[i];
-        }
-
-        is_calibrated = true;
-      }
-
-      filtered_gy_counter = 0;
-    }
-  }
-
-  if (is_calibrated) {
-    if (filtered_acc_counter < 15) {
-      for (int i = 0; i < 3; i++) {
-        filtered_acc_arr[i][filtered_acc_counter] = acc[i];
-      }
-
-      filtered_acc_counter++;
-    } else {
-      double filtered_acc_sum[3];
-      for (int i = 0; i < 3; i++) {
-        filtered_acc_sum[i] = 0.0;
-
-        for (int j = 0; j < filtered_acc_counter; j++) {
-          filtered_acc_sum[i] += filtered_acc_arr[i][j];
-        }
-      }
-
-      for (int i = 0; i < 3; i++) {
-        filtered_acc[i] = filtered_acc_sum[i] / filtered_acc_counter;
-      }
-
-      filtered_acc_counter = 0;
-    }
-
-    for (int i = 0; i < 3; i++) {
-      filtered_gy[i] = gy[i] / filtered_gy_center[i];
-    }
-  }
 }
 
 void Filter::update_rpy()
 {
-  for (int i = 0; i < 3; i++) {
-    // value mapping (for conversion) refers to the link below:
-    // https://emanual.robotis.com/docs/en/platform/op2/getting_started/
-    gy[i] = keisan::map(raw_gy[i], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[i];
-    acc[i] = keisan::map(raw_acc[i], 512.0, 1023.0, 0.0, 39.2266);
-  }
+  // value mapping (for conversion) refers to the link below:
+  // https://emanual.robotis.com/docs/en/platform/op2/getting_started/
+  gy.roll = keisan::make_degree(
+    keisan::map(raw_gy[0], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[0]);
+  gy.pitch = keisan::make_degree(
+    keisan::map(raw_gy[1], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[1]);
+  gy.yaw = keisan::make_degree(
+    keisan::map(raw_gy[2], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[2]);
+
+  acc.x = keisan::map(raw_acc[0], 512.0, 1023.0, 0.0, 39.2266);
+  acc.y = keisan::map(raw_acc[1], 512.0, 1023.0, 0.0, 39.2266);
+  acc.z = keisan::map(raw_acc[2], 512.0, 1023.0, 0.0, 39.2266);
 
   if (is_calibrated) {
     geometry_msgs::msg::Vector3 ang_vel;
-    ang_vel.x = gy[0];
-    ang_vel.y = gy[1];
-    ang_vel.z = gy[2];
+    ang_vel.x = gy.roll.degree();
+    ang_vel.y = gy.pitch.degree();
+    ang_vel.z = gy.yaw.degree();
 
     geometry_msgs::msg::Vector3 lin_acc;
-    lin_acc.x = acc[0];
-    lin_acc.y = acc[1];
-    lin_acc.z = acc[2];
+    lin_acc.x = acc.x;
+    lin_acc.y = acc.y;
+    lin_acc.z = acc.z;
 
     if (!is_initialized) {
       geometry_msgs::msg::Quaternion init_q;
@@ -228,6 +140,4 @@ void Filter::set_orientation_raw_to(const keisan::Angle<double> & target_raw_ori
   raw_orientation_compensation = target_raw_orientation - yaw_raw;
 }
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement

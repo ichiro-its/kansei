@@ -25,23 +25,23 @@
 #include <string>
 
 #include "kansei/measurement/node/measurement_unit.hpp"
-#include "kansei_interfaces/msg/orientation.hpp"
+#include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 class MeasurementNode
 {
 public:
+  using Axis = kansei_interfaces::msg::Axis;
+  using Unit = kansei_interfaces::msg::Unit;
+
   explicit MeasurementNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit);
 
-  void update_measurement();
+  void update(double seconds);
 
   std::shared_ptr<MeasurementUnit> get_measurement_unit() const;
 
@@ -55,14 +55,12 @@ private:
 
   std::shared_ptr<MeasurementUnit> measurement_unit;
 
-  rclcpp::Publisher<kansei_interfaces::msg::Orientation>::SharedPtr orientation_publisher;
+  rclcpp::Publisher<Axis>::SharedPtr orientation_publisher;
 
-  rclcpp::Publisher<kansei_interfaces::msg::Unit>::SharedPtr unit_publisher;
-  // need to declare some subscriber
+  rclcpp::Publisher<Unit>::SharedPtr unit_publisher;
+  rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 };
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement
 
 #endif  // KANSEI__MEASUREMENT__NODE__MEASUREMENT_NODE_HPP_

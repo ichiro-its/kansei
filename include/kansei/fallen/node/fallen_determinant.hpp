@@ -28,10 +28,7 @@
 #include "kansei/fallen/determinant/determinant_type.hpp"
 #include "keisan/keisan.hpp"
 
-namespace kansei
-{
-
-namespace fallen
+namespace kansei::fallen
 {
 
 class FallenDeterminant
@@ -61,8 +58,6 @@ private:
   float fallen_left_raw_limit;
 };
 
-}  // namespace fallen
-
-}  // namespace kansei
+}  // namespace kansei::fallen
 
 #endif  // KANSEI__FALLEN__NODE__FALLEN_DETERMINANT_HPP_

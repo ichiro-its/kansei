@@ -27,10 +27,7 @@
 #include "kansei/measurement/node/measurement_unit.hpp"
 #include "keisan/keisan.hpp"
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 class Filter : public MeasurementUnit
@@ -40,9 +37,7 @@ public:
 
   void load_data(const std::string & path);
 
-  void update_gy_acc(
-    const keisan::Vector<3> & gy, const keisan::Vector<3> & acc,
-    const double & seconds);
+  void update_seconds(double seconds);
   void update_rpy() override;
 
   void reset_orientation() override;
@@ -62,18 +57,8 @@ private:
   // filter needs
   double seconds;
   double delta_seconds;
-
-  // accelero variables
-  double filtered_acc_arr[3][15];
-  int filtered_acc_counter;
-  // gyro variables
-  double filtered_gy_arr[3][100];
-  double filtered_gy_center[3];
-  int filtered_gy_counter;
 };
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement
 
 #endif  // KANSEI__MEASUREMENT__FILTER__FILTER_HPP_

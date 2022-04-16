@@ -27,10 +27,7 @@
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 
-namespace kansei
-{
-
-namespace fallen
+namespace kansei::fallen
 {
 
 FallenDeterminant::FallenDeterminant(const DeterminantType & type)
@@ -95,6 +92,4 @@ DeterminantType FallenDeterminant::get_determinant_type() const
   return determinant_type;
 }
 
-}  // namespace fallen
-
-}  // namespace kansei
+}  // namespace kansei::fallen

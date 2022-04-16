@@ -58,15 +58,15 @@ target_include_directories(check_rpy PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(check_rpy ${PROJECT_NAME})
 
-add_executable(kansei_main "src/kansei_main.cpp")
-target_include_directories(kansei_main PUBLIC
+add_executable(main "src/kansei_main.cpp")
+target_include_directories(main PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(kansei_main ${PROJECT_NAME})
+target_link_libraries(main ${PROJECT_NAME})
 
 install(TARGETS
   check_rpy
-  kansei_main
+  main
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

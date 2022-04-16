@@ -35,14 +35,31 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
+  std::string port_name = "/dev/ttyUSB1";
+
+  if (argc > 1) {
+    port_name = argv[1];
+  }
+
+  std::cout << "set the port name as " << port_name << "\n";
+  auto mpu = std::make_shared<kansei::measurement::MPU>(port_name);
+
+  std::cout << "connect to mpu\n";
+  if (mpu->connect()) {
+    std::cout << "succeeded to connect to mpu!\n";
+  } else {
+    std::cout << "failed to connect to mpu!\n" <<
+      "try again!\n";
+    return 0;
+  }
+
   auto node = std::make_shared<rclcpp::Node>("kansei_node");
   auto kansei_node = std::make_shared<kansei::KanseiNode>(node);
 
-  auto filter = std::make_shared<kansei::measurement::Filter>();
   auto fallen = std::make_shared<kansei::fallen::FallenDeterminant>(
     kansei::fallen::DeterminantType::ACCELERO);
 
-  kansei_node->set_measurement_unit(filter);
+  kansei_node->set_measurement_unit(mpu);
   kansei_node->set_fallen_determinant(fallen);
 
   rclcpp::spin(node);

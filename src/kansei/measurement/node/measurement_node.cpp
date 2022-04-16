@@ -23,7 +23,7 @@
 #include <memory>
 #include <string>
 
-#include "kansei_interfaces/msg/orientation.hpp"
+#include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "kansei/measurement/measurement.hpp"
 #include "keisan/keisan.hpp"
@@ -31,26 +31,36 @@
 
 using namespace keisan::literals;  // NOLINT
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
 : measurement_unit(measurement_unit)
 {
-  orientation_publisher = node->create_publisher<kansei_interfaces::msg::Orientation>(
+  orientation_publisher = node->create_publisher<Axis>(
     get_node_prefix() + "/orientation", 10);
 
-  unit_publisher = node->create_publisher<kansei_interfaces::msg::Unit>(
+  unit_publisher = node->create_publisher<Unit>(
     get_node_prefix() + "/unit", 10);
 
-  // need to initialize some subscriber
+  unit_subscriber = node->create_subscription<Unit>(
+    "/imu/unit", 10,
+    [this](const Unit::SharedPtr message) {
+      keisan::Vector<3> gy(
+        message->gyro.roll,
+        message->gyro.pitch,
+        message->gyro.yaw);
+      keisan::Vector<3> acc(
+        message->accelero.x,
+        message->accelero.y,
+        message->accelero.z);
+
+      this->measurement_unit->update_gy_acc(gy, acc);
+    });
 }
 
-void MeasurementNode::update_measurement()
+void MeasurementNode::update(double seconds)
 {
   if (std::dynamic_pointer_cast<MPU>(measurement_unit)) {
     measurement_unit->update_rpy();
@@ -59,15 +69,13 @@ void MeasurementNode::update_measurement()
   } else if (std::dynamic_pointer_cast<Filter>(measurement_unit)) {
     auto filter_measurement = std::dynamic_pointer_cast<Filter>(measurement_unit);
 
-    subscribe_unit();
-
-    // filter_measurement->update_gy_acc();
+    filter_measurement->update_seconds(seconds);
     filter_measurement->update_rpy();
 
     publish_orientation();
     publish_unit();
   } else {
-    // do some exception
+    // TODO(maroqijalil): do some exception
   }
 }
 
@@ -83,13 +91,13 @@ std::string MeasurementNode::get_node_prefix() const
 
 void MeasurementNode::publish_orientation()
 {
-  auto orientation_msg = kansei_interfaces::msg::Orientation();
+  auto orientation_msg = kansei_interfaces::msg::Axis();
 
   keisan::Euler<double> rpy = measurement_unit->get_orientation();
 
-  orientation_msg.orientation = std::experimental::make_array(
-    static_cast<float>(rpy.roll.degree()), static_cast<float>(rpy.pitch.degree()),
-    static_cast<float>(rpy.yaw.degree()));
+  orientation_msg.roll = rpy.roll.degree();
+  orientation_msg.pitch = rpy.pitch.degree();
+  orientation_msg.yaw = rpy.yaw.degree();
 
   orientation_publisher->publish(orientation_msg);
 }
@@ -98,13 +106,16 @@ void MeasurementNode::publish_unit()
 {
   auto unit_msg = kansei_interfaces::msg::Unit();
 
-  keisan::Vector<3> gy = measurement_unit->get_filtered_gy();
-  keisan::Vector<3> acc = measurement_unit->get_filtered_acc();
+  auto gyro = measurement_unit->get_filtered_gy();
+  auto accelero = measurement_unit->get_filtered_acc();
 
-  unit_msg.gyro = std::experimental::make_array(
-    static_cast<float>(gy[0]), static_cast<float>(gy[1]), static_cast<float>(gy[2]));
-  unit_msg.accelero = std::experimental::make_array(
-    static_cast<float>(acc[0]), static_cast<float>(acc[1]), static_cast<float>(acc[2]));
+  unit_msg.gyro.roll = gyro[0];
+  unit_msg.gyro.pitch = gyro[1];
+  unit_msg.gyro.yaw = gyro[2];
+
+  unit_msg.accelero.x = accelero[0];
+  unit_msg.accelero.y = accelero[1];
+  unit_msg.accelero.z = accelero[2];
 
   unit_publisher->publish(unit_msg);
 }
@@ -114,6 +125,4 @@ void MeasurementNode::subscribe_unit()
   // do unit value subscribing
 }
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement

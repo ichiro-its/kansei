@@ -21,10 +21,7 @@
 #ifndef KANSEI__MEASUREMENT__FILTER__MADGWICK__WORLD_FRAME_HPP_
 #define KANSEI__MEASUREMENT__FILTER__MADGWICK__WORLD_FRAME_HPP_
 
-namespace kansei
-{
-
-namespace measurement
+namespace kansei::measurement
 {
 
 enum WorldFrame
@@ -34,8 +31,6 @@ enum WorldFrame
   NWU
 };
 
-}  // namespace measurement
-
-}  // namespace kansei
+}  // namespace kansei::measurement
 
 #endif  // KANSEI__MEASUREMENT__FILTER__MADGWICK__WORLD_FRAME_HPP_
