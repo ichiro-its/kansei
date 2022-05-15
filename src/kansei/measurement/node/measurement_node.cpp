@@ -42,7 +42,7 @@ MeasurementNode::MeasurementNode(
     get_node_prefix() + "/orientation", 10);
 
   reset_orientation_subscriber = node->create_subscription<ResetOrientation>(
-    "/imu/unit", 10,
+    get_node_prefix() + "/reset_orientation", 10,
     [this](const ResetOrientation::SharedPtr message) {
       if (message->orientation == 0.0) {
         this->measurement_unit->reset_orientation();
