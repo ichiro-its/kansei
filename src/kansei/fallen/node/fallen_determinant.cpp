@@ -36,7 +36,7 @@ FallenDeterminant::FallenDeterminant(const DeterminantType & type)
 {
 }
 
-void FallenDeterminant::load_data(const std::string & path)
+void FallenDeterminant::load_config(const std::string & path)
 {
   std::string file_name =
     path + "imu/" + "kansei.json";

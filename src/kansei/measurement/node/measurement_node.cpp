@@ -41,6 +41,16 @@ MeasurementNode::MeasurementNode(
   orientation_publisher = node->create_publisher<Axis>(
     get_node_prefix() + "/orientation", 10);
 
+  reset_orientation_subscriber = node->create_subscription<ResetOrientation>(
+    "/imu/unit", 10,
+    [this](const ResetOrientation::SharedPtr message) {
+      if (message->orientation == 0.0) {
+        this->measurement_unit->reset_orientation();
+      } else {
+        this->measurement_unit->set_orientation_to(keisan::make_degree(message->orientation));
+      }
+    });
+
   unit_publisher = node->create_publisher<Unit>(
     get_node_prefix() + "/unit", 10);
 

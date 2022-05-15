@@ -26,6 +26,7 @@
 
 #include "kansei/measurement/node/measurement_unit.hpp"
 #include "kansei_interfaces/msg/axis.hpp"
+#include "kansei_interfaces/msg/reset_orientation.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "rclcpp/rclcpp.hpp"
 
@@ -36,6 +37,7 @@ class MeasurementNode
 {
 public:
   using Axis = kansei_interfaces::msg::Axis;
+  using ResetOrientation = kansei_interfaces::msg::ResetOrientation;
   using Unit = kansei_interfaces::msg::Unit;
 
   explicit MeasurementNode(
@@ -56,6 +58,7 @@ private:
   std::shared_ptr<MeasurementUnit> measurement_unit;
 
   rclcpp::Publisher<Axis>::SharedPtr orientation_publisher;
+  rclcpp::Subscription<ResetOrientation>::SharedPtr reset_orientation_subscriber;
 
   rclcpp::Publisher<Unit>::SharedPtr unit_publisher;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;

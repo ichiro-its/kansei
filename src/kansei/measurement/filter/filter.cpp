@@ -48,7 +48,7 @@ Filter::Filter()
   filter.set_drift_bias_gain(0.0);
 }
 
-void Filter::load_data(const std::string & path)
+void Filter::load_config(const std::string & path)
 {
   std::string file_name =
     path + "imu/" + "kansei.json";
