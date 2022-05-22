@@ -154,14 +154,14 @@ void MPU::update_rpy()
 
       memcpy(&roll, usart_buffer, 4);
 
-      if (!is_calibrated) {
+      if (!calibrated) {
         // validate the value to minimum error about 0.001
         if (fabs(rpy.yaw.degree() - yaw) < 0.001) {
           count++;
         }
 
         if (count > 50) {
-          is_calibrated = true;
+          calibrated = true;
           reset_orientation();
         }
       }

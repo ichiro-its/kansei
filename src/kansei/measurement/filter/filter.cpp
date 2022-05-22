@@ -89,7 +89,7 @@ void Filter::update_rpy()
   acc.y = keisan::map(raw_acc[1], 512.0, 1023.0, 0.0, 39.2266);
   acc.z = keisan::map(raw_acc[2], 512.0, 1023.0, 0.0, 39.2266);
 
-  if (is_calibrated) {
+  if (calibrated) {
     geometry_msgs::msg::Vector3 ang_vel;
     ang_vel.x = gy.roll.degree();
     ang_vel.y = gy.pitch.degree();

@@ -28,7 +28,7 @@ namespace kansei::measurement
 {
 
 MeasurementUnit::MeasurementUnit()
-: rpy(0_deg, 0_deg, 0_deg), is_calibrated(false), filtered_acc(keisan::Vector<3>::zero()),
+: rpy(0_deg, 0_deg, 0_deg), calibrated(false), filtered_acc(keisan::Vector<3>::zero()),
   raw_acc(keisan::Vector<3>::zero()), gy(0_deg, 0_deg, 0_deg),
   acc(keisan::Point3::zero()), raw_gy(keisan::Vector<3>::zero()),
   filtered_acc_counter(0), filtered_gy_counter(0)
@@ -53,7 +53,7 @@ void MeasurementUnit::update_gy_acc(
   this->raw_gy = gy;
   this->raw_acc = acc;
 
-  if (!is_calibrated) {
+  if (!calibrated) {
     if (filtered_gy_counter < 100) {
       for (int i = 0; i < 3; i++) {
         filtered_gy_arr[i][filtered_gy_counter] = gy[i];
@@ -90,14 +90,14 @@ void MeasurementUnit::update_gy_acc(
           filtered_gy_center[i] = filtered_gy_mean[i];
         }
 
-        is_calibrated = true;
+        calibrated = true;
       }
 
       filtered_gy_counter = 0;
     }
   }
 
-  if (is_calibrated) {
+  if (calibrated) {
     if (filtered_acc_counter < 15) {
       for (int i = 0; i < 3; i++) {
         filtered_acc_arr[i][filtered_acc_counter] = acc[i];
@@ -141,6 +141,11 @@ keisan::Vector<3> MeasurementUnit::get_filtered_gy() const
 keisan::Vector<3> MeasurementUnit::get_filtered_acc() const
 {
   return filtered_acc;
+}
+
+bool MeasurementUnit::is_calibrated() const
+{
+  return calibrated;
 }
 
 }  // namespace kansei::measurement

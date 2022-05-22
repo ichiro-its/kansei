@@ -34,15 +34,39 @@ using namespace keisan::literals;  // NOLINT
 namespace kansei::measurement
 {
 
+std::string MeasurementNode::get_node_prefix()
+{
+  return "measurement";
+}
+
+std::string MeasurementNode::orientation_topic()
+{
+  return get_node_prefix() + "/orientation";
+}
+
+std::string MeasurementNode::reset_orientation_topic()
+{
+  return get_node_prefix() + "/reset_orientation";
+}
+
+std::string MeasurementNode::status_topic()
+{
+  return get_node_prefix() + "/status";
+}
+
+std::string MeasurementNode::unit_topic()
+{
+  return get_node_prefix() + "/unit";
+}
+
 MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
 : measurement_unit(measurement_unit)
 {
-  orientation_publisher = node->create_publisher<Axis>(
-    get_node_prefix() + "/orientation", 10);
+  orientation_publisher = node->create_publisher<Axis>(orientation_topic(), 10);
 
   reset_orientation_subscriber = node->create_subscription<ResetOrientation>(
-    get_node_prefix() + "/reset_orientation", 10,
+    reset_orientation_topic(), 10,
     [this](const ResetOrientation::SharedPtr message) {
       if (message->orientation == 0.0) {
         this->measurement_unit->reset_orientation();
@@ -51,8 +75,9 @@ MeasurementNode::MeasurementNode(
       }
     });
 
-  unit_publisher = node->create_publisher<Unit>(
-    get_node_prefix() + "/unit", 10);
+  unit_publisher = node->create_publisher<Unit>(unit_topic(), 10);
+
+  status_publisher = node->create_publisher<Bool>(status_topic(), 10);
 
   unit_subscriber = node->create_subscription<Unit>(
     "/imu/unit", 10,
@@ -94,14 +119,9 @@ std::shared_ptr<MeasurementUnit> MeasurementNode::get_measurement_unit() const
   return measurement_unit;
 }
 
-std::string MeasurementNode::get_node_prefix() const
-{
-  return "measurement";
-}
-
 void MeasurementNode::publish_orientation()
 {
-  auto orientation_msg = kansei_interfaces::msg::Axis();
+  auto orientation_msg = Axis();
 
   keisan::Euler<double> rpy = measurement_unit->get_orientation();
 
@@ -112,9 +132,17 @@ void MeasurementNode::publish_orientation()
   orientation_publisher->publish(orientation_msg);
 }
 
+void MeasurementNode::publish_status()
+{
+  auto status_msg = Bool();
+  status_msg.data = measurement_unit->is_calibrated();
+
+  status_publisher->publish(status_msg);
+}
+
 void MeasurementNode::publish_unit()
 {
-  auto unit_msg = kansei_interfaces::msg::Unit();
+  auto unit_msg = Unit();
 
   auto gyro = measurement_unit->get_filtered_gy();
   auto accelero = measurement_unit->get_filtered_acc();
