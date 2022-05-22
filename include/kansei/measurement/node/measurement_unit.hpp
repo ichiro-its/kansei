@@ -45,7 +45,7 @@ public:
     const keisan::Vector<3> & gy, const keisan::Vector<3> & acc);
   keisan::Vector<3> get_filtered_gy() const;
   keisan::Vector<3> get_filtered_acc() const;
-  
+
   bool is_calibrated() const;
 
 protected:
