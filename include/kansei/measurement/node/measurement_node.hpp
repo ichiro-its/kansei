@@ -28,7 +28,7 @@
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/reset_orientation.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
-#include "std_msgs/msg/bool.hpp"
+#include "kansei_interfaces/msg/status.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace kansei::measurement
@@ -38,12 +38,11 @@ class MeasurementNode
 {
 public:
   using Axis = kansei_interfaces::msg::Axis;
-  using Bool = std_msgs::msg::Bool;
   using ResetOrientation = kansei_interfaces::msg::ResetOrientation;
+  using Status = kansei_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
 
   static std::string get_node_prefix();
-  static std::string orientation_topic();
   static std::string reset_orientation_topic();
   static std::string status_topic();
   static std::string unit_topic();
@@ -56,21 +55,18 @@ public:
   std::shared_ptr<MeasurementUnit> get_measurement_unit() const;
 
 private:
-  void publish_orientation();
-
   void publish_status();
   void publish_unit();
   void subscribe_unit();
 
   std::shared_ptr<MeasurementUnit> measurement_unit;
 
-  rclcpp::Publisher<Axis>::SharedPtr orientation_publisher;
   rclcpp::Subscription<ResetOrientation>::SharedPtr reset_orientation_subscriber;
 
   rclcpp::Publisher<Unit>::SharedPtr unit_publisher;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
-  rclcpp::Publisher<Bool>::SharedPtr status_publisher;
+  rclcpp::Publisher<Status>::SharedPtr status_publisher;
 };
 
 }  // namespace kansei::measurement

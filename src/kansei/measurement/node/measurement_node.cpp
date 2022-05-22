@@ -39,11 +39,6 @@ std::string MeasurementNode::get_node_prefix()
   return "measurement";
 }
 
-std::string MeasurementNode::orientation_topic()
-{
-  return get_node_prefix() + "/orientation";
-}
-
 std::string MeasurementNode::reset_orientation_topic()
 {
   return get_node_prefix() + "/reset_orientation";
@@ -63,8 +58,6 @@ MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
 : measurement_unit(measurement_unit)
 {
-  orientation_publisher = node->create_publisher<Axis>(orientation_topic(), 10);
-
   reset_orientation_subscriber = node->create_subscription<ResetOrientation>(
     reset_orientation_topic(), 10,
     [this](const ResetOrientation::SharedPtr message) {
@@ -77,7 +70,7 @@ MeasurementNode::MeasurementNode(
 
   unit_publisher = node->create_publisher<Unit>(unit_topic(), 10);
 
-  status_publisher = node->create_publisher<Bool>(status_topic(), 10);
+  status_publisher = node->create_publisher<Status>(status_topic(), 10);
 
   unit_subscriber = node->create_subscription<Unit>(
     "/imu/unit", 10,
@@ -100,14 +93,14 @@ void MeasurementNode::update(double seconds)
   if (std::dynamic_pointer_cast<MPU>(measurement_unit)) {
     measurement_unit->update_rpy();
 
-    publish_orientation();
+    publish_status();
   } else if (std::dynamic_pointer_cast<Filter>(measurement_unit)) {
     auto filter_measurement = std::dynamic_pointer_cast<Filter>(measurement_unit);
 
     filter_measurement->update_seconds(seconds);
     filter_measurement->update_rpy();
 
-    publish_orientation();
+    publish_status();
     publish_unit();
   } else {
     // TODO(maroqijalil): do some exception
@@ -119,23 +112,17 @@ std::shared_ptr<MeasurementUnit> MeasurementNode::get_measurement_unit() const
   return measurement_unit;
 }
 
-void MeasurementNode::publish_orientation()
+void MeasurementNode::publish_status()
 {
-  auto orientation_msg = Axis();
+  auto status_msg = Status();
+
+  status_msg.is_calibrated = measurement_unit->is_calibrated();
 
   keisan::Euler<double> rpy = measurement_unit->get_orientation();
 
-  orientation_msg.roll = rpy.roll.degree();
-  orientation_msg.pitch = rpy.pitch.degree();
-  orientation_msg.yaw = rpy.yaw.degree();
-
-  orientation_publisher->publish(orientation_msg);
-}
-
-void MeasurementNode::publish_status()
-{
-  auto status_msg = Bool();
-  status_msg.data = measurement_unit->is_calibrated();
+  status_msg.orientation.roll = rpy.roll.degree();
+  status_msg.orientation.pitch = rpy.pitch.degree();
+  status_msg.orientation.yaw = rpy.yaw.degree();
 
   status_publisher->publish(status_msg);
 }
