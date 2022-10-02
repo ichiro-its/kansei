@@ -1,2 +1,2 @@
 # kansei
-IMU Package for ROS 2 Project.
+IMU Package for ROS 2 Project
