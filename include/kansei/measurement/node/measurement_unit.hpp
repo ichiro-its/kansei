@@ -46,6 +46,8 @@ public:
   keisan::Vector<3> get_filtered_gy() const;
   keisan::Vector<3> get_filtered_acc() const;
 
+  bool is_calibrated() const;
+
 protected:
   keisan::Euler<double> rpy;
 
@@ -64,7 +66,7 @@ protected:
   double filtered_acc_arr[3][15];
   int filtered_acc_counter;
 
-  bool is_calibrated;
+  bool calibrated;
 };
 
 }  // namespace kansei::measurement

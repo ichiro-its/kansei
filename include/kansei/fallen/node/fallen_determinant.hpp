@@ -36,7 +36,7 @@ class FallenDeterminant
 public:
   explicit FallenDeterminant(const DeterminantType & type);
 
-  void load_data(const std::string & path);
+  void load_config(const std::string & path);
 
   void update_fallen_status(const keisan::Euler<double> & rpy);
   void update_fallen_status(const keisan::Vector<3> & acc);

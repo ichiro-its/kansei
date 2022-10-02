@@ -34,15 +34,43 @@ using namespace keisan::literals;  // NOLINT
 namespace kansei::measurement
 {
 
+std::string MeasurementNode::get_node_prefix()
+{
+  return "measurement";
+}
+
+std::string MeasurementNode::reset_orientation_topic()
+{
+  return get_node_prefix() + "/reset_orientation";
+}
+
+std::string MeasurementNode::status_topic()
+{
+  return get_node_prefix() + "/status";
+}
+
+std::string MeasurementNode::unit_topic()
+{
+  return get_node_prefix() + "/unit";
+}
+
 MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
 : measurement_unit(measurement_unit)
 {
-  orientation_publisher = node->create_publisher<Axis>(
-    get_node_prefix() + "/orientation", 10);
+  reset_orientation_subscriber = node->create_subscription<ResetOrientation>(
+    reset_orientation_topic(), 10,
+    [this](const ResetOrientation::SharedPtr message) {
+      if (message->orientation == 0.0) {
+        this->measurement_unit->reset_orientation();
+      } else {
+        this->measurement_unit->set_orientation_to(keisan::make_degree(message->orientation));
+      }
+    });
 
-  unit_publisher = node->create_publisher<Unit>(
-    get_node_prefix() + "/unit", 10);
+  unit_publisher = node->create_publisher<Unit>(unit_topic(), 10);
+
+  status_publisher = node->create_publisher<Status>(status_topic(), 10);
 
   unit_subscriber = node->create_subscription<Unit>(
     "/imu/unit", 10,
@@ -65,14 +93,14 @@ void MeasurementNode::update(double seconds)
   if (std::dynamic_pointer_cast<MPU>(measurement_unit)) {
     measurement_unit->update_rpy();
 
-    publish_orientation();
+    publish_status();
   } else if (std::dynamic_pointer_cast<Filter>(measurement_unit)) {
     auto filter_measurement = std::dynamic_pointer_cast<Filter>(measurement_unit);
 
     filter_measurement->update_seconds(seconds);
     filter_measurement->update_rpy();
 
-    publish_orientation();
+    publish_status();
     publish_unit();
   } else {
     // TODO(maroqijalil): do some exception
@@ -84,27 +112,24 @@ std::shared_ptr<MeasurementUnit> MeasurementNode::get_measurement_unit() const
   return measurement_unit;
 }
 
-std::string MeasurementNode::get_node_prefix() const
+void MeasurementNode::publish_status()
 {
-  return "measurement";
-}
+  auto status_msg = Status();
 
-void MeasurementNode::publish_orientation()
-{
-  auto orientation_msg = kansei_interfaces::msg::Axis();
+  status_msg.is_calibrated = measurement_unit->is_calibrated();
 
   keisan::Euler<double> rpy = measurement_unit->get_orientation();
 
-  orientation_msg.roll = rpy.roll.degree();
-  orientation_msg.pitch = rpy.pitch.degree();
-  orientation_msg.yaw = rpy.yaw.degree();
+  status_msg.orientation.roll = rpy.roll.degree();
+  status_msg.orientation.pitch = rpy.pitch.degree();
+  status_msg.orientation.yaw = rpy.yaw.degree();
 
-  orientation_publisher->publish(orientation_msg);
+  status_publisher->publish(status_msg);
 }
 
 void MeasurementNode::publish_unit()
 {
-  auto unit_msg = kansei_interfaces::msg::Unit();
+  auto unit_msg = Unit();
 
   auto gyro = measurement_unit->get_filtered_gy();
   auto accelero = measurement_unit->get_filtered_acc();

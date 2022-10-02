@@ -48,7 +48,7 @@ Filter::Filter()
   filter.set_drift_bias_gain(0.0);
 }
 
-void Filter::load_data(const std::string & path)
+void Filter::load_config(const std::string & path)
 {
   std::string file_name =
     path + "imu/" + "kansei.json";
@@ -89,7 +89,7 @@ void Filter::update_rpy()
   acc.y = keisan::map(raw_acc[1], 512.0, 1023.0, 0.0, 39.2266);
   acc.z = keisan::map(raw_acc[2], 512.0, 1023.0, 0.0, 39.2266);
 
-  if (is_calibrated) {
+  if (calibrated) {
     geometry_msgs::msg::Vector3 ang_vel;
     ang_vel.x = gy.roll.degree();
     ang_vel.y = gy.pitch.degree();

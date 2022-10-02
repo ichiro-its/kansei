@@ -35,7 +35,7 @@ class Filter : public MeasurementUnit
 public:
   Filter();
 
-  void load_data(const std::string & path);
+  void load_config(const std::string & path);
 
   void update_seconds(double seconds);
   void update_rpy() override;
