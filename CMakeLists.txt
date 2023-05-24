@@ -19,6 +19,7 @@ find_package(kansei_interfaces REQUIRED)
 find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(tachimawari REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
@@ -43,6 +44,7 @@ ament_target_dependencies(${PROJECT_NAME}
   kansei_interfaces
   rclcpp
   std_msgs
+  tachimawari
   tf2
   tf2_geometry_msgs)
 
@@ -96,6 +98,7 @@ ament_export_dependencies(
   kansei_interfaces
   rclcpp
   std_msgs
+  tachimawari
   tf2
   tf2_geometry_msgs)
 ament_export_include_directories("include")

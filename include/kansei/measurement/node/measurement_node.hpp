@@ -27,8 +27,8 @@
 #include "kansei/measurement/node/measurement_unit.hpp"
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/reset_orientation.hpp"
-#include "kansei_interfaces/msg/unit.hpp"
 #include "kansei_interfaces/msg/status.hpp"
+#include "kansei_interfaces/msg/unit.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace kansei::measurement
@@ -57,7 +57,6 @@ public:
 private:
   void publish_status();
   void publish_unit();
-  void subscribe_unit();
 
   std::shared_ptr<MeasurementUnit> measurement_unit;
 
