@@ -50,12 +50,12 @@ MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
 : measurement_unit(measurement_unit)
 {
-  reset_orientation_subscriber = node->create_subscription<ResetOrientation>(
-    reset_orientation_topic(), 10, [this](const ResetOrientation::SharedPtr message) {
-      if (message->orientation == 0.0) {
+  reset_orientation_subscriber = node->create_subscription<Float64>(
+    reset_orientation_topic(), 10, [this](const Float64::SharedPtr message) {
+      if (message->data == 0.0) {
         this->measurement_unit->reset_orientation();
       } else {
-        this->measurement_unit->set_orientation_to(keisan::make_degree(message->orientation));
+        this->measurement_unit->set_orientation_to(keisan::make_degree(message->data));
       }
     });
 

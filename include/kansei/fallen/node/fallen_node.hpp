@@ -25,8 +25,8 @@
 #include <string>
 
 #include "kansei/fallen/node/fallen_determinant.hpp"
-#include "kansei_interfaces/msg/fallen.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/int8.hpp"
 
 namespace kansei::fallen
 {
@@ -34,19 +34,22 @@ namespace kansei::fallen
 class FallenNode
 {
 public:
+  using Int8 = std_msgs::msg::Int8;
+
+  static std::string get_node_prefix();
+  static std::string fallen_topic();
+
   explicit FallenNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<FallenDeterminant> fallen_determinant);
 
   void update(const keisan::Euler<double> & rpy, const keisan::Vector<3> & acc);
 
 private:
-  std::string get_node_prefix() const;
-
   void publish_fallen();
 
   std::shared_ptr<FallenDeterminant> fallen_determinant;
 
-  rclcpp::Publisher<kansei_interfaces::msg::Fallen>::SharedPtr fallen_publisher;
+  rclcpp::Publisher<Int8>::SharedPtr fallen_publisher;
 };
 
 }  // namespace kansei::fallen
