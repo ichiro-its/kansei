@@ -18,53 +18,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <experimental/array>
 #include <array>
+#include <experimental/array>
 #include <memory>
 #include <string>
 
+#include "kansei/measurement/measurement.hpp"
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
-#include "kansei/measurement/measurement.hpp"
 #include "keisan/keisan.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "tachimawari/imu/node/imu_node.hpp"
 
 using namespace keisan::literals;  // NOLINT
 
 namespace kansei::measurement
 {
 
-std::string MeasurementNode::get_node_prefix()
-{
-  return "measurement";
-}
+std::string MeasurementNode::get_node_prefix() { return "measurement"; }
 
 std::string MeasurementNode::reset_orientation_topic()
 {
   return get_node_prefix() + "/reset_orientation";
 }
 
-std::string MeasurementNode::status_topic()
-{
-  return get_node_prefix() + "/status";
-}
+std::string MeasurementNode::status_topic() { return get_node_prefix() + "/status"; }
 
-std::string MeasurementNode::unit_topic()
-{
-  return get_node_prefix() + "/unit";
-}
+std::string MeasurementNode::unit_topic() { return get_node_prefix() + "/unit"; }
 
 MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
 : measurement_unit(measurement_unit)
 {
-  reset_orientation_subscriber = node->create_subscription<ResetOrientation>(
-    reset_orientation_topic(), 10,
-    [this](const ResetOrientation::SharedPtr message) {
-      if (message->orientation == 0.0) {
+  reset_orientation_subscriber = node->create_subscription<Float64>(
+    reset_orientation_topic(), 10, [this](const Float64::SharedPtr message) {
+      if (message->data == 0.0) {
         this->measurement_unit->reset_orientation();
       } else {
-        this->measurement_unit->set_orientation_to(keisan::make_degree(message->orientation));
+        this->measurement_unit->set_orientation_to(keisan::make_degree(message->data));
       }
     });
 
@@ -73,16 +64,9 @@ MeasurementNode::MeasurementNode(
   status_publisher = node->create_publisher<Status>(status_topic(), 10);
 
   unit_subscriber = node->create_subscription<Unit>(
-    "/imu/unit", 10,
-    [this](const Unit::SharedPtr message) {
-      keisan::Vector<3> gy(
-        message->gyro.roll,
-        message->gyro.pitch,
-        message->gyro.yaw);
-      keisan::Vector<3> acc(
-        message->accelero.x,
-        message->accelero.y,
-        message->accelero.z);
+    tachimawari::imu::ImuNode::unit_topic(), 10, [this](const Unit::SharedPtr message) {
+      keisan::Vector<3> gy(message->gyro.roll, message->gyro.pitch, message->gyro.yaw);
+      keisan::Vector<3> acc(message->accelero.x, message->accelero.y, message->accelero.z);
 
       this->measurement_unit->update_gy_acc(gy, acc);
     });
@@ -143,11 +127,6 @@ void MeasurementNode::publish_unit()
   unit_msg.accelero.z = accelero[2];
 
   unit_publisher->publish(unit_msg);
-}
-
-void MeasurementNode::subscribe_unit()
-{
-  // do unit value subscribing
 }
 
 }  // namespace kansei::measurement

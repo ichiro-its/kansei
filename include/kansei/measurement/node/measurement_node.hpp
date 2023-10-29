@@ -26,10 +26,10 @@
 
 #include "kansei/measurement/node/measurement_unit.hpp"
 #include "kansei_interfaces/msg/axis.hpp"
-#include "kansei_interfaces/msg/reset_orientation.hpp"
-#include "kansei_interfaces/msg/unit.hpp"
 #include "kansei_interfaces/msg/status.hpp"
+#include "kansei_interfaces/msg/unit.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/float64.hpp"
 
 namespace kansei::measurement
 {
@@ -38,7 +38,7 @@ class MeasurementNode
 {
 public:
   using Axis = kansei_interfaces::msg::Axis;
-  using ResetOrientation = kansei_interfaces::msg::ResetOrientation;
+  using Float64 = std_msgs::msg::Float64;
   using Status = kansei_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
 
@@ -57,11 +57,10 @@ public:
 private:
   void publish_status();
   void publish_unit();
-  void subscribe_unit();
 
   std::shared_ptr<MeasurementUnit> measurement_unit;
 
-  rclcpp::Subscription<ResetOrientation>::SharedPtr reset_orientation_subscriber;
+  rclcpp::Subscription<Float64>::SharedPtr reset_orientation_subscriber;
 
   rclcpp::Publisher<Unit>::SharedPtr unit_publisher;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
