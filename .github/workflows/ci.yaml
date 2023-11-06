@@ -9,10 +9,34 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout this repository
+      - name: Checkout
         uses: actions/checkout@v2.3.4
         with:
           path: kansei
+
+      - name: Checkout Keisan
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ichiro-its/keisan
+          path: keisan
+
+      - name: Checkout Kansei Interfaces
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ichiro-its/kansei_interfaces
+          path: kansei_interfaces
+
+      - name: Checkout Musen
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ichiro-its/musen
+          path: musen
+
+      - name: Checkout Tachimawari
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ichiro-its/tachimawari
+          path: tachimawari
 
       - name: Setup workspace
         uses: ichiro-its/ros2-ws-action/setup@v1.0.0
