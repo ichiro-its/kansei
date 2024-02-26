@@ -42,10 +42,6 @@ jobs:
           repository: ichiro-its/tachimawari_interfaces
           path: tachimawari_interfaces
 
-      - name: Setup cmake        
-        run: |
-          sudo apt install -y build-essential autoconf libtool pkg-config cmake
-        
       - name: Setup workspace
         uses: ichiro-its/ros2-ws-action/setup@v1.0.1
 
