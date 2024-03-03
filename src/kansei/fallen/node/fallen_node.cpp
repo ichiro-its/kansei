@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <kansei_interfaces/msg/fallen.hpp>
+// #include <kansei_interfaces/msg/fallen.hpp>
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
 #include <string>

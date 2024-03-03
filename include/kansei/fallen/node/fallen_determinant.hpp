@@ -34,7 +34,7 @@ namespace kansei::fallen
 class FallenDeterminant
 {
 public:
-  explicit FallenDeterminant(const DeterminantType & type);
+  explicit FallenDeterminant(const std::string & fallen_type);
 
   void load_config(const std::string & path);
 
@@ -51,11 +51,16 @@ private:
 
   DeterminantType determinant_type;
 
-  // fallen raw variables
-  float fallen_back_raw_limit;
-  float fallen_front_raw_limit;
-  float fallen_right_raw_limit;
-  float fallen_left_raw_limit;
+  // fallen variables
+  float accel_back_limit;
+  float accel_front_limit;
+  float accel_right_limit;
+  float accel_left_limit;
+
+  float pitch_back_limit;
+  float pitch_front_limit;
+  float roll_right_limit;
+  float roll_left_limit;
 };
 
 }  // namespace kansei::fallen
