@@ -36,8 +36,8 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
 
   std::string port_name = "/dev/ttyUSB0";
-  std::string fallen_type = "";
   std::string path = "";
+  kansei::fallen::DeterminantType determinant_type;
 
   const char * help_message = 
     "Usage: ros2 run kansei main --path [config_path] --type [fallen_type]\n"
@@ -62,7 +62,15 @@ int main(int argc, char * argv[])
         }
       } else if (arg == "--type") {
         if (i + 1 < argc) {
-          fallen_type = argv[i + 1];
+          std::string fallen_type = argv[i + 1];
+          if (fallen_type == "orientation") {
+            determinant_type = kansei::fallen::DeterminantType::ORIENTATION;
+          } else if (fallen_type == "accelero") {
+            determinant_type = kansei::fallen::DeterminantType::ACCELERO;
+          } else {
+            std::cerr << "Error: invalid fallen type argument\n";
+            return 1;
+          }
           i++;
         } else {
           std::cerr << "Error: --type requires a fallen type argument" << std::endl;
@@ -94,7 +102,7 @@ int main(int argc, char * argv[])
   auto node = std::make_shared<rclcpp::Node>("kansei_node");
   auto kansei_node = std::make_shared<kansei::KanseiNode>(node);
 
-  auto fallen = std::make_shared<kansei::fallen::FallenDeterminant>(fallen_type);
+  auto fallen = std::make_shared<kansei::fallen::FallenDeterminant>(determinant_type);
   fallen->load_config(path);
 
   kansei_node->set_measurement_unit(mpu);

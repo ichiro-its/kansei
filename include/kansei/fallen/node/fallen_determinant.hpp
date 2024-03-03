@@ -34,7 +34,7 @@ namespace kansei::fallen
 class FallenDeterminant
 {
 public:
-  explicit FallenDeterminant(const std::string & fallen_type);
+  explicit FallenDeterminant(const DeterminantType & type);
 
   void load_config(const std::string & path);
 

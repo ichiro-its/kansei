@@ -30,16 +30,9 @@
 namespace kansei::fallen
 {
 
-FallenDeterminant::FallenDeterminant(const std::string &fallen_type)
-: fallen_status(FallenStatus::STANDUP)
+FallenDeterminant::FallenDeterminant(const DeterminantType & type)
+: fallen_status(FallenStatus::STANDUP), determinant_type(type)
 {
-  if (fallen_type == "orientation") {
-    determinant_type = DeterminantType::ORIENTATION;
-  } else if (fallen_type == "accelero") {
-    determinant_type = DeterminantType::ACCELERO;
-  } else {
-    throw std::runtime_error("Invalid fallen type: " + fallen_type);
-  }
 }
 
 void FallenDeterminant::load_config(const std::string & path)
