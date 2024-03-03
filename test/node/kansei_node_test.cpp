@@ -34,9 +34,10 @@ TEST(KanseiNodeTest, CompileProcess) {
     kansei::KanseiNode kansei_node(node);
 
     kansei_node.set_measurement_unit(std::make_shared<kansei::measurement::Filter>());
+
     kansei_node.set_fallen_determinant(
-      std::make_shared<kansei::fallen::FallenDeterminant>(
-        kansei::fallen::DeterminantType::ACCELERO));
+      std::make_shared<kansei::fallen::FallenDeterminant>("accelero"));
+    std::cout << "Fallen determinant" << std::endl;
   } catch (...) {
   }
 }

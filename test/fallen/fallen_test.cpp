@@ -27,8 +27,7 @@ class FallenTest : public testing::Test
 {
 protected:
   FallenTest()
-  : fallen_determinant(kansei::fallen::FallenDeterminant(
-        kansei::fallen::DeterminantType::ACCELERO))
+  : fallen_determinant(kansei::fallen::FallenDeterminant("accelero"))
   {
   }
 
