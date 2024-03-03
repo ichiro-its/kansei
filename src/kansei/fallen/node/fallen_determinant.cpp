@@ -31,7 +31,9 @@ namespace kansei::fallen
 {
 
 FallenDeterminant::FallenDeterminant(const DeterminantType & type)
-: fallen_status(FallenStatus::STANDUP), determinant_type(type)
+: fallen_status(FallenStatus::STANDUP), determinant_type(type),
+  accel_back_limit(1000.0), accel_front_limit(0.0), accel_right_limit(1000.0), accel_left_limit(0.0),
+  pitch_back_limit(100.0), pitch_front_limit(-100.0), roll_right_limit(-100.0), roll_left_limit(100.0)
 {
 }
 
@@ -55,6 +57,7 @@ void FallenDeterminant::load_config(const std::string & path)
         val.at("accel_left_limit").get_to(accel_left_limit);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     } else if (key == "orientation_limit") {
       try {
@@ -64,6 +67,7 @@ void FallenDeterminant::load_config(const std::string & path)
         val.at("roll_left_limit").get_to(roll_left_limit);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     }
   }
