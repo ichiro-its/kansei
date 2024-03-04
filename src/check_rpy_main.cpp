@@ -29,7 +29,7 @@
 
 int main(int argc, char * argv[])
 {
-  std::string port_name = "/dev/ttyUSB0";
+  std::string port_name = "/dev/ttyUSB1";
 
   if (argc > 1) {
     port_name = argv[1];
@@ -40,15 +40,9 @@ int main(int argc, char * argv[])
   if (mpu.connect()) {
     std::cout << "succeeded to connect to mpu " << port_name << "!\n";
   } else {
-    port_name = "/dev/ttyUSB1";
-    mpu.set_port_name(port_name);
-    if (mpu.connect()) {
-      std::cout << "succeeded to connect to mpu " << port_name << "!\n";
-    } else {
-      std::cout << "failed to connect to mpu!\n" <<
-        "try again!\n";
-      return 0;
-    }
+    std::cout << "failed to connect to mpu!\n" <<
+      "try again!\n";
+    return 0;
   }
 
   while (true) {

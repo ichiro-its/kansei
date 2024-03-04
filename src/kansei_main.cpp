@@ -35,7 +35,7 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  std::string port_name = "/dev/ttyUSB0";
+  std::string port_name = "/dev/ttyUSB1";
   std::string path = "";
   kansei::fallen::DeterminantType determinant_type;
 
@@ -88,15 +88,9 @@ int main(int argc, char * argv[])
   if (mpu->connect()) {
     std::cout << "succeeded to connect to mpu " << port_name << "!\n";
   } else {
-    port_name = "/dev/ttyUSB1";
-    mpu->set_port_name(port_name);
-    if (mpu->connect()) {
-      std::cout << "succeeded to connect to mpu " << port_name << "!\n";
-    } else {
-      std::cout << "failed to connect to mpu!\n" <<
-        "try again!\n";
-      return 0;
-    }
+    std::cout << "failed to connect to mpu!\n" <<
+      "try again!\n";
+    return 0;
   }
 
   auto node = std::make_shared<rclcpp::Node>("kansei_node");
