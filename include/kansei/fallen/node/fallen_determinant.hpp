@@ -52,15 +52,15 @@ private:
   DeterminantType determinant_type;
 
   // fallen variables
-  float accel_back_limit;
-  float accel_front_limit;
-  float accel_right_limit;
-  float accel_left_limit;
+  double accel_back_limit;
+  double accel_front_limit;
+  double accel_right_limit;
+  double accel_left_limit;
 
-  float pitch_back_limit;
-  float pitch_front_limit;
-  float roll_right_limit;
-  float roll_left_limit;
+  double pitch_back_limit;
+  double pitch_front_limit;
+  double roll_right_limit;
+  double roll_left_limit;
 };
 
 }  // namespace kansei::fallen
