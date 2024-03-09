@@ -31,27 +31,43 @@ namespace kansei::fallen
 {
 
 FallenDeterminant::FallenDeterminant(const DeterminantType & type)
-: fallen_status(FallenStatus::STANDUP), determinant_type(type), fallen_back_raw_limit(491.0),
-  fallen_front_raw_limit(458.0), fallen_right_raw_limit(519.0), fallen_left_raw_limit(498.0)
+: fallen_status(FallenStatus::STANDUP), determinant_type(type),
+  accel_back_limit(1000.0), accel_front_limit(0.0), accel_right_limit(1000.0), accel_left_limit(0.0),
+  pitch_back_limit(100.0), pitch_front_limit(-100.0), roll_right_limit(-100.0), roll_left_limit(100.0)
 {
 }
 
 void FallenDeterminant::load_config(const std::string & path)
 {
-  std::string file_name =
-    path + "imu/" + "kansei.json";
+  std::string file_name = path + "kansei.json";
   std::ifstream file(file_name);
+
+  if (!file.is_open()) {
+    throw std::runtime_error("Failed to open file: " + file_name);
+  }
+
   nlohmann::json imu_data = nlohmann::json::parse(file);
 
   for (const auto &[key, val] : imu_data.items()) {
-    if (key == "fallen_limit") {
+    if (key == "accel_limit") {
       try {
-        val.at("fallen_back_limit").get_to(fallen_back_raw_limit);
-        val.at("fallen_front_limit").get_to(fallen_front_raw_limit);
-        val.at("fallen_right_limit").get_to(fallen_right_raw_limit);
-        val.at("fallen_left_limit").get_to(fallen_left_raw_limit);
+        val.at("accel_back_limit").get_to(accel_back_limit);
+        val.at("accel_front_limit").get_to(accel_front_limit);
+        val.at("accel_right_limit").get_to(accel_right_limit);
+        val.at("accel_left_limit").get_to(accel_left_limit);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
+      }
+    } else if (key == "orientation_limit") {
+      try {
+        val.at("pitch_back_limit").get_to(pitch_back_limit);
+        val.at("pitch_front_limit").get_to(pitch_front_limit);
+        val.at("roll_right_limit").get_to(roll_right_limit);
+        val.at("roll_left_limit").get_to(roll_left_limit);
+      } catch (nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     }
   }
@@ -60,19 +76,29 @@ void FallenDeterminant::load_config(const std::string & path)
 void FallenDeterminant::update_fallen_status(const keisan::Euler<double> & rpy)
 {
   fallen_status = FallenStatus::STANDUP;
+
+  if (rpy.pitch.degree() < pitch_front_limit) {
+    fallen_status = FallenStatus::FORWARD;
+  } else if (rpy.pitch.degree() > pitch_back_limit) {
+    fallen_status = FallenStatus::BACKWARD;
+  } else if (rpy.roll.degree() > roll_right_limit) {
+    fallen_status = FallenStatus::RIGHT;
+  } else if (rpy.roll.degree() < roll_left_limit) {
+    fallen_status = FallenStatus::LEFT;
+  }
 }
 
 void FallenDeterminant::update_fallen_status(const keisan::Vector<3> & acc)
 {
   fallen_status = FallenStatus::STANDUP;
 
-  if (acc[1] < fallen_front_raw_limit) {
+  if (acc[1] < accel_front_limit) {
     fallen_status = FallenStatus::FORWARD;
-  } else if (acc[1] > fallen_back_raw_limit) {
+  } else if (acc[1] > accel_back_limit) {
     fallen_status = FallenStatus::BACKWARD;
-  } else if (acc[0] > fallen_right_raw_limit) {
+  } else if (acc[0] < accel_right_limit) {
     fallen_status = FallenStatus::RIGHT;
-  } else if (acc[0] < fallen_left_raw_limit) {
+  } else if (acc[0] > accel_left_limit) {
     fallen_status = FallenStatus::LEFT;
   }
 }

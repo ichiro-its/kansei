@@ -36,17 +36,57 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
 
   std::string port_name = "/dev/ttyUSB1";
+  std::string path = "";
+  kansei::fallen::DeterminantType determinant_type;
+
+  const char * help_message = 
+    "Usage: ros2 run kansei main --path [config_path] --type [fallen_type]\n"
+    "[config_path]:       path to the configuration file\n"
+    "[fallen_type]:       fallen type to be used (orientation / accelero)\n"
+    "Optional:\n"
+    "-h, --help           show this help message and exit\n";
 
   if (argc > 1) {
-    port_name = argv[1];
+    for (int i = 1; i < argc; i++) {
+      std::string arg = argv[i];
+      if (arg == "-h" || arg == "--help") {
+        std::cout << help_message << std::endl;
+        return 1;
+      } else if (arg == "--path") {
+        if (i + 1 < argc) {
+          path = argv[i + 1];
+          i++;
+        } else {
+          std::cerr << "Error: --path requires a path argument" << std::endl;
+          return 1;
+        }
+      } else if (arg == "--type") {
+        if (i + 1 < argc) {
+          std::string fallen_type = argv[i + 1];
+          if (fallen_type == "orientation") {
+            determinant_type = kansei::fallen::DeterminantType::ORIENTATION;
+          } else if (fallen_type == "accelero") {
+            determinant_type = kansei::fallen::DeterminantType::ACCELERO;
+          } else {
+            std::cerr << "Error: invalid fallen type argument\n";
+            return 1;
+          }
+          i++;
+        } else {
+          std::cerr << "Error: --type requires a fallen type argument" << std::endl;
+          return 1;
+        }
+      }
+    }
+  } else {
+    std::cout << "Invalid arguments!\n\n" << help_message << "\n";
+    return 0;
   }
 
-  std::cout << "set the port name as " << port_name << "\n";
   auto mpu = std::make_shared<kansei::measurement::MPU>(port_name);
 
-  std::cout << "connect to mpu\n";
   if (mpu->connect()) {
-    std::cout << "succeeded to connect to mpu!\n";
+    std::cout << "succeeded to connect to mpu " << port_name << "!\n";
   } else {
     std::cout << "failed to connect to mpu!\n" <<
       "try again!\n";
@@ -56,8 +96,8 @@ int main(int argc, char * argv[])
   auto node = std::make_shared<rclcpp::Node>("kansei_node");
   auto kansei_node = std::make_shared<kansei::KanseiNode>(node);
 
-  auto fallen = std::make_shared<kansei::fallen::FallenDeterminant>(
-    kansei::fallen::DeterminantType::ACCELERO);
+  auto fallen = std::make_shared<kansei::fallen::FallenDeterminant>(determinant_type);
+  fallen->load_config(path);
 
   kansei_node->set_measurement_unit(mpu);
   kansei_node->set_fallen_determinant(fallen);

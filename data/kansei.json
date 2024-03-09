@@ -1,13 +1,14 @@
 {
-  "fallen_limit": {
-    "fallen_back_limit": 620.0,
-    "fallen_front_limit": 445.0,
-    "fallen_right_limit": 570.0,
-    "fallen_left_limit": 400.0
+  "accel_limit": {
+    "accel_back_limit": 620.0,
+    "accel_front_limit": 445.0,
+    "accel_right_limit": 570.0,
+    "accel_left_limit": 400.0
   },
-  "filter": {
-    "gyro_mux_x": 3.22,
-    "gyro_mux_y": 3.22,
-    "gyro_mux_z": 3.22
+  "orientation_limit": {
+    "pitch_back_limit": 0.0,
+    "pitch_front_limit": 0.0,
+    "roll_right_limit": 0.0,
+    "roll_left_limit": 0.0
   }
 }
