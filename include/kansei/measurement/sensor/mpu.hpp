@@ -39,7 +39,7 @@ public:
   bool connect();
 
   void update_rpy() override;
-  void *start(void *object);
+  static void *start(void *object);
 
   void reset_orientation() override;
   void set_orientation_to(const keisan::Angle<double> & target_orientation) override;
