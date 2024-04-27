@@ -78,6 +78,8 @@ bool MPU::connect()
     tcflush(socket_fd, TCIFLUSH);
     tcsetattr(socket_fd, TCSANOW, &newtio);
 
+    pthread_create(&thread, NULL, &start, this);
+
     return true;
   } else {
     fprintf(stderr, "Can not connect MPU on %s\n", port_name.c_str());
@@ -170,11 +172,17 @@ void MPU::update_rpy()
       rpy.pitch = keisan::make_degree(pitch);
       rpy.yaw = keisan::make_degree(yaw) + oreintation_error + oreintation_compensation;
 
-      break;
     } else {
       usart_status = 0;
     }
   }
+}
+
+void *MPU::start(void *object)
+{
+  reinterpret_cast<MPU *>(object)->update_rpy();
+
+  return 0;
 }
 
 void MPU::set_port_name(const std::string & port_name)
