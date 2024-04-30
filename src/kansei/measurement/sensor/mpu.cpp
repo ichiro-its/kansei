@@ -200,6 +200,7 @@ void MPU::reset_orientation()
 
 void MPU::set_orientation_to(const keisan::Angle<double> & target_orientation)
 {
+  orientation_error = -raw_orientation;
   orientation_compensation = target_orientation;
 }
 
