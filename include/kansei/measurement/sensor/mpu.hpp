@@ -49,8 +49,9 @@ private:
   std::string port_name;
   pthread_t thread;
 
-  keisan::Angle<double> oreintation_compensation;
-  keisan::Angle<double> oreintation_error;
+  keisan::Angle<double> raw_orientation;
+  keisan::Angle<double> orientation_compensation;
+  keisan::Angle<double> orientation_error;
 };
 
 }  // namespace kansei::measurement
