@@ -35,7 +35,7 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  std::string port_name = "/dev/ttyUSB1";
+  std::string port_name = "/dev/ttyACM0";
   std::string path = "";
   kansei::fallen::DeterminantType determinant_type;
 

@@ -29,7 +29,7 @@
 
 int main(int argc, char * argv[])
 {
-  std::string port_name = "/dev/ttyUSB1";
+  std::string port_name = "/dev/ttyACM0";
 
   if (argc > 1) {
     port_name = argv[1];
