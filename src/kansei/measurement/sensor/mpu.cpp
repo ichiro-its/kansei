@@ -171,6 +171,42 @@ void MPU::update_rpy()
       rpy.yaw = keisan::make_degree(yaw) + oreintation_error + oreintation_compensation;
 
       break;
+    } else if (usart_status == 17 && usart_data == ':') {
+      usart_status++;
+    } else if (usart_status == 18) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 19) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 20) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 21) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      printf("startbutton..\n");
+      memcpy(&start, usart_buffer, 4);
+    } else if (usart_status == 22 && usart_data == ':') {
+      usart_status++;
+    } else if (usart_status == 23) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 24) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 25) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 26) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&stop, usart_buffer, 4);
+
+      // start = start_button;
+      // stop = stop_button;
     } else {
       usart_status = 0;
     }
@@ -184,6 +220,7 @@ void MPU::set_port_name(const std::string & port_name)
 
 void MPU::reset_orientation()
 {
+  printf("reset orientation\n");
   oreintation_error = -rpy.yaw;
   oreintation_compensation = 0_deg;
 }

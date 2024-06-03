@@ -48,6 +48,8 @@ public:
 
   bool is_calibrated() const;
 
+  float start; 
+  float stop;
 protected:
   keisan::Euler<double> rpy;
 
