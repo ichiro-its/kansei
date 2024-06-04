@@ -75,7 +75,6 @@ MeasurementNode::MeasurementNode(
 void MeasurementNode::update(double seconds)
 {
   if (std::dynamic_pointer_cast<MPU>(measurement_unit)) {
-    measurement_unit->update_rpy();
 
     publish_status();
   } else if (std::dynamic_pointer_cast<Filter>(measurement_unit)) {

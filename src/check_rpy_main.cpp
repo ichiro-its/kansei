@@ -27,6 +27,8 @@
 #include "kansei/measurement/measurement.hpp"
 #include "keisan/keisan.hpp"
 
+using namespace std::chrono_literals;
+
 int main(int argc, char * argv[])
 {
   std::string port_name = "/dev/ttyUSB1";
@@ -45,8 +47,8 @@ int main(int argc, char * argv[])
     return 0;
   }
 
+  rclcpp::Rate loop_rate(8ms);
   while (true) {
-    mpu.update_rpy();
 
     keisan::Euler<double> rpy = mpu.get_orientation();
 
@@ -54,6 +56,8 @@ int main(int argc, char * argv[])
     std::cout << "Pitch: " << rpy.pitch.degree() << std::endl;
     std::cout << "Yaw: " << rpy.yaw.degree() << std::endl;
     std::cout << "\033c";
+
+    loop_rate.sleep();
   }
 
   return 0;
