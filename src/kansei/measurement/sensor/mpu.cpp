@@ -42,7 +42,6 @@ namespace kansei::measurement
 
 MPU::MPU(const std::string & port_name)
 : socket_fd(-1), orientation_error(0_deg), orientation_compensation(0_deg), raw_orientation(0_deg)
-: socket_fd(-1), orientation_error(0_deg), orientation_compensation(0_deg), raw_orientation(0_deg)
 {
   set_port_name(port_name);
 }
