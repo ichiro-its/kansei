@@ -55,7 +55,8 @@ int main(int argc, char * argv[])
     std::cout << "Roll: " << rpy.roll.degree() << std::endl;
     std::cout << "Pitch: " << rpy.pitch.degree() << std::endl;
     std::cout << "Yaw: " << rpy.yaw.degree() << std::endl;
-    std::cout << "start button : " << mpu.start << std::endl;
+    std::cout << "start button : " << mpu.start_button << std::endl;
+    std::cout << "stop button : " << mpu.stop_button << std::endl;
     std::cout << "\033c";
 
     loop_rate.sleep();

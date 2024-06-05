@@ -44,8 +44,6 @@ public:
   void reset_orientation() override;
   void set_orientation_to(const keisan::Angle<double> & target_orientation) override;
 
-  float start_button; 
-  float stop_button;
 private:
   int socket_fd;
   std::string port_name;

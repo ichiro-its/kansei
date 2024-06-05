@@ -31,7 +31,7 @@ MeasurementUnit::MeasurementUnit()
 : rpy(0_deg, 0_deg, 0_deg), calibrated(false), filtered_acc(keisan::Vector<3>::zero()),
   raw_acc(keisan::Vector<3>::zero()), gy(0_deg, 0_deg, 0_deg),
   acc(keisan::Point3::zero()), raw_gy(keisan::Vector<3>::zero()),
-  filtered_acc_counter(0), filtered_gy_counter(0), start(0), stop(0)
+  filtered_acc_counter(0), filtered_gy_counter(0), start_button(0), stop_button(0)
 {
   for (int i = 0; i < 3; i++) {
     filtered_gy_center[i] = 512.0;

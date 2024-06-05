@@ -44,7 +44,7 @@ std::string MeasurementNode::reset_orientation_topic()
 
 std::string MeasurementNode::status_topic() { return get_node_prefix() + "/status"; }
 
-std::string MeasurementNode::button_status_topic() { return "control/status"; }
+std::string MeasurementNode::button_status_topic() {  return get_node_prefix() + "/button_status"; }
 
 std::string MeasurementNode::unit_topic() { return get_node_prefix() + "/unit"; }
 
@@ -63,9 +63,9 @@ MeasurementNode::MeasurementNode(
 
   unit_publisher = node->create_publisher<Unit>(unit_topic(), 10);
 
-  status_publisher = node->create_publisher<Status>(button_status_topic(), 10);
+  status_publisher = node->create_publisher<Status>(status_topic(), 10);
 
-  button_status_publisher = node->create_publisher<ButtonStatus>(status_topic(), 10);
+  button_status_publisher = node->create_publisher<ButtonStatus>(button_status_topic(), 10);
 
   unit_subscriber = node->create_subscription<Unit>(
     tachimawari::imu::ImuNode::unit_topic(), 10, [this](const Unit::SharedPtr message) {
@@ -103,6 +103,7 @@ void MeasurementNode::publish_status()
 {
   auto status_msg = Status();
   auto button_status_msg = ButtonStatus();
+  button_status_msg.button = 0;
 
   status_msg.is_calibrated = measurement_unit->is_calibrated();
 
@@ -112,10 +113,14 @@ void MeasurementNode::publish_status()
   status_msg.orientation.pitch = rpy.pitch.degree();
   status_msg.orientation.yaw = rpy.yaw.degree();
 
-  // printf("start button : %f\n", measurement_unit->start);
-  // printf("stop button : %f\n", measurement_unit->stop);
+  if (measurement_unit->start_button)
+    button_status_msg.button = 2;
+  
+  else if (measurement_unit->stop_button)
+    button_status_msg.button = 1;
 
   status_publisher->publish(status_msg);
+  button_status_publisher->publish(button_status_msg);
 }
 
 void MeasurementNode::publish_unit()

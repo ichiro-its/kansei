@@ -42,6 +42,7 @@ namespace kansei::measurement
 
 MPU::MPU(const std::string & port_name)
 : socket_fd(-1), orientation_error(0_deg), orientation_compensation(0_deg), raw_orientation(0_deg)
+: socket_fd(-1), orientation_error(0_deg), orientation_compensation(0_deg), raw_orientation(0_deg)
 {
   set_port_name(port_name);
 }
@@ -96,6 +97,8 @@ void MPU::update_rpy()
   float roll = 0;
   float pitch = 0;
   float yaw = 0;
+  float start = 0;
+  float stop = 0;
   int count = 0;
 
   while (true) {
@@ -174,7 +177,6 @@ void MPU::update_rpy()
       raw_orientation = keisan::make_degree(yaw);
       rpy.yaw = raw_orientation + orientation_error + orientation_compensation;
 
-      break;
     } else if (usart_status == 17 && usart_data == ':') {
       usart_status++;
     } else if (usart_status == 18) {
@@ -190,7 +192,6 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      printf("startbutton..\n");
       memcpy(&start, usart_buffer, 4);
     } else if (usart_status == 22 && usart_data == ':') {
       usart_status++;
@@ -209,8 +210,8 @@ void MPU::update_rpy()
 
       memcpy(&stop, usart_buffer, 4);
 
-      // start = start_button;
-      // stop = stop_button;
+      start_button = start;
+      stop_button = stop;
     } else {
       usart_status = 0;
     }
