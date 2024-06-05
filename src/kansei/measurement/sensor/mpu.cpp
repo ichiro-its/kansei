@@ -41,7 +41,7 @@ namespace kansei::measurement
 {
 
 MPU::MPU(const std::string & port_name)
-: socket_fd(-1), oreintation_error(0_deg), oreintation_compensation(0_deg)
+: socket_fd(-1), orientation_error(0_deg), orientation_compensation(0_deg), raw_orientation(0_deg)
 {
   set_port_name(port_name);
 }
@@ -77,6 +77,8 @@ bool MPU::connect()
 
     tcflush(socket_fd, TCIFLUSH);
     tcsetattr(socket_fd, TCSANOW, &newtio);
+
+    pthread_create(&thread, NULL, &start, this);
 
     return true;
   } else {
@@ -168,7 +170,9 @@ void MPU::update_rpy()
 
       rpy.roll = keisan::make_degree(roll);
       rpy.pitch = keisan::make_degree(pitch);
-      rpy.yaw = keisan::make_degree(yaw) + oreintation_error + oreintation_compensation;
+
+      raw_orientation = keisan::make_degree(yaw);
+      rpy.yaw = raw_orientation + orientation_error + orientation_compensation;
 
       break;
     } else if (usart_status == 17 && usart_data == ':') {
@@ -213,6 +217,13 @@ void MPU::update_rpy()
   }
 }
 
+void *MPU::start(void *object)
+{
+  reinterpret_cast<MPU *>(object)->update_rpy();
+
+  return 0;
+}
+
 void MPU::set_port_name(const std::string & port_name)
 {
   this->port_name = port_name;
@@ -220,14 +231,14 @@ void MPU::set_port_name(const std::string & port_name)
 
 void MPU::reset_orientation()
 {
-  printf("reset orientation\n");
-  oreintation_error = -rpy.yaw;
-  oreintation_compensation = 0_deg;
+  orientation_error = -raw_orientation;
+  orientation_compensation = 0_deg;
 }
 
 void MPU::set_orientation_to(const keisan::Angle<double> & target_orientation)
 {
-  oreintation_compensation = target_orientation;
+  orientation_error = -raw_orientation;
+  orientation_compensation = target_orientation;
 }
 
 }  // namespace kansei::measurement
