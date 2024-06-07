@@ -52,9 +52,7 @@ void FallenNode::update(const keisan::Euler<double> & rpy, const keisan::Vector<
     // do some exception
   }
 
-  if (fallen_determinant->is_fallen()) {
-    publish_fallen();
-  }
+  publish_fallen();
 }
 
 void FallenNode::publish_fallen()
