@@ -33,9 +33,13 @@
 
 int main(int argc, char * argv[])
 {
-  rclcpp::init(argc, argv);
+  auto args = rclcpp::init_and_remove_ros_arguments(argc, argv);
 
+<<<<<<< Updated upstream
   std::string port_name = "/dev/ttyUSB1";
+=======
+  std::string port_name = "/dev/serial/by-id/usb-Seeed_Seeed_XIAO_M0_E8D70AB55154305147202020FF050926-if00";
+>>>>>>> Stashed changes
   std::string path = "";
   kansei::fallen::DeterminantType determinant_type;
 
@@ -46,23 +50,23 @@ int main(int argc, char * argv[])
     "Optional:\n"
     "-h, --help           show this help message and exit\n";
 
-  if (argc > 1) {
-    for (int i = 1; i < argc; i++) {
-      std::string arg = argv[i];
+  if (args.size() > 1) {
+    for (int i = 1; i < args.size(); i++) {
+      std::string arg = args[i];
       if (arg == "-h" || arg == "--help") {
         std::cout << help_message << std::endl;
         return 1;
       } else if (arg == "--path") {
-        if (i + 1 < argc) {
-          path = argv[i + 1];
+        if (i + 1 < args.size()) {
+          path = args[i + 1];
           i++;
         } else {
           std::cerr << "Error: --path requires a path argument" << std::endl;
           return 1;
         }
       } else if (arg == "--type") {
-        if (i + 1 < argc) {
-          std::string fallen_type = argv[i + 1];
+        if (i + 1 < args.size()) {
+          std::string fallen_type = args[i + 1];
           if (fallen_type == "orientation") {
             determinant_type = kansei::fallen::DeterminantType::ORIENTATION;
           } else if (fallen_type == "accelero") {
