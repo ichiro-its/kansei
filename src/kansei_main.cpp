@@ -35,11 +35,7 @@ int main(int argc, char * argv[])
 {
   auto args = rclcpp::init_and_remove_ros_arguments(argc, argv);
 
-<<<<<<< Updated upstream
-  std::string port_name = "/dev/ttyUSB1";
-=======
   std::string port_name = "/dev/serial/by-id/usb-Seeed_Seeed_XIAO_M0_E8D70AB55154305147202020FF050926-if00";
->>>>>>> Stashed changes
   std::string path = "";
   kansei::fallen::DeterminantType determinant_type;
 
