@@ -35,7 +35,7 @@ int main(int argc, char * argv[])
 {
   auto args = rclcpp::init_and_remove_ros_arguments(argc, argv);
 
-  std::string port_name = "/dev/serial/by-id/usb-Seeed_Seeed_XIAO_M0_E8D70AB55154305147202020FF050926-if00";
+  std::string port_name = "/dev/ttyUSB1";
   std::string path = "";
   kansei::fallen::DeterminantType determinant_type;
 
@@ -48,7 +48,7 @@ int main(int argc, char * argv[])
 
   if (args.size() > 1) {
     for (int i = 1; i < args.size(); i++) {
-      std::string arg = args[i];
+      const std::string& arg = args[i];
       if (arg == "-h" || arg == "--help") {
         std::cout << help_message << std::endl;
         return 1;
@@ -62,7 +62,7 @@ int main(int argc, char * argv[])
         }
       } else if (arg == "--type") {
         if (i + 1 < args.size()) {
-          std::string fallen_type = args[i + 1];
+          const std::string& fallen_type = args[i + 1];
           if (fallen_type == "orientation") {
             determinant_type = kansei::fallen::DeterminantType::ORIENTATION;
           } else if (fallen_type == "accelero") {
