@@ -24,6 +24,7 @@
 
 #include "kansei/fallen/fallen.hpp"
 
+#include "jitsuyo/config.hpp"
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 
@@ -39,38 +40,21 @@ FallenDeterminant::FallenDeterminant(const DeterminantType & type)
 
 void FallenDeterminant::load_config(const std::string & path)
 {
-  std::string file_name = path + "kansei.json";
-  std::ifstream file(file_name);
+  nlohmann::json imu_data = jitsuyo::load_config(path, "kansei.json");
 
-  if (!file.is_open()) {
-    throw std::runtime_error("Failed to open file: " + file_name);
-  }
-
-  nlohmann::json imu_data = nlohmann::json::parse(file);
-
-  for (const auto &[key, val] : imu_data.items()) {
-    if (key == "accel_limit") {
-      try {
-        val.at("accel_back_limit").get_to(accel_back_limit);
-        val.at("accel_front_limit").get_to(accel_front_limit);
-        val.at("accel_right_limit").get_to(accel_right_limit);
-        val.at("accel_left_limit").get_to(accel_left_limit);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-        throw ex;
-      }
-    } else if (key == "orientation_limit") {
-      try {
-        val.at("pitch_back_limit").get_to(pitch_back_limit);
-        val.at("pitch_front_limit").get_to(pitch_front_limit);
-        val.at("roll_right_limit").get_to(roll_right_limit);
-        val.at("roll_left_limit").get_to(roll_left_limit);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-        throw ex;
-      }
-    }
-  }
+  nlohmann::json accel_limit_section;
+  if (!jitsuyo::assign_val(imu_data, "accel_limit", accel_limit_section)) return;
+  if (!jitsuyo::assign_val(accel_limit_section, "back", accel_back_limit) ||
+    !jitsuyo::assign_val(accel_limit_section, "front", accel_front_limit) ||
+    !jitsuyo::assign_val(accel_limit_section, "right", accel_right_limit) ||
+    !jitsuyo::assign_val(accel_limit_section, "left", accel_left_limit)) return;
+  
+  nlohmann::json orientation_limit_section;
+  if (!jitsuyo::assign_val(imu_data, "orientation_limit", orientation_limit_section)) return;
+  if (!jitsuyo::assign_val(orientation_limit_section, "back", pitch_back_limit) ||
+    !jitsuyo::assign_val(orientation_limit_section, "front", pitch_front_limit) ||
+    !jitsuyo::assign_val(orientation_limit_section, "right", roll_right_limit) ||
+    !jitsuyo::assign_val(orientation_limit_section, "left", roll_left_limit)) return;
 }
 
 void FallenDeterminant::update_fallen_status(const keisan::Euler<double> & rpy)

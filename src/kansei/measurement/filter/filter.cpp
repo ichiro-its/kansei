@@ -29,6 +29,7 @@
 #include "kansei/measurement/filter/filter.hpp"
 
 #include "geometry_msgs/msg/vector3_stamped.hpp"
+#include "jitsuyo/config.hpp"
 #include "kansei/measurement/filter/madgwick/madgwick.hpp"
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
@@ -50,22 +51,13 @@ Filter::Filter()
 
 void Filter::load_config(const std::string & path)
 {
-  std::string file_name =
-    path + "imu/" + "kansei.json";
-  std::ifstream file(file_name);
-  nlohmann::json imu_data = nlohmann::json::parse(file);
+  nlohmann::json imu_data = jitsuyo::load_config(path, "imu/kansei.json");
 
-  for (const auto &[key, val] : imu_data.items()) {
-    if (key == "filter") {
-      try {
-        val.at("gy_mux_x").get_to(raw_gy_mux[0]);
-        val.at("gy_mux_y").get_to(raw_gy_mux[1]);
-        val.at("gy_mux_z").get_to(raw_gy_mux[2]);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-      }
-    }
-  }
+  nlohmann::json filter_section;
+  if (!jitsuyo::assign_val(imu_data, "filter", filter_section)) {return;}
+  if (!jitsuyo::assign_val(filter_section, "gy_mux_x", raw_gy_mux[0]) ||
+    !jitsuyo::assign_val(filter_section, "gy_mux_y", raw_gy_mux[1]) ||
+    !jitsuyo::assign_val(filter_section, "gy_mux_z", raw_gy_mux[2])) {return;}
 }
 
 void Filter::update_seconds(double seconds)
