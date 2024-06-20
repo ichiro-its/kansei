@@ -52,12 +52,24 @@ Filter::Filter()
 void Filter::load_config(const std::string & path)
 {
   nlohmann::json imu_data = jitsuyo::load_config(path, "imu/kansei.json");
+  if (imu_data.empty()) {
+    throw std::runtime_error("Failed to find config file");
+  }
+  
+  bool valid_config = true;
 
   nlohmann::json filter_section;
-  if (!jitsuyo::assign_val(imu_data, "filter", filter_section)) {return;}
-  if (!jitsuyo::assign_val(filter_section, "gy_mux_x", raw_gy_mux[0]) ||
-    !jitsuyo::assign_val(filter_section, "gy_mux_y", raw_gy_mux[1]) ||
-    !jitsuyo::assign_val(filter_section, "gy_mux_z", raw_gy_mux[2])) {return;}
+  if (jitsuyo::assign_val(imu_data, "filter", filter_section)) {
+    valid_config &= jitsuyo::assign_val(filter_section, "gyro_mux_x", raw_gy_mux[0]);
+    valid_config &= jitsuyo::assign_val(filter_section, "gyro_mux_y", raw_gy_mux[1]);
+    valid_config &= jitsuyo::assign_val(filter_section, "gyro_mux_z", raw_gy_mux[2]);
+  } else {
+    valid_config = false;
+  }
+
+  if (!valid_config) {
+    throw std::runtime_error("Failed to load config file");
+  }
 }
 
 void Filter::update_seconds(double seconds)

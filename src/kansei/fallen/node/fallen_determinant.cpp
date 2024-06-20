@@ -41,20 +41,35 @@ FallenDeterminant::FallenDeterminant(const DeterminantType & type)
 void FallenDeterminant::load_config(const std::string & path)
 {
   nlohmann::json imu_data = jitsuyo::load_config(path, "kansei.json");
+  if (imu_data.empty()) {
+    throw std::runtime_error("Failed to find config file");
+  }
+
+  bool valid_config = true;
 
   nlohmann::json accel_limit_section;
-  if (!jitsuyo::assign_val(imu_data, "accel_limit", accel_limit_section)) return;
-  if (!jitsuyo::assign_val(accel_limit_section, "back", accel_back_limit) ||
-    !jitsuyo::assign_val(accel_limit_section, "front", accel_front_limit) ||
-    !jitsuyo::assign_val(accel_limit_section, "right", accel_right_limit) ||
-    !jitsuyo::assign_val(accel_limit_section, "left", accel_left_limit)) return;
-  
+  if (jitsuyo::assign_val(imu_data, "accel_limit", accel_limit_section)) {
+    valid_config &= jitsuyo::assign_val(accel_limit_section, "back", accel_back_limit);
+    valid_config &= jitsuyo::assign_val(accel_limit_section, "front", accel_front_limit);
+    valid_config &= jitsuyo::assign_val(accel_limit_section, "right", accel_right_limit);
+    valid_config &= jitsuyo::assign_val(accel_limit_section, "left", accel_left_limit);
+  } else {
+    valid_config = false;
+  }
+
   nlohmann::json orientation_limit_section;
-  if (!jitsuyo::assign_val(imu_data, "orientation_limit", orientation_limit_section)) return;
-  if (!jitsuyo::assign_val(orientation_limit_section, "back", pitch_back_limit) ||
-    !jitsuyo::assign_val(orientation_limit_section, "front", pitch_front_limit) ||
-    !jitsuyo::assign_val(orientation_limit_section, "right", roll_right_limit) ||
-    !jitsuyo::assign_val(orientation_limit_section, "left", roll_left_limit)) return;
+  if (jitsuyo::assign_val(imu_data, "orientation_limit", orientation_limit_section)) {
+    valid_config &= jitsuyo::assign_val(orientation_limit_section, "back", pitch_back_limit);
+    valid_config &= jitsuyo::assign_val(orientation_limit_section, "front", pitch_front_limit);
+    valid_config &= jitsuyo::assign_val(orientation_limit_section, "right", roll_right_limit);
+    valid_config &= jitsuyo::assign_val(orientation_limit_section, "left", roll_left_limit);
+  } else {
+    valid_config = false;
+  }
+
+  if (!valid_config) {
+    throw std::runtime_error("Failed to load config file");
+  }
 }
 
 void FallenDeterminant::update_fallen_status(const keisan::Euler<double> & rpy)
