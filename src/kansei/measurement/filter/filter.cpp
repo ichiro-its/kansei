@@ -51,8 +51,8 @@ Filter::Filter()
 
 void Filter::load_config(const std::string & path)
 {
-  nlohmann::json imu_data = jitsuyo::load_config(path, "imu/kansei.json");
-  if (imu_data.empty()) {
+  nlohmann::json imu_data;
+  if (!jitsuyo::load_config(path, "imu/kansei.json", imu_data)) {
     throw std::runtime_error("Failed to find config file");
   }
   
