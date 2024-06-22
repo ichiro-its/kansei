@@ -53,22 +53,27 @@ void Filter::load_config(const std::string & path)
 {
   nlohmann::json imu_data;
   if (!jitsuyo::load_config(path, "imu/kansei.json", imu_data)) {
-    throw std::runtime_error("Failed to find config file");
+    throw std::runtime_error("Failed to find config file `" + path + "imu/kansei.json`");
   }
   
   bool valid_config = true;
 
   nlohmann::json filter_section;
   if (jitsuyo::assign_val(imu_data, "filter", filter_section)) {
-    valid_config &= jitsuyo::assign_val(filter_section, "gyro_mux_x", raw_gy_mux[0]);
-    valid_config &= jitsuyo::assign_val(filter_section, "gyro_mux_y", raw_gy_mux[1]);
-    valid_config &= jitsuyo::assign_val(filter_section, "gyro_mux_z", raw_gy_mux[2]);
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(filter_section, "gyro_mux_x", raw_gy_mux[0]);
+    valid_section &= jitsuyo::assign_val(filter_section, "gyro_mux_y", raw_gy_mux[1]);
+    valid_section &= jitsuyo::assign_val(filter_section, "gyro_mux_z", raw_gy_mux[2]);
+    if (!valid_section) {
+      std::cout << "Error found at section `filter`" << std::endl;
+      valid_config = false;
+    }
   } else {
     valid_config = false;
   }
 
   if (!valid_config) {
-    throw std::runtime_error("Failed to load config file");
+    throw std::runtime_error("Failed to load config file `" + path + "imu/kansei.json`");
   }
 }
 

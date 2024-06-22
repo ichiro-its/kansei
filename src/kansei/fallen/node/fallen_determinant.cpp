@@ -42,33 +42,43 @@ void FallenDeterminant::load_config(const std::string & path)
 {
   nlohmann::json imu_data;
   if (!jitsuyo::load_config(path, "kansei.json", imu_data)) {
-    throw std::runtime_error("Failed to find config file");
+    throw std::runtime_error("Failed to find config file `" + path + "kansei.json`");
   }
 
   bool valid_config = true;
 
   nlohmann::json accel_limit_section;
   if (jitsuyo::assign_val(imu_data, "accel_limit", accel_limit_section)) {
-    valid_config &= jitsuyo::assign_val(accel_limit_section, "accel_back_limit", accel_back_limit);
-    valid_config &= jitsuyo::assign_val(accel_limit_section, "accel_front_limit", accel_front_limit);
-    valid_config &= jitsuyo::assign_val(accel_limit_section, "accel_right_limit", accel_right_limit);
-    valid_config &= jitsuyo::assign_val(accel_limit_section, "accel_left_limit", accel_left_limit);
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(accel_limit_section, "accel_back_limit", accel_back_limit);
+    valid_section &= jitsuyo::assign_val(accel_limit_section, "accel_front_limit", accel_front_limit);
+    valid_section &= jitsuyo::assign_val(accel_limit_section, "accel_right_limit", accel_right_limit);
+    valid_section &= jitsuyo::assign_val(accel_limit_section, "accel_left_limit", accel_left_limit);
+    if (!valid_section) {
+      std::cout << "Error found at section `accel_limit`" << std::endl;
+      valid_config = false;
+    }
   } else {
     valid_config = false;
   }
 
   nlohmann::json orientation_limit_section;
   if (jitsuyo::assign_val(imu_data, "orientation_limit", orientation_limit_section)) {
-    valid_config &= jitsuyo::assign_val(orientation_limit_section, "pitch_back_limit", pitch_back_limit);
-    valid_config &= jitsuyo::assign_val(orientation_limit_section, "pitch_front_limit", pitch_front_limit);
-    valid_config &= jitsuyo::assign_val(orientation_limit_section, "roll_right_limit", roll_right_limit);
-    valid_config &= jitsuyo::assign_val(orientation_limit_section, "roll_left_limit", roll_left_limit);
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(orientation_limit_section, "pitch_back_limit", pitch_back_limit);
+    valid_section &= jitsuyo::assign_val(orientation_limit_section, "pitch_front_limit", pitch_front_limit);
+    valid_section &= jitsuyo::assign_val(orientation_limit_section, "roll_right_limit", roll_right_limit);
+    valid_section &= jitsuyo::assign_val(orientation_limit_section, "roll_left_limit", roll_left_limit);
+    if (!valid_section) {
+      std::cout << "Error found at section `orientation_limit`" << std::endl;
+      valid_config = false;
+    }
   } else {
     valid_config = false;
   }
 
   if (!valid_config) {
-    throw std::runtime_error("Failed to load config file");
+    throw std::runtime_error("Failed to load config file `" + path + "kansei.json`");
   }
 }
 
