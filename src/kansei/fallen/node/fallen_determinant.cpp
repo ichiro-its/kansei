@@ -49,20 +49,20 @@ void FallenDeterminant::load_config(const std::string & path)
 
   nlohmann::json accel_limit_section;
   if (jitsuyo::assign_val(imu_data, "accel_limit", accel_limit_section)) {
-    valid_config &= jitsuyo::assign_val(accel_limit_section, "back", accel_back_limit);
-    valid_config &= jitsuyo::assign_val(accel_limit_section, "front", accel_front_limit);
-    valid_config &= jitsuyo::assign_val(accel_limit_section, "right", accel_right_limit);
-    valid_config &= jitsuyo::assign_val(accel_limit_section, "left", accel_left_limit);
+    valid_config &= jitsuyo::assign_val(accel_limit_section, "accel_back_limit", accel_back_limit);
+    valid_config &= jitsuyo::assign_val(accel_limit_section, "accel_front_limit", accel_front_limit);
+    valid_config &= jitsuyo::assign_val(accel_limit_section, "accel_right_limit", accel_right_limit);
+    valid_config &= jitsuyo::assign_val(accel_limit_section, "accel_left_limit", accel_left_limit);
   } else {
     valid_config = false;
   }
 
   nlohmann::json orientation_limit_section;
   if (jitsuyo::assign_val(imu_data, "orientation_limit", orientation_limit_section)) {
-    valid_config &= jitsuyo::assign_val(orientation_limit_section, "back", pitch_back_limit);
-    valid_config &= jitsuyo::assign_val(orientation_limit_section, "front", pitch_front_limit);
-    valid_config &= jitsuyo::assign_val(orientation_limit_section, "right", roll_right_limit);
-    valid_config &= jitsuyo::assign_val(orientation_limit_section, "left", roll_left_limit);
+    valid_config &= jitsuyo::assign_val(orientation_limit_section, "pitch_back_limit", pitch_back_limit);
+    valid_config &= jitsuyo::assign_val(orientation_limit_section, "pitch_front_limit", pitch_front_limit);
+    valid_config &= jitsuyo::assign_val(orientation_limit_section, "roll_right_limit", roll_right_limit);
+    valid_config &= jitsuyo::assign_val(orientation_limit_section, "roll_left_limit", roll_left_limit);
   } else {
     valid_config = false;
   }
