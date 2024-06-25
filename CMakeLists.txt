@@ -15,6 +15,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(jitsuyo REQUIRED)
 find_package(kansei_interfaces REQUIRED)
 find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -41,6 +42,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 ament_target_dependencies(${PROJECT_NAME}
   geometry_msgs
+  jitsuyo
   keisan
   kansei_interfaces
   rclcpp
@@ -97,6 +99,7 @@ endif()
 
 ament_export_dependencies(
   geometry_msgs
+  jitsuyo
   keisan
   kansei_interfaces
   rclcpp

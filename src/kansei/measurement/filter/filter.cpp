@@ -29,6 +29,7 @@
 #include "kansei/measurement/filter/filter.hpp"
 
 #include "geometry_msgs/msg/vector3_stamped.hpp"
+#include "jitsuyo/config.hpp"
 #include "kansei/measurement/filter/madgwick/madgwick.hpp"
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
@@ -50,21 +51,29 @@ Filter::Filter()
 
 void Filter::load_config(const std::string & path)
 {
-  std::string file_name =
-    path + "imu/" + "kansei.json";
-  std::ifstream file(file_name);
-  nlohmann::json imu_data = nlohmann::json::parse(file);
+  nlohmann::json imu_data;
+  if (!jitsuyo::load_config(path, "imu/kansei.json", imu_data)) {
+    throw std::runtime_error("Failed to find config file `" + path + "imu/kansei.json`");
+  }
+  
+  bool valid_config = true;
 
-  for (const auto &[key, val] : imu_data.items()) {
-    if (key == "filter") {
-      try {
-        val.at("gy_mux_x").get_to(raw_gy_mux[0]);
-        val.at("gy_mux_y").get_to(raw_gy_mux[1]);
-        val.at("gy_mux_z").get_to(raw_gy_mux[2]);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-      }
+  nlohmann::json filter_section;
+  if (jitsuyo::assign_val(imu_data, "filter", filter_section)) {
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(filter_section, "gyro_mux_x", raw_gy_mux[0]);
+    valid_section &= jitsuyo::assign_val(filter_section, "gyro_mux_y", raw_gy_mux[1]);
+    valid_section &= jitsuyo::assign_val(filter_section, "gyro_mux_z", raw_gy_mux[2]);
+    if (!valid_section) {
+      std::cout << "Error found at section `filter`" << std::endl;
+      valid_config = false;
     }
+  } else {
+    valid_config = false;
+  }
+
+  if (!valid_config) {
+    throw std::runtime_error("Failed to load config file `" + path + "imu/kansei.json`");
   }
 }
 

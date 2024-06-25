@@ -33,7 +33,7 @@
 
 int main(int argc, char * argv[])
 {
-  rclcpp::init(argc, argv);
+  auto args = rclcpp::init_and_remove_ros_arguments(argc, argv);
 
   std::string port_name = "/dev/ttyACM0";
   std::string path = "";
@@ -46,23 +46,23 @@ int main(int argc, char * argv[])
     "Optional:\n"
     "-h, --help           show this help message and exit\n";
 
-  if (argc > 1) {
-    for (int i = 1; i < argc; i++) {
-      std::string arg = argv[i];
+  if (args.size() > 1) {
+    for (int i = 1; i < args.size(); i++) {
+      const std::string& arg = args[i];
       if (arg == "-h" || arg == "--help") {
         std::cout << help_message << std::endl;
         return 1;
       } else if (arg == "--path") {
-        if (i + 1 < argc) {
-          path = argv[i + 1];
+        if (i + 1 < args.size()) {
+          path = args[i + 1];
           i++;
         } else {
           std::cerr << "Error: --path requires a path argument" << std::endl;
           return 1;
         }
       } else if (arg == "--type") {
-        if (i + 1 < argc) {
-          std::string fallen_type = argv[i + 1];
+        if (i + 1 < args.size()) {
+          const std::string& fallen_type = args[i + 1];
           if (fallen_type == "orientation") {
             determinant_type = kansei::fallen::DeterminantType::ORIENTATION;
           } else if (fallen_type == "accelero") {
