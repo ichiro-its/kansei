@@ -41,7 +41,10 @@ namespace kansei::measurement
 {
 
 MPU::MPU(const std::string & port_name)
-: socket_fd(-1), orientation_error(0_deg), orientation_compensation(0_deg), raw_orientation(0_deg)
+: socket_fd(-1),
+  orientation_error(0_deg), orientation_compensation(0_deg), raw_orientation(0_deg),
+  pitch_error(0_deg), pitch_compensation(0_deg), raw_pitch(0_deg),
+  roll_error(0_deg), roll_compensation(0_deg), raw_roll(0_deg)
 {
   set_port_name(port_name);
 }
@@ -168,11 +171,14 @@ void MPU::update_rpy()
         }
       }
 
-      rpy.roll = keisan::make_degree(roll);
-      rpy.pitch = keisan::make_degree(pitch);
-
+      raw_roll = keisan::make_degree(roll);
+      raw_pitch = keisan::make_degree(pitch);
       raw_orientation = keisan::make_degree(yaw);
+
       rpy.yaw = raw_orientation + orientation_error + orientation_compensation;
+      rpy.roll = raw_roll + roll_error + roll_compensation;
+      rpy.pitch = raw_pitch + pitch_error + pitch_compensation;
+
 
     } else {
       usart_status = 0;
@@ -196,6 +202,10 @@ void MPU::reset_orientation()
 {
   orientation_error = -raw_orientation;
   orientation_compensation = 0_deg;
+  roll_error = -raw_roll;
+  roll_compensation = 0_deg;
+  pitch_error = -raw_pitch;
+  pitch_compensation = 0_deg;
 }
 
 void MPU::set_orientation_to(const keisan::Angle<double> & target_orientation)

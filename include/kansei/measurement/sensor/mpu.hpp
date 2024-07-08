@@ -52,6 +52,12 @@ private:
   keisan::Angle<double> raw_orientation;
   keisan::Angle<double> orientation_compensation;
   keisan::Angle<double> orientation_error;
+  keisan::Angle<double> raw_roll;
+  keisan::Angle<double> roll_compensation;
+  keisan::Angle<double> roll_error;
+  keisan::Angle<double> raw_pitch;
+  keisan::Angle<double> pitch_compensation;
+  keisan::Angle<double> pitch_error;
 };
 
 }  // namespace kansei::measurement
