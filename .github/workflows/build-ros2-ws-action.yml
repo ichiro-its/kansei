@@ -38,6 +38,13 @@ jobs:
           repository: ichiro-its/tachimawari_interfaces
           path: tachimawari_interfaces
 
+      - name: Checkout Jitsuyo
+        uses: actions/checkout@v4.1.1
+        with:
+          repository: ichiro-its/jitsuyo
+          path: jitsuyo
+          token: ${{ secrets.GH_TOKEN }}
+
       - name: Setup workspace
         uses: ichiro-its/ros2-ws-action/setup@v1.0.1
 
