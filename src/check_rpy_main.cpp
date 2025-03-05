@@ -31,6 +31,8 @@ using namespace std::chrono_literals;
 
 int main(int argc, char * argv[])
 {
+  rclcpp::init(argc, argv);
+
   std::string port_name = "/dev/ttyACM0";
 
   if (argc > 1) {
@@ -48,8 +50,7 @@ int main(int argc, char * argv[])
   }
 
   rclcpp::Rate loop_rate(8ms);
-  while (true) {
-
+  while (rclcpp::ok()) {
     keisan::Euler<double> rpy = mpu.get_orientation();
 
     std::cout << "Roll: " << rpy.roll.degree() << std::endl;
@@ -61,6 +62,8 @@ int main(int argc, char * argv[])
 
     loop_rate.sleep();
   }
+
+  rclcpp::shutdown();
 
   return 0;
 }
