@@ -96,6 +96,8 @@ void MPU::update_rpy()
   float roll = 0;
   float pitch = 0;
   float yaw = 0;
+  float start = 0;
+  float stop = 0;
   int count = 0;
 
   while (true) {
@@ -174,6 +176,41 @@ void MPU::update_rpy()
       raw_orientation = keisan::make_degree(yaw);
       rpy.yaw = raw_orientation + orientation_error + orientation_compensation;
 
+    } else if (usart_status == 17 && usart_data == ':') {
+      usart_status++;
+    } else if (usart_status == 18) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 19) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 20) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 21) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&start, usart_buffer, 4);
+    } else if (usart_status == 22 && usart_data == ':') {
+      usart_status++;
+    } else if (usart_status == 23) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 24) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 25) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 26) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&stop, usart_buffer, 4);
+
+      start_button = start;
+      stop_button = stop;
     } else {
       usart_status = 0;
     }

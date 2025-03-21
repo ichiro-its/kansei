@@ -28,6 +28,7 @@
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/status.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
+#include "tachimawari_interfaces/msg/status.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float64.hpp"
 
@@ -41,10 +42,12 @@ public:
   using Float64 = std_msgs::msg::Float64;
   using Status = kansei_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
+  using ButtonStatus = tachimawari_interfaces::msg::Status;
 
   static std::string get_node_prefix();
   static std::string reset_orientation_topic();
   static std::string status_topic();
+  static std::string button_status_topic();
   static std::string unit_topic();
 
   explicit MeasurementNode(
@@ -66,6 +69,8 @@ private:
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
   rclcpp::Publisher<Status>::SharedPtr status_publisher;
+
+  rclcpp::Publisher<ButtonStatus>::SharedPtr button_status_publisher;
 };
 
 }  // namespace kansei::measurement
