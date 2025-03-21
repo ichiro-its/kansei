@@ -48,6 +48,8 @@ public:
 
   bool is_calibrated() const;
 
+  int start_button; 
+  int stop_button;
 protected:
   keisan::Euler<double> rpy;
 

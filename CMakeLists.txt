@@ -21,6 +21,7 @@ find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tachimawari REQUIRED)
+find_package(tachimawari_interfaces REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
@@ -48,7 +49,9 @@ ament_target_dependencies(${PROJECT_NAME}
   std_msgs
   tachimawari
   tf2
-  tf2_geometry_msgs)
+  tf2_geometry_msgs
+  tachimawari_interfaces
+  )
 
 install(DIRECTORY "include" DESTINATION ".")
 

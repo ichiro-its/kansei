@@ -31,7 +31,9 @@ using namespace std::chrono_literals;
 
 int main(int argc, char * argv[])
 {
-  std::string port_name = "/dev/ttyUSB1";
+  rclcpp::init(argc, argv);
+
+  std::string port_name = "/dev/ttyACM0";
 
   if (argc > 1) {
     port_name = argv[1];
@@ -48,17 +50,20 @@ int main(int argc, char * argv[])
   }
 
   rclcpp::Rate loop_rate(8ms);
-  while (true) {
-
+  while (rclcpp::ok()) {
     keisan::Euler<double> rpy = mpu.get_orientation();
 
     std::cout << "Roll: " << rpy.roll.degree() << std::endl;
     std::cout << "Pitch: " << rpy.pitch.degree() << std::endl;
     std::cout << "Yaw: " << rpy.yaw.degree() << std::endl;
+    std::cout << "start button : " << mpu.start_button << std::endl;
+    std::cout << "stop button : " << mpu.stop_button << std::endl;
     std::cout << "\033c";
 
     loop_rate.sleep();
   }
+
+  rclcpp::shutdown();
 
   return 0;
 }

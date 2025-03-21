@@ -35,7 +35,7 @@ int main(int argc, char * argv[])
 {
   auto args = rclcpp::init_and_remove_ros_arguments(argc, argv);
 
-  std::string port_name = "/dev/ttyUSB1";
+  std::string port_name = "/dev/ttyACM0";
   std::string path = "";
   kansei::fallen::DeterminantType determinant_type;
 
