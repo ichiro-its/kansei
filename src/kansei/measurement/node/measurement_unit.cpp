@@ -31,7 +31,8 @@ MeasurementUnit::MeasurementUnit()
 : rpy(0_deg, 0_deg, 0_deg), calibrated(false), filtered_acc(keisan::Vector<3>::zero()),
   raw_acc(keisan::Vector<3>::zero()), gy(0_deg, 0_deg, 0_deg),
   acc(keisan::Point3::zero()), raw_gy(keisan::Vector<3>::zero()),
-  filtered_acc_counter(0), filtered_gy_counter(0), start_button(0), stop_button(0)
+  filtered_acc_counter(0), filtered_gy_counter(0), start_button(0), stop_button(0),
+  pc_voltage(0.0), pc_current(0.0), servo_voltage(0.0), servo_current(0.0)
 {
   for (int i = 0; i < 3; i++) {
     filtered_gy_center[i] = 512.0;
@@ -141,6 +142,26 @@ keisan::Vector<3> MeasurementUnit::get_filtered_gy() const
 keisan::Vector<3> MeasurementUnit::get_filtered_acc() const
 {
   return filtered_acc;
+}
+
+double MeasurementUnit::get_pc_voltage() const
+{
+  return pc_voltage;
+}
+
+double MeasurementUnit::get_pc_current() const
+{
+  return pc_current;
+}
+
+double MeasurementUnit::get_servo_voltage() const
+{
+  return servo_voltage;
+}
+
+double MeasurementUnit::get_servo_current() const
+{
+  return servo_current;
 }
 
 bool MeasurementUnit::is_calibrated() const

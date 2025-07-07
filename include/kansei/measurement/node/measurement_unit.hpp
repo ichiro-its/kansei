@@ -35,6 +35,7 @@ public:
   virtual ~MeasurementUnit() {}
 
   virtual void update_rpy() {}
+  virtual void update_voltage() {}
 
   virtual void reset_orientation() {}
   virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
@@ -46,9 +47,14 @@ public:
   keisan::Vector<3> get_filtered_gy() const;
   keisan::Vector<3> get_filtered_acc() const;
 
+  double get_pc_voltage() const;
+  double get_pc_current() const;
+  double get_servo_voltage() const;
+  double get_servo_current() const;
+
   bool is_calibrated() const;
 
-  int start_button; 
+  int start_button;
   int stop_button;
 protected:
   keisan::Euler<double> rpy;
@@ -67,6 +73,11 @@ protected:
   // accelero variables
   double filtered_acc_arr[3][15];
   int filtered_acc_counter;
+
+  double pc_voltage;
+  double pc_current;
+  double servo_voltage;
+  double servo_current;
 
   bool calibrated;
 };

@@ -35,11 +35,12 @@ int main(int argc, char * argv[])
 {
   auto args = rclcpp::init_and_remove_ros_arguments(argc, argv);
 
-  std::string port_name = "/dev/ttyACM0";
+  std::string port_name_mpu = "/dev/serial/by-id/usb-Seeed_Seeed_XIAO_M0_895F2A4F5154305146202020FF0A0E3F-if00";
+  std::string port_name_ina = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A50285BI-if00-port0";
   std::string path = "";
   kansei::fallen::DeterminantType determinant_type;
 
-  const char * help_message = 
+  const char * help_message =
     "Usage: ros2 run kansei main --path [config_path] --type [fallen_type]\n"
     "[config_path]:       path to the configuration file\n"
     "[fallen_type]:       fallen type to be used (orientation / accelero)\n"
@@ -83,12 +84,21 @@ int main(int argc, char * argv[])
     return 0;
   }
 
-  auto mpu = std::make_shared<kansei::measurement::MPU>(port_name);
+  auto mpu = std::make_shared<kansei::measurement::MPU>(port_name_mpu);
+  auto ina = std::make_shared<kansei::measurement::INA>(port_name_ina);
 
   if (mpu->connect()) {
-    std::cout << "succeeded to connect to mpu " << port_name << "!\n";
+    std::cout << "succeeded to connect to mpu " << port_name_mpu << "!\n";
   } else {
     std::cout << "failed to connect to mpu!\n" <<
+      "try again!\n";
+    return 0;
+  }
+
+  if (ina->connect()) {
+    std::cout << "succeeded to connect to ina " << port_name_ina << "!\n";
+  } else {
+    std::cout << "failed to connect to ina!\n" <<
       "try again!\n";
     return 0;
   }
@@ -99,7 +109,7 @@ int main(int argc, char * argv[])
   auto fallen = std::make_shared<kansei::fallen::FallenDeterminant>(determinant_type);
   fallen->load_config(path);
 
-  kansei_node->set_measurement_unit(mpu);
+  kansei_node->set_measurement_unit(mpu, ina);
   kansei_node->set_fallen_determinant(fallen);
 
   rclcpp::spin(node);

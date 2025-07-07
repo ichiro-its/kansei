@@ -28,6 +28,7 @@
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/status.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
+#include "kansei_interfaces/msg/power_status.hpp"
 #include "tachimawari_interfaces/msg/status.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float64.hpp"
@@ -43,25 +44,31 @@ public:
   using Status = kansei_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
   using ButtonStatus = tachimawari_interfaces::msg::Status;
+  using PowerStatus = kansei_interfaces::msg::PowerStatus;
 
   static std::string get_node_prefix();
   static std::string reset_orientation_topic();
   static std::string status_topic();
   static std::string button_status_topic();
+  static std::string power_status_topic();
   static std::string unit_topic();
 
   explicit MeasurementNode(
-    rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit);
+    rclcpp::Node::SharedPtr node,
+    std::shared_ptr<MeasurementUnit> mpu_unit,
+    std::shared_ptr<MeasurementUnit> ina_unit);
 
   void update(double seconds);
 
-  std::shared_ptr<MeasurementUnit> get_measurement_unit() const;
+  std::shared_ptr<MeasurementUnit> get_mpu_unit() const;
+  std::shared_ptr<MeasurementUnit> get_ina_unit() const;
 
 private:
   void publish_status();
   void publish_unit();
 
-  std::shared_ptr<MeasurementUnit> measurement_unit;
+  std::shared_ptr<MeasurementUnit> mpu_unit;
+  std::shared_ptr<MeasurementUnit> ina_unit;
 
   rclcpp::Subscription<Float64>::SharedPtr reset_orientation_subscriber;
 
@@ -71,6 +78,8 @@ private:
   rclcpp::Publisher<Status>::SharedPtr status_publisher;
 
   rclcpp::Publisher<ButtonStatus>::SharedPtr button_status_publisher;
+
+  rclcpp::Publisher<PowerStatus>::SharedPtr voltage_status_publisher;
 };
 
 }  // namespace kansei::measurement
