@@ -36,7 +36,8 @@ class KanseiNode
 public:
   explicit KanseiNode(rclcpp::Node::SharedPtr node);
 
-  void set_measurement_unit(std::shared_ptr<measurement::MeasurementUnit> measurement_unit);
+  void set_measurement_unit(std::shared_ptr<measurement::MeasurementUnit> mpu_unit,
+                            std::shared_ptr<measurement::MeasurementUnit> ina_unit);
 
   void set_fallen_determinant(std::shared_ptr<fallen::FallenDeterminant> fallen_determinant);
 

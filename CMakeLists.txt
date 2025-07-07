@@ -34,6 +34,7 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/measurement/filter/madgwick/madgwick_filter.cpp"
   "src/${PROJECT_NAME}/measurement/filter/madgwick/stateless_orientation.cpp"
   "src/${PROJECT_NAME}/measurement/sensor/mpu.cpp"
+  "src/${PROJECT_NAME}/measurement/sensor/ina.cpp"
   "src/${PROJECT_NAME}/node/kansei_node.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -67,6 +68,12 @@ target_include_directories(check_rpy PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(check_rpy ${PROJECT_NAME})
 
+add_executable(check_power "src/check_power_main.cpp")
+target_include_directories(check_power PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(check_power ${PROJECT_NAME})
+
 add_executable(main "src/kansei_main.cpp")
 target_include_directories(main PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -75,6 +82,7 @@ target_link_libraries(main ${PROJECT_NAME})
 
 install(TARGETS
   check_rpy
+  check_power
   main
   DESTINATION lib/${PROJECT_NAME})
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 ICHIRO ITS
+// Copyright (c) 2025 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,13 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef KANSEI__MEASUREMENT__MEASUREMENT_HPP_
-#define KANSEI__MEASUREMENT__MEASUREMENT_HPP_
+#ifndef KANSEI__MEASUREMENT__SENSOR__INA_HPP_
+#define KANSEI__MEASUREMENT__SENSOR__INA_HPP_
 
-#include "kansei/measurement/filter/filter.hpp"
-#include "kansei/measurement/node/measurement_node.hpp"
+#include <string>
+
 #include "kansei/measurement/node/measurement_unit.hpp"
-#include "kansei/measurement/sensor/ina.hpp"
-#include "kansei/measurement/sensor/mpu.hpp"
+#include "keisan/angle.hpp"
 
-#endif  // KANSEI__MEASUREMENT__MEASUREMENT_HPP_
+namespace kansei::measurement
+{
+
+class INA : public MeasurementUnit
+{
+public:
+  explicit INA(const std::string & port_name);
+  ~INA();
+
+  void set_port_name(const std::string & port_name);
+  bool connect();
+
+  void update_voltage() override;
+  static void *start(void *object);
+
+private:
+  int socket_fd;
+  std::string port_name;
+  pthread_t thread;
+};
+
+}  // namespace kansei::measurement
+
+#endif  // KANSEI__MEASUREMENT__SENSOR__INA_HPP_

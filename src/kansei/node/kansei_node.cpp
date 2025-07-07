@@ -46,7 +46,7 @@ KanseiNode::KanseiNode(rclcpp::Node::SharedPtr node)
           this->node->now().seconds() - this->start_seconds);
 
         if (this->fallen_node) {
-          auto measurement_unit = this->measurement_node->get_measurement_unit();
+          auto measurement_unit = this->measurement_node->get_mpu_unit();
 
           this->fallen_node->update(
             measurement_unit->get_orientation(), measurement_unit->get_filtered_acc());
@@ -57,10 +57,11 @@ KanseiNode::KanseiNode(rclcpp::Node::SharedPtr node)
 }
 
 void KanseiNode::set_measurement_unit(
-  std::shared_ptr<measurement::MeasurementUnit> measurement_unit)
+  std::shared_ptr<measurement::MeasurementUnit> mpu_unit,
+  std::shared_ptr<measurement::MeasurementUnit> ina_unit)
 {
   measurement_node = std::make_shared<measurement::MeasurementNode>(
-    node, measurement_unit);
+    node, mpu_unit, ina_unit);
 }
 
 void KanseiNode::set_fallen_determinant(

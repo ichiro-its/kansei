@@ -46,18 +46,22 @@ std::string MeasurementNode::status_topic() { return get_node_prefix() + "/statu
 
 std::string MeasurementNode::button_status_topic() {  return get_node_prefix() + "/button_status"; }
 
+std::string MeasurementNode::power_status_topic() {  return get_node_prefix() + "/power_status"; }
+
 std::string MeasurementNode::unit_topic() { return get_node_prefix() + "/unit"; }
 
 MeasurementNode::MeasurementNode(
-  rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
-: measurement_unit(measurement_unit)
+  rclcpp::Node::SharedPtr node,
+  std::shared_ptr<MeasurementUnit> mpu_unit,
+  std::shared_ptr<MeasurementUnit> ina_unit)
+: mpu_unit(mpu_unit), ina_unit(ina_unit)
 {
   reset_orientation_subscriber = node->create_subscription<Float64>(
     reset_orientation_topic(), 10, [this](const Float64::SharedPtr message) {
       if (message->data == 0.0) {
-        this->measurement_unit->reset_orientation();
+        this->mpu_unit->reset_orientation();
       } else {
-        this->measurement_unit->set_orientation_to(keisan::make_degree(message->data));
+        this->mpu_unit->set_orientation_to(keisan::make_degree(message->data));
       }
     });
 
@@ -67,22 +71,24 @@ MeasurementNode::MeasurementNode(
 
   button_status_publisher = node->create_publisher<ButtonStatus>(button_status_topic(), 10);
 
+  voltage_status_publisher = node->create_publisher<PowerStatus>(power_status_topic(), 10);
+
   unit_subscriber = node->create_subscription<Unit>(
     tachimawari::imu::ImuNode::unit_topic(), 10, [this](const Unit::SharedPtr message) {
       keisan::Vector<3> gy(message->gyro.roll, message->gyro.pitch, message->gyro.yaw);
       keisan::Vector<3> acc(message->accelero.x, message->accelero.y, message->accelero.z);
 
-      this->measurement_unit->update_gy_acc(gy, acc);
+      this->mpu_unit->update_gy_acc(gy, acc);
     });
 }
 
 void MeasurementNode::update(double seconds)
 {
-  if (std::dynamic_pointer_cast<MPU>(measurement_unit)) {
+  if (std::dynamic_pointer_cast<MPU>(mpu_unit)) {
 
     publish_status();
-  } else if (std::dynamic_pointer_cast<Filter>(measurement_unit)) {
-    auto filter_measurement = std::dynamic_pointer_cast<Filter>(measurement_unit);
+  } else if (std::dynamic_pointer_cast<Filter>(mpu_unit)) {
+    auto filter_measurement = std::dynamic_pointer_cast<Filter>(mpu_unit);
 
     filter_measurement->update_seconds(seconds);
     filter_measurement->update_rpy();
@@ -94,41 +100,53 @@ void MeasurementNode::update(double seconds)
   }
 }
 
-std::shared_ptr<MeasurementUnit> MeasurementNode::get_measurement_unit() const
+std::shared_ptr<MeasurementUnit> MeasurementNode::get_mpu_unit() const
 {
-  return measurement_unit;
+  return mpu_unit;
+}
+
+std::shared_ptr<MeasurementUnit> MeasurementNode::get_ina_unit() const
+{
+  return ina_unit;
 }
 
 void MeasurementNode::publish_status()
 {
   auto status_msg = Status();
   auto button_status_msg = ButtonStatus();
+  auto power_status_msg = PowerStatus();
   button_status_msg.button = 0;
 
-  status_msg.is_calibrated = measurement_unit->is_calibrated();
+  status_msg.is_calibrated = mpu_unit->is_calibrated();
 
-  keisan::Euler<double> rpy = measurement_unit->get_orientation();
+  keisan::Euler<double> rpy = mpu_unit->get_orientation();
 
   status_msg.orientation.roll = rpy.roll.degree();
   status_msg.orientation.pitch = rpy.pitch.degree();
   status_msg.orientation.yaw = rpy.yaw.degree();
 
-  if (measurement_unit->start_button)
+  power_status_msg.pc_voltage = ina_unit->get_pc_voltage();
+  power_status_msg.pc_current = ina_unit->get_pc_current();
+  power_status_msg.servo_voltage = ina_unit->get_servo_voltage();
+  power_status_msg.servo_current = ina_unit->get_servo_current();
+
+  if (mpu_unit->start_button)
     button_status_msg.button = 2;
-  
-  else if (measurement_unit->stop_button)
+
+  else if (mpu_unit->stop_button)
     button_status_msg.button = 1;
 
   status_publisher->publish(status_msg);
   button_status_publisher->publish(button_status_msg);
+  voltage_status_publisher->publish(power_status_msg);
 }
 
 void MeasurementNode::publish_unit()
 {
   auto unit_msg = Unit();
 
-  auto gyro = measurement_unit->get_filtered_gy();
-  auto accelero = measurement_unit->get_filtered_acc();
+  auto gyro = mpu_unit->get_filtered_gy();
+  auto accelero = mpu_unit->get_filtered_acc();
 
   unit_msg.gyro.roll = gyro[0];
   unit_msg.gyro.pitch = gyro[1];
