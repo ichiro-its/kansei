@@ -42,11 +42,18 @@ std::string MeasurementNode::reset_orientation_topic()
   return get_node_prefix() + "/reset_orientation";
 }
 
+std::string MeasurementNode::reset_pitch_topic()
+{
+  return get_node_prefix() + "/reset_pitch";
+}
+
 std::string MeasurementNode::status_topic() { return get_node_prefix() + "/status"; }
 
 std::string MeasurementNode::button_status_topic() {  return get_node_prefix() + "/button_status"; }
 
 std::string MeasurementNode::unit_topic() { return get_node_prefix() + "/unit"; }
+
+std::string MeasurementNode::led_topic() { return get_node_prefix() + "/led"; }
 
 MeasurementNode::MeasurementNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit)
@@ -61,6 +68,11 @@ MeasurementNode::MeasurementNode(
       }
     });
 
+  reset_pitch_subscriber = node->create_subscription<Empty>(
+    reset_pitch_topic(), 10, [this](const Empty & message) {
+      this->measurement_unit->reset_pitch();
+    });
+
   unit_publisher = node->create_publisher<Unit>(unit_topic(), 10);
 
   status_publisher = node->create_publisher<Status>(status_topic(), 10);
@@ -73,6 +85,11 @@ MeasurementNode::MeasurementNode(
       keisan::Vector<3> acc(message->accelero.x, message->accelero.y, message->accelero.z);
 
       this->measurement_unit->update_gy_acc(gy, acc);
+    });
+
+  led_status_subscriber = node->create_subscription<Int8>(
+    led_topic(), 10, [this](const Int8::SharedPtr message) {
+      this->measurement_unit->set_led(message->data);
     });
 }
 
@@ -115,7 +132,7 @@ void MeasurementNode::publish_status()
 
   if (measurement_unit->start_button)
     button_status_msg.button = 2;
-  
+
   else if (measurement_unit->stop_button)
     button_status_msg.button = 1;
 

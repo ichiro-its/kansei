@@ -35,7 +35,7 @@ int main(int argc, char * argv[])
 {
   auto args = rclcpp::init_and_remove_ros_arguments(argc, argv);
 
-  std::string port_name = "/dev/ttyACM0";
+  std::string port_name = "/dev/serial/by-id/usb-Seeed_Seeed_XIAO_M0_FAE6B709503058324C2E3120FF132A29-if00";
   std::string path = "";
   kansei::fallen::DeterminantType determinant_type;
 
@@ -88,8 +88,7 @@ int main(int argc, char * argv[])
   if (mpu->connect()) {
     std::cout << "succeeded to connect to mpu " << port_name << "!\n";
   } else {
-    std::cout << "failed to connect to mpu!\n" <<
-      "try again!\n";
+    std::cout << "failed to connect to mpu!\n" << "try again!\n";
     return 0;
   }
 

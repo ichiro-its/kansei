@@ -70,7 +70,7 @@ bool MPU::connect()
     newtio.c_cflag = B115200 | CRTSCTS | CS8 | CLOCAL | CREAD;
     newtio.c_iflag = IGNPAR | ICRNL;
     newtio.c_oflag = 0;
-    newtio.c_lflag = ~ICANON;
+    newtio.c_lflag &= ~ICANON;
     newtio.c_cc[VEOF] = 4;
     newtio.c_cc[VMIN] = 1;
 
@@ -100,6 +100,13 @@ void MPU::update_rpy()
   int count = 0;
 
   while (true) {
+    if (need_update_led) {
+      std::string l = std::to_string(led_mode);
+      int s = write(socket_fd, l.c_str(), l.size());
+      // printf("send led %d , sended %d, send %d\n", c, s, sizeof(c));
+      need_update_led = false;
+    }
+
     if (read(socket_fd, &usart_data, 1) <= 0) {
       continue;
     }
@@ -139,7 +146,7 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memcpy(&pitch, usart_buffer, 4);
+      memcpy(&roll, usart_buffer, 4);
     } else if (usart_status == 12 && usart_data == ':') {
       usart_status++;
     } else if (usart_status == 13) {
@@ -155,7 +162,7 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memcpy(&roll, usart_buffer, 4);
+      memcpy(&pitch, usart_buffer, 4);
 
       if (!calibrated) {
         // validate the value to minimum error about 0.001
@@ -252,8 +259,8 @@ void MPU::reset_orientation()
   orientation_error = -raw_orientation;
   orientation_compensation = 0_deg;
 
-  reset_pitch();
-  reset_roll();
+  // reset_pitch();
+  // reset_roll();
 }
 
 void MPU::set_orientation_to(const keisan::Angle<double> & target_orientation)
