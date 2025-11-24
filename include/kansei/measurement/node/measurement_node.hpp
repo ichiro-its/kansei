@@ -51,6 +51,7 @@ public:
   static std::string get_node_prefix();
   static std::string reset_orientation_topic();
   static std::string reset_pitch_topic();
+  static std::string reset_roll_topic();
   static std::string status_topic();
   static std::string button_status_topic();
   static std::string unit_topic();
@@ -71,6 +72,7 @@ private:
 
   rclcpp::Subscription<Float64>::SharedPtr reset_orientation_subscriber;
   rclcpp::Subscription<Empty>::SharedPtr reset_pitch_subscriber;
+  rclcpp::Subscription<Empty>::SharedPtr reset_roll_subscriber;
 
   rclcpp::Publisher<Unit>::SharedPtr unit_publisher;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;

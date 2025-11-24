@@ -103,7 +103,6 @@ void MPU::update_rpy()
     if (need_update_led) {
       std::string l = std::to_string(led_mode);
       int s = write(socket_fd, l.c_str(), l.size());
-      // printf("send led %d , sended %d, send %d\n", c, s, sizeof(c));
       need_update_led = false;
     }
 
@@ -258,9 +257,6 @@ void MPU::reset_orientation()
 {
   orientation_error = -raw_orientation;
   orientation_compensation = 0_deg;
-
-  // reset_pitch();
-  // reset_roll();
 }
 
 void MPU::set_orientation_to(const keisan::Angle<double> & target_orientation)

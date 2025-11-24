@@ -47,6 +47,11 @@ std::string MeasurementNode::reset_pitch_topic()
   return get_node_prefix() + "/reset_pitch";
 }
 
+std::string MeasurementNode::reset_roll_topic()
+{
+  return get_node_prefix() + "/reset_roll";
+}
+
 std::string MeasurementNode::status_topic() { return get_node_prefix() + "/status"; }
 
 std::string MeasurementNode::button_status_topic() {  return get_node_prefix() + "/button_status"; }
@@ -71,6 +76,11 @@ MeasurementNode::MeasurementNode(
   reset_pitch_subscriber = node->create_subscription<Empty>(
     reset_pitch_topic(), 10, [this](const Empty & message) {
       this->measurement_unit->reset_pitch();
+    });
+
+  reset_roll_subscriber = node->create_subscription<Empty>(
+    reset_roll_topic(), 10, [this](const Empty & message) {
+      this->measurement_unit->reset_roll();
     });
 
   unit_publisher = node->create_publisher<Unit>(unit_topic(), 10);

@@ -35,11 +35,11 @@ int main(int argc, char * argv[])
 {
   auto args = rclcpp::init_and_remove_ros_arguments(argc, argv);
 
-  std::string port_name = "/dev/serial/by-id/usb-Seeed_Seeed_XIAO_M0_FAE6B709503058324C2E3120FF132A29-if00";
+  std::string port_name = "/dev/ttyACM0";
   std::string path = "";
   kansei::fallen::DeterminantType determinant_type;
 
-  const char * help_message = 
+  const char * help_message =
     "Usage: ros2 run kansei main --path [config_path] --type [fallen_type]\n"
     "[config_path]:       path to the configuration file\n"
     "[fallen_type]:       fallen type to be used (orientation / accelero)\n"

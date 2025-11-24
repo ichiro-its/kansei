@@ -38,6 +38,7 @@ public:
 
   virtual void reset_orientation() {}
   virtual void reset_pitch() {}
+  virtual void reset_roll() {}
   virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
 
   keisan::Euler<double> get_orientation() const;
