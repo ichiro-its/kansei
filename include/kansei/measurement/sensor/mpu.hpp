@@ -39,15 +39,28 @@ public:
   bool connect();
 
   void update_rpy() override;
-  static void *start(void *object);
+  static void * start(void * object);
 
   void reset_orientation() override;
   void set_orientation_to(const keisan::Angle<double> & target_orientation) override;
+
+  void reset_pitch();
+  void reset_roll();
+
+  void reset();
 
 private:
   int socket_fd;
   std::string port_name;
   pthread_t thread;
+
+  keisan::Angle<double> raw_pitch;
+  keisan::Angle<double> pitch_compensation;
+  keisan::Angle<double> pitch_error;
+
+  keisan::Angle<double> raw_roll;
+  keisan::Angle<double> roll_compensation;
+  keisan::Angle<double> roll_error;
 
   keisan::Angle<double> raw_orientation;
   keisan::Angle<double> orientation_compensation;

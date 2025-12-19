@@ -28,9 +28,11 @@
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/status.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
+#include "std_msgs/msg/int8.hpp"
 #include "tachimawari_interfaces/msg/status.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float64.hpp"
+#include "std_msgs/msg/empty.hpp"
 
 namespace kansei::measurement
 {
@@ -39,16 +41,21 @@ class MeasurementNode
 {
 public:
   using Axis = kansei_interfaces::msg::Axis;
+  using Empty = std_msgs::msg::Empty;
   using Float64 = std_msgs::msg::Float64;
+  using Int8 = std_msgs::msg::Int8;
   using Status = kansei_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
   using ButtonStatus = tachimawari_interfaces::msg::Status;
 
   static std::string get_node_prefix();
   static std::string reset_orientation_topic();
+  static std::string reset_pitch_topic();
+  static std::string reset_roll_topic();
   static std::string status_topic();
   static std::string button_status_topic();
   static std::string unit_topic();
+  static std::string led_topic();
 
   explicit MeasurementNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<MeasurementUnit> measurement_unit);
@@ -64,6 +71,8 @@ private:
   std::shared_ptr<MeasurementUnit> measurement_unit;
 
   rclcpp::Subscription<Float64>::SharedPtr reset_orientation_subscriber;
+  rclcpp::Subscription<Empty>::SharedPtr reset_pitch_subscriber;
+  rclcpp::Subscription<Empty>::SharedPtr reset_roll_subscriber;
 
   rclcpp::Publisher<Unit>::SharedPtr unit_publisher;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
@@ -71,6 +80,7 @@ private:
   rclcpp::Publisher<Status>::SharedPtr status_publisher;
 
   rclcpp::Publisher<ButtonStatus>::SharedPtr button_status_publisher;
+  rclcpp::Subscription<Int8>::SharedPtr led_status_subscriber;
 };
 
 }  // namespace kansei::measurement

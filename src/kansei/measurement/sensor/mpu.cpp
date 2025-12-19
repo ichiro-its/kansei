@@ -18,22 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include "kansei/measurement/sensor/mpu.hpp"
+
 #include <cmath>
 #include <iostream>
 #include <string>
 
-#include "kansei/measurement/sensor/mpu.hpp"
-
-#include "keisan/angle.hpp"
-
 #include "errno.h"  // NOLINT
 #include "fcntl.h"  // NOLINT
-#include "stdio.h"  // NOLINT
+#include "keisan/angle.hpp"
+#include "stdio.h"   // NOLINT
 #include "string.h"  // NOLINT
-#include "termios.h"  // NOLINT
-#include "unistd.h"  // NOLINT
-#include "sys/stat.h"
 #include "sys/ioctl.h"
+#include "sys/stat.h"
+#include "termios.h"  // NOLINT
+#include "unistd.h"   // NOLINT
 
 using namespace keisan::literals;  // NOLINT
 
@@ -71,7 +70,7 @@ bool MPU::connect()
     newtio.c_cflag = B115200 | CRTSCTS | CS8 | CLOCAL | CREAD;
     newtio.c_iflag = IGNPAR | ICRNL;
     newtio.c_oflag = 0;
-    newtio.c_lflag = ~ICANON;
+    newtio.c_lflag &= ~ICANON;
     newtio.c_cc[VEOF] = 4;
     newtio.c_cc[VMIN] = 1;
 
@@ -101,6 +100,12 @@ void MPU::update_rpy()
   int count = 0;
 
   while (true) {
+    if (need_update_led) {
+      std::string l = std::to_string(led_mode);
+      int s = write(socket_fd, l.c_str(), l.size());
+      need_update_led = false;
+    }
+
     if (read(socket_fd, &usart_data, 1) <= 0) {
       continue;
     }
@@ -140,7 +145,7 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memcpy(&pitch, usart_buffer, 4);
+      memcpy(&roll, usart_buffer, 4);
     } else if (usart_status == 12 && usart_data == ':') {
       usart_status++;
     } else if (usart_status == 13) {
@@ -156,7 +161,7 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memcpy(&roll, usart_buffer, 4);
+      memcpy(&pitch, usart_buffer, 4);
 
       if (!calibrated) {
         // validate the value to minimum error about 0.001
@@ -166,12 +171,15 @@ void MPU::update_rpy()
 
         if (count > 50) {
           calibrated = true;
-          reset_orientation();
+          reset();
         }
       }
 
-      rpy.roll = keisan::make_degree(roll);
-      rpy.pitch = keisan::make_degree(pitch);
+      raw_roll = keisan::make_degree(roll);
+      rpy.roll = raw_roll + roll_error + roll_compensation;
+
+      raw_pitch = keisan::make_degree(pitch);
+      rpy.pitch = raw_pitch + pitch_error + pitch_compensation;
 
       raw_orientation = keisan::make_degree(yaw);
       rpy.yaw = raw_orientation + orientation_error + orientation_compensation;
@@ -217,16 +225,32 @@ void MPU::update_rpy()
   }
 }
 
-void *MPU::start(void *object)
+void * MPU::start(void * object)
 {
   reinterpret_cast<MPU *>(object)->update_rpy();
 
   return 0;
 }
 
-void MPU::set_port_name(const std::string & port_name)
+void MPU::set_port_name(const std::string & port_name) { this->port_name = port_name; }
+
+void MPU::reset()
 {
-  this->port_name = port_name;
+  reset_pitch();
+  reset_roll();
+  reset_orientation();
+}
+
+void MPU::reset_pitch()
+{
+  pitch_error = -raw_pitch;
+  pitch_compensation = 0_deg;
+}
+
+void MPU::reset_roll()
+{
+  roll_error = -raw_roll;
+  roll_compensation = 0_deg;
 }
 
 void MPU::reset_orientation()

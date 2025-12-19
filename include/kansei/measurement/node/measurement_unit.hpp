@@ -37,6 +37,8 @@ public:
   virtual void update_rpy() {}
 
   virtual void reset_orientation() {}
+  virtual void reset_pitch() {}
+  virtual void reset_roll() {}
   virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
 
   keisan::Euler<double> get_orientation() const;
@@ -48,7 +50,9 @@ public:
 
   bool is_calibrated() const;
 
-  int start_button; 
+  void set_led(int mode);
+
+  int start_button;
   int stop_button;
 protected:
   keisan::Euler<double> rpy;
@@ -69,6 +73,9 @@ protected:
   int filtered_acc_counter;
 
   bool calibrated;
+
+  bool need_update_led;
+  int led_mode;
 };
 
 }  // namespace kansei::measurement

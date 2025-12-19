@@ -39,7 +39,7 @@ int main(int argc, char * argv[])
   std::string path = "";
   kansei::fallen::DeterminantType determinant_type;
 
-  const char * help_message = 
+  const char * help_message =
     "Usage: ros2 run kansei main --path [config_path] --type [fallen_type]\n"
     "[config_path]:       path to the configuration file\n"
     "[fallen_type]:       fallen type to be used (orientation / accelero)\n"
@@ -88,8 +88,7 @@ int main(int argc, char * argv[])
   if (mpu->connect()) {
     std::cout << "succeeded to connect to mpu " << port_name << "!\n";
   } else {
-    std::cout << "failed to connect to mpu!\n" <<
-      "try again!\n";
+    std::cout << "failed to connect to mpu!\n" << "try again!\n";
     return 0;
   }
 

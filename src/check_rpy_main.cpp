@@ -53,6 +53,7 @@ int main(int argc, char * argv[])
   while (rclcpp::ok()) {
     keisan::Euler<double> rpy = mpu.get_orientation();
 
+    std::cout << "Is Calibrated: " << mpu.is_calibrated() << std::endl;
     std::cout << "Roll: " << rpy.roll.degree() << std::endl;
     std::cout << "Pitch: " << rpy.pitch.degree() << std::endl;
     std::cout << "Yaw: " << rpy.yaw.degree() << std::endl;
