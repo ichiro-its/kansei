@@ -97,6 +97,15 @@ void MPU::update_rpy()
   float yaw = 0;
   float start = 0;
   float stop = 0;
+
+  float gyro_x = 0;
+  float gyro_y = 0;
+  float gyro_z = 0;
+
+  float accel_x = 0;
+  float accel_y = 0;
+  float accel_z = 0;
+
   int count = 0;
 
   while (true) {
@@ -216,9 +225,105 @@ void MPU::update_rpy()
       usart_status++;
 
       memcpy(&stop, usart_buffer, 4);
-
       start_button = start;
       stop_button = stop;
+
+    } else if (usart_status == 27 && usart_data == ':'){
+      usart_status++;
+    } else if (usart_status == 28){
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 29){
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 30){
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 31){
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memccpy(&accel_x, usart_buffer, 4);
+    }  else if (usart_status == 32 && usart_data == ':'){
+      usart_status++;
+    } else if (usart_status == 33){
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 34){
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 35){
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 36){
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memccpy(&accel_y, usart_buffer, 4);
+      else if (usart_status == 37 && usart_data == ':'){
+      usart_status++;
+    } else if (usart_status == 38){
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 39){
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 40){
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 41){
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memccpy(&accel_z, usart_buffer, 4);
+    } else if (usart_status == 42 && usart_data == ':'){
+      usart_status++;
+    } else if (usart_status == 43){
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 44){
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 45){
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 46){
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memccpy(&gyro_x, usart_buffer, 4);
+    } else if (usart_status == 47 && usart_data == ':'){
+      usart_status++;
+    } else if (usart_status == 48){
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 49){
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 50){
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 51){
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memccpy(&gyro_y, usart_buffer, 4);
+    } else if (usart_status == 52 && usart_data == ':'){
+      usart_status++;
+    } else if (usart_status == 53){
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 54){
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 55){
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 56){
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memccpy(&gyro_z, usart_buffer, 4);
     } else {
       usart_status = 0;
     }
