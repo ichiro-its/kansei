@@ -89,14 +89,6 @@ MeasurementNode::MeasurementNode(
 
   button_status_publisher = node->create_publisher<ButtonStatus>(button_status_topic(), 10);
 
-  unit_subscriber = node->create_subscription<Unit>(
-    tachimawari::imu::ImuNode::unit_topic(), 10, [this](const Unit::SharedPtr message) {
-      keisan::Vector<3> gy(message->gyro.roll, message->gyro.pitch, message->gyro.yaw);
-      keisan::Vector<3> acc(message->accelero.x, message->accelero.y, message->accelero.z);
-
-      this->measurement_unit->update_gy_acc(gy, acc);
-    });
-
   led_status_subscriber = node->create_subscription<Int8>(
     led_topic(), 10, [this](const Int8::SharedPtr message) {
       this->measurement_unit->set_led(message->data);
@@ -166,6 +158,7 @@ void MeasurementNode::publish_unit()
   unit_msg.accelero.z = accelero[2];
 
   unit_publisher->publish(unit_msg);
+  std::cout<<"publishing gyro and accelero";
 }
 
 }  // namespace kansei::measurement

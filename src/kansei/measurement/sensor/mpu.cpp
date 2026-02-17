@@ -101,7 +101,7 @@ void MPU::update_rpy()
   keisan::Vector<3> gy;
   keisan::Vector<3> accel;
 
-  float tmp //temporary to store gyro and accelero values
+  float tmp; //temporary to store gyro and accelero values
 
   int count = 0;
 
