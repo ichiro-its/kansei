@@ -98,13 +98,10 @@ void MPU::update_rpy()
   float start = 0;
   float stop = 0;
 
-  float gyro_x = 0;
-  float gyro_y = 0;
-  float gyro_z = 0;
+  keisan::Vector<3> gy;
+  keisan::Vector<3> accel;
 
-  float accel_x = 0;
-  float accel_y = 0;
-  float accel_z = 0;
+  float tmp //temporary to store gyro and accelero values
 
   int count = 0;
 
@@ -243,7 +240,9 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memccpy(&accel_x, usart_buffer, 4);
+      memcpy(&tmp, usart_buffer, 4);
+      accel[0] = tmp;
+
     }  else if (usart_status == 32 && usart_data == ':'){
       usart_status++;
     } else if (usart_status == 33){
@@ -259,8 +258,10 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memccpy(&accel_y, usart_buffer, 4);
-      else if (usart_status == 37 && usart_data == ':'){
+      memcpy(&tmp, usart_buffer, 4);
+      accel[1] = tmp;
+
+    } else if (usart_status == 37 && usart_data == ':'){
       usart_status++;
     } else if (usart_status == 38){
       usart_buffer[0] = usart_data;
@@ -275,7 +276,9 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memccpy(&accel_z, usart_buffer, 4);
+      memcpy(&tmp, usart_buffer, 4);
+      accel[2] = tmp;
+
     } else if (usart_status == 42 && usart_data == ':'){
       usart_status++;
     } else if (usart_status == 43){
@@ -291,7 +294,9 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memccpy(&gyro_x, usart_buffer, 4);
+      memcpy(&tmp, usart_buffer, 4);
+      gy[0] = tmp;
+
     } else if (usart_status == 47 && usart_data == ':'){
       usart_status++;
     } else if (usart_status == 48){
@@ -307,7 +312,9 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memccpy(&gyro_y, usart_buffer, 4);
+      memcpy(&tmp, usart_buffer, 4);
+      gy[1] = tmp;
+
     } else if (usart_status == 52 && usart_data == ':'){
       usart_status++;
     } else if (usart_status == 53){
@@ -323,7 +330,11 @@ void MPU::update_rpy()
       usart_buffer[3] = usart_data;
       usart_status++;
 
-      memccpy(&gyro_z, usart_buffer, 4);
+      memcpy(&tmp, usart_buffer, 4);
+      gy[2] = tmp;
+
+      update_gy_acc(gy, accel);
+
     } else {
       usart_status = 0;
     }
@@ -370,4 +381,5 @@ void MPU::set_orientation_to(const keisan::Angle<double> & target_orientation)
   orientation_compensation = target_orientation;
 }
 
-}  // namespace kansei::measurement
+  // namespace kansei::measurement
+}

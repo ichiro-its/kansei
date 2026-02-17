@@ -24,6 +24,8 @@
 #include <string>
 
 #include "keisan/keisan.hpp"
+#include "kansei_interfaces/msg/point3.hpp"
+
 
 namespace kansei::measurement
 {
@@ -60,6 +62,7 @@ protected:
   keisan::Vector<3> raw_gy;
   keisan::Euler<double> gy;
   keisan::Vector<3> filtered_gy;
+  
   // gyro variables
   double filtered_gy_arr[3][100];
   double filtered_gy_center[3];
