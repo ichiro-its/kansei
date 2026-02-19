@@ -146,7 +146,7 @@ void MeasurementNode::publish_unit()
 {
   auto unit_msg = Unit();
 
-  auto gyro = measurement_unit->get_filtered_gy();
+  auto gyro = measurement_unit->get_filtered_gyro();
   auto accelero = measurement_unit->get_filtered_acc();
 
   unit_msg.gyro.roll = gyro[0];
@@ -158,7 +158,6 @@ void MeasurementNode::publish_unit()
   unit_msg.accelero.z = accelero[2];
 
   unit_publisher->publish(unit_msg);
-  std::cout<<"publishing gyro and accelero";
 }
 
 }  // namespace kansei::measurement

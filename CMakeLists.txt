@@ -31,6 +31,7 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/measurement/node/measurement_unit.cpp"
   "src/${PROJECT_NAME}/measurement/node/measurement_node.cpp"
   "src/${PROJECT_NAME}/measurement/filter/filter.cpp"
+  "src/${PROJECT_NAME}/measurement/filter/gyro_filter.cpp"
   "src/${PROJECT_NAME}/measurement/filter/madgwick/madgwick_filter.cpp"
   "src/${PROJECT_NAME}/measurement/filter/madgwick/stateless_orientation.cpp"
   "src/${PROJECT_NAME}/measurement/sensor/mpu.cpp"

@@ -25,7 +25,7 @@
 
 #include "keisan/keisan.hpp"
 #include "kansei_interfaces/msg/point3.hpp"
-
+#include "kansei/measurement/filter/gyro_filter.hpp"
 
 namespace kansei::measurement
 {
@@ -46,8 +46,8 @@ public:
   keisan::Euler<double> get_orientation() const;
 
   void update_gy_acc(
-    const keisan::Vector<3> & gy, const keisan::Vector<3> & acc);
-  keisan::Vector<3> get_filtered_gy() const;
+  const keisan::Vector<3> & gy, const keisan::Vector<3> & acc);
+  keisan::Vector<3> get_filtered_gyro() const;
   keisan::Vector<3> get_filtered_acc() const;
 
   bool is_calibrated() const;
@@ -57,6 +57,8 @@ public:
   int start_button;
   int stop_button;
 protected:
+
+  std::shared_ptr<GyroFilter> gyro_filter;
   keisan::Euler<double> rpy;
 
   keisan::Vector<3> raw_gy;

@@ -34,6 +34,8 @@ MeasurementUnit::MeasurementUnit()
   filtered_acc_counter(0), filtered_gy_counter(0), start_button(0), stop_button(0),
   need_update_led(false), led_mode(0)
 {
+  gyro_filter = std::make_shared<GyroFilter>();
+  
   for (int i = 0; i < 3; i++) {
     filtered_gy_center[i] = 512.0;
     filtered_acc[i] = 512.0;
@@ -48,55 +50,15 @@ MeasurementUnit::MeasurementUnit()
   }
 }
 
+
+
 void MeasurementUnit::update_gy_acc(
   const keisan::Vector<3> & gy, const keisan::Vector<3> & acc)
 {
   this->raw_gy = gy;
   this->raw_acc = acc;
 
-  if (!calibrated) {
-    if (filtered_gy_counter < 100) {
-      for (int i = 0; i < 3; i++) {
-        filtered_gy_arr[i][filtered_gy_counter] = gy[i];
-      }
-
-      filtered_gy_counter++;
-    } else {
-      double filtered_gy_sum[3];
-      for (int i = 0; i < 3; i++) {
-        filtered_gy_sum[i] = 0.0;
-
-        for (int j = 0; j < filtered_gy_counter; j++) {
-          filtered_gy_sum[i] += filtered_gy_arr[i][j];
-        }
-      }
-
-      double filtered_gy_mean[3];
-      for (int i = 0; i < 3; i++) {
-        filtered_gy_mean[i] = filtered_gy_sum[i] / filtered_gy_counter;
-        filtered_gy_sum[i] = 0.0;
-      }
-
-      double filtered_gy_sd[3];
-      for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < filtered_gy_counter; j++) {
-          filtered_gy_sum[i] += pow((filtered_gy_arr[i][j] - filtered_gy_mean[i]), 2);
-        }
-
-        filtered_gy_sd[i] = pow((filtered_gy_sum[i] / filtered_gy_counter), 0.5);
-      }
-
-      if (filtered_gy_sd[0] < 2.0 && filtered_gy_sd[1] < 2.0) {
-        for (int i = 0; i < 3; i++) {
-          filtered_gy_center[i] = filtered_gy_mean[i];
-        }
-
-        calibrated = true;
-      }
-
-      filtered_gy_counter = 0;
-    }
-  }
+  gyro_filter->update(gy);
 
   if (calibrated) {
     if (filtered_acc_counter < 15) {
@@ -122,9 +84,6 @@ void MeasurementUnit::update_gy_acc(
       filtered_acc_counter = 0;
     }
 
-    for (int i = 0; i < 3; i++) {
-      filtered_gy[i] = gy[i] / filtered_gy_center[i];
-    }
   }
 }
 
@@ -134,9 +93,9 @@ keisan::Euler<double> MeasurementUnit::get_orientation() const
     rpy.roll.normalize(), rpy.pitch.normalize(), rpy.yaw.normalize());
 }
 
-keisan::Vector<3> MeasurementUnit::get_filtered_gy() const
+keisan::Vector<3> MeasurementUnit::get_filtered_gyro() const
 {
-  return filtered_gy;
+  return gyro_filter->get_filtered_gyro();
 }
 
 keisan::Vector<3> MeasurementUnit::get_filtered_acc() const

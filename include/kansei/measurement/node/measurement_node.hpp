@@ -75,7 +75,6 @@ private:
   rclcpp::Subscription<Empty>::SharedPtr reset_roll_subscriber;
 
   rclcpp::Publisher<Unit>::SharedPtr unit_publisher;
-  
   rclcpp::Publisher<Status>::SharedPtr status_publisher;
 
   rclcpp::Publisher<ButtonStatus>::SharedPtr button_status_publisher;
