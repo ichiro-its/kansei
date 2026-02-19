@@ -100,6 +100,7 @@ void MeasurementNode::update(double seconds)
   if (std::dynamic_pointer_cast<MPU>(measurement_unit)) {
 
     publish_status();
+    publish_unit();
   } else if (std::dynamic_pointer_cast<Filter>(measurement_unit)) {
     auto filter_measurement = std::dynamic_pointer_cast<Filter>(measurement_unit);
 
@@ -149,8 +150,8 @@ void MeasurementNode::publish_unit()
   auto gyro = measurement_unit->get_filtered_gyro();
   auto accelero = measurement_unit->get_filtered_acc();
 
-  unit_msg.gyro.roll = gyro[0];
-  unit_msg.gyro.pitch = gyro[1];
+  unit_msg.gyro.roll = gyro[1];
+  unit_msg.gyro.pitch = gyro[2];
   unit_msg.gyro.yaw = gyro[2];
 
   unit_msg.accelero.x = accelero[0];
