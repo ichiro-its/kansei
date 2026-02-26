@@ -52,11 +52,15 @@ int main(int argc, char * argv[])
   rclcpp::Rate loop_rate(8ms);
   while (rclcpp::ok()) {
     keisan::Euler<double> rpy = mpu.get_orientation();
+    keisan::Point3 gravity = mpu.get_gravity();
 
     std::cout << "Is Calibrated: " << mpu.is_calibrated() << std::endl;
     std::cout << "Roll: " << rpy.roll.degree() << std::endl;
     std::cout << "Pitch: " << rpy.pitch.degree() << std::endl;
     std::cout << "Yaw: " << rpy.yaw.degree() << std::endl;
+    std::cout << "Gravity X : " << gravity.x << std::endl;
+    std::cout << "Gravity Y : " << gravity.y << std::endl;
+    std::cout << "Gravity Z : " << gravity.z << std::endl;
     std::cout << "start button : " << mpu.start_button << std::endl;
     std::cout << "stop button : " << mpu.stop_button << std::endl;
     std::cout << "\033c";
