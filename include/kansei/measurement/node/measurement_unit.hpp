@@ -42,6 +42,7 @@ public:
   virtual void set_orientation_to(const keisan::Angle<double> & target_orientation) {}
 
   keisan::Euler<double> get_orientation() const;
+  keisan::Point3 get_gravity() const { return gravity; }
 
   void update_gy_acc(
     const keisan::Vector<3> & gy, const keisan::Vector<3> & acc);
@@ -60,6 +61,10 @@ protected:
   keisan::Vector<3> raw_gy;
   keisan::Euler<double> gy;
   keisan::Vector<3> filtered_gy;
+
+  // gravity variables
+  keisan::Point3 gravity;
+
   // gyro variables
   double filtered_gy_arr[3][100];
   double filtered_gy_center[3];
@@ -68,6 +73,7 @@ protected:
   keisan::Vector<3> raw_acc;
   keisan::Point3 acc;
   keisan::Vector<3> filtered_acc;
+
   // accelero variables
   double filtered_acc_arr[3][15];
   int filtered_acc_counter;

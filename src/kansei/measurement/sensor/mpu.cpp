@@ -99,6 +99,10 @@ void MPU::update_rpy()
   float stop = 0;
   int count = 0;
 
+  float gravity_x = 0;
+  float gravity_y = 0;
+  float gravity_z = 0;
+
   while (true) {
     if (need_update_led) {
       std::string l = std::to_string(led_mode);
@@ -219,6 +223,118 @@ void MPU::update_rpy()
 
       start_button = start;
       stop_button = stop;
+    } else if (usart_status == 27 && usart_data == ':') { // SKIP ACCELERO X
+      usart_status++;
+    } else if (usart_status == 28) {
+      usart_status++;
+    } else if (usart_status == 29) {
+      usart_status++;
+    } else if (usart_status == 30) {
+      usart_status++;
+    } else if (usart_status == 31) {
+      usart_status++;
+    } else if (usart_status == 32 && usart_data == ':') { // SKIP ACCELERO Y
+      usart_status++;
+    } else if (usart_status == 33) {
+      usart_status++;
+    } else if (usart_status == 34) {
+      usart_status++;
+    } else if (usart_status == 35) {
+      usart_status++;
+    } else if (usart_status == 36) {
+      usart_status++;
+    } else if (usart_status == 37 && usart_data == ':') { // SKIP ACCELERO Z
+      usart_status++;
+    } else if (usart_status == 38) {
+      usart_status++;
+    } else if (usart_status == 39) {
+      usart_status++;
+    } else if (usart_status == 40) {
+      usart_status++;
+    } else if (usart_status == 41) {
+      usart_status++;
+    } else if (usart_status == 42 && usart_data == ':') { // SKIP GYRO X
+      usart_status++;
+    } else if (usart_status == 43) {
+      usart_status++;
+    } else if (usart_status == 44) {
+      usart_status++;
+    } else if (usart_status == 45) {
+      usart_status++;
+    } else if (usart_status == 46) {
+      usart_status++;
+    } else if (usart_status == 47 && usart_data == ':') { // SKIP GYRO Y
+      usart_status++;
+    } else if (usart_status == 48) {
+      usart_status++;
+    } else if (usart_status == 49) {
+      usart_status++;
+    } else if (usart_status == 50) {
+      usart_status++;
+    } else if (usart_status == 51) {
+      usart_status++;
+    } else if (usart_status == 52 && usart_data == ':') { // SKIP GYRO Z
+      usart_status++;
+    } else if (usart_status == 53) {
+      usart_status++;
+    } else if (usart_status == 54) {
+      usart_status++;
+    } else if (usart_status == 55) {
+      usart_status++;
+    } else if (usart_status == 56) {
+      usart_status++;
+    } else if (usart_status == 57 && usart_data == ':') { // GRAVITY X
+      usart_status++;
+    } else if (usart_status == 58) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 59) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 60) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 61) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&gravity_x, usart_buffer, 4);
+    } else if (usart_status == 62 && usart_data == ':') { // GRAVITY Y
+      usart_status++;
+    } else if (usart_status == 63) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 64) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 65) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 66) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&gravity_y, usart_buffer, 4);
+    } else if (usart_status == 67 && usart_data == ':') { // GRAVITY Z
+      usart_status++;
+    } else if (usart_status == 68) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 69) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 70) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 71) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&gravity_z, usart_buffer, 4);
+
+      gravity.x = gravity_x;
+      gravity.y = gravity_y;
+      gravity.z = gravity_z;
     } else {
       usart_status = 0;
     }

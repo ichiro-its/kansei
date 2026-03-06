@@ -136,9 +136,15 @@ void MeasurementNode::publish_status()
 
   keisan::Euler<double> rpy = measurement_unit->get_orientation();
 
+  keisan::Point3 gravity = measurement_unit->get_gravity();
+
   status_msg.orientation.roll = rpy.roll.degree();
   status_msg.orientation.pitch = rpy.pitch.degree();
   status_msg.orientation.yaw = rpy.yaw.degree();
+
+  status_msg.gravity.x = gravity.x;
+  status_msg.gravity.y = gravity.y;
+  status_msg.gravity.z = gravity.z;
 
   if (measurement_unit->start_button)
     button_status_msg.button = 2;
