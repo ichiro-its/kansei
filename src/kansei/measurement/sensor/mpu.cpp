@@ -70,7 +70,7 @@ bool MPU::connect()
     newtio.c_cflag = B115200 | CRTSCTS | CS8 | CLOCAL | CREAD;
     newtio.c_iflag = IGNPAR | ICRNL;
     newtio.c_oflag = 0;
-    newtio.c_lflag &= ~ICANON;
+    newtio.c_lflag = ~ICANON;
     newtio.c_cc[VEOF] = 4;
     newtio.c_cc[VMIN] = 1;
 
@@ -223,110 +223,50 @@ void MPU::update_rpy()
 
       start_button = start;
       stop_button = stop;
-    } else if (usart_status == 27 && usart_data == ':') { // SKIP ACCELERO X
+    } else if (usart_status == 27 && usart_data == ':') { // GRAVITY X
       usart_status++;
     } else if (usart_status == 28) {
-      usart_status++;
-    } else if (usart_status == 29) {
-      usart_status++;
-    } else if (usart_status == 30) {
-      usart_status++;
-    } else if (usart_status == 31) {
-      usart_status++;
-    } else if (usart_status == 32 && usart_data == ':') { // SKIP ACCELERO Y
-      usart_status++;
-    } else if (usart_status == 33) {
-      usart_status++;
-    } else if (usart_status == 34) {
-      usart_status++;
-    } else if (usart_status == 35) {
-      usart_status++;
-    } else if (usart_status == 36) {
-      usart_status++;
-    } else if (usart_status == 37 && usart_data == ':') { // SKIP ACCELERO Z
-      usart_status++;
-    } else if (usart_status == 38) {
-      usart_status++;
-    } else if (usart_status == 39) {
-      usart_status++;
-    } else if (usart_status == 40) {
-      usart_status++;
-    } else if (usart_status == 41) {
-      usart_status++;
-    } else if (usart_status == 42 && usart_data == ':') { // SKIP GYRO X
-      usart_status++;
-    } else if (usart_status == 43) {
-      usart_status++;
-    } else if (usart_status == 44) {
-      usart_status++;
-    } else if (usart_status == 45) {
-      usart_status++;
-    } else if (usart_status == 46) {
-      usart_status++;
-    } else if (usart_status == 47 && usart_data == ':') { // SKIP GYRO Y
-      usart_status++;
-    } else if (usart_status == 48) {
-      usart_status++;
-    } else if (usart_status == 49) {
-      usart_status++;
-    } else if (usart_status == 50) {
-      usart_status++;
-    } else if (usart_status == 51) {
-      usart_status++;
-    } else if (usart_status == 52 && usart_data == ':') { // SKIP GYRO Z
-      usart_status++;
-    } else if (usart_status == 53) {
-      usart_status++;
-    } else if (usart_status == 54) {
-      usart_status++;
-    } else if (usart_status == 55) {
-      usart_status++;
-    } else if (usart_status == 56) {
-      usart_status++;
-    } else if (usart_status == 57 && usart_data == ':') { // GRAVITY X
-      usart_status++;
-    } else if (usart_status == 58) {
       usart_buffer[0] = usart_data;
       usart_status++;
-    } else if (usart_status == 59) {
+    } else if (usart_status == 29) {
       usart_buffer[1] = usart_data;
       usart_status++;
-    } else if (usart_status == 60) {
+    } else if (usart_status == 30) {
       usart_buffer[2] = usart_data;
       usart_status++;
-    } else if (usart_status == 61) {
+    } else if (usart_status == 31) {
       usart_buffer[3] = usart_data;
       usart_status++;
 
       memcpy(&gravity_x, usart_buffer, 4);
-    } else if (usart_status == 62 && usart_data == ':') { // GRAVITY Y
+    } else if (usart_status == 32 && usart_data == ':') { // GRAVITY Y
       usart_status++;
-    } else if (usart_status == 63) {
+    } else if (usart_status == 33) {
       usart_buffer[0] = usart_data;
       usart_status++;
-    } else if (usart_status == 64) {
+    } else if (usart_status == 34) {
       usart_buffer[1] = usart_data;
       usart_status++;
-    } else if (usart_status == 65) {
+    } else if (usart_status == 35) {
       usart_buffer[2] = usart_data;
       usart_status++;
-    } else if (usart_status == 66) {
+    } else if (usart_status == 36) {
       usart_buffer[3] = usart_data;
       usart_status++;
 
       memcpy(&gravity_y, usart_buffer, 4);
-    } else if (usart_status == 67 && usart_data == ':') { // GRAVITY Z
+    } else if (usart_status == 37 && usart_data == ':') { // GRAVITY Z
       usart_status++;
-    } else if (usart_status == 68) {
+    } else if (usart_status == 38) {
       usart_buffer[0] = usart_data;
       usart_status++;
-    } else if (usart_status == 69) {
+    } else if (usart_status == 39) {
       usart_buffer[1] = usart_data;
       usart_status++;
-    } else if (usart_status == 70) {
+    } else if (usart_status == 40) {
       usart_buffer[2] = usart_data;
       usart_status++;
-    } else if (usart_status == 71) {
+    } else if (usart_status == 41) {
       usart_buffer[3] = usart_data;
       usart_status++;
 
