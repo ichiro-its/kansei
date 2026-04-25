@@ -44,11 +44,13 @@ int main(int argc, char * argv[])
     "[config_path]:       path to the configuration file\n"
     "[fallen_type]:       fallen type to be used (orientation / accelero)\n"
     "Optional:\n"
+    "--port [port_name]   override MPU port (default: /dev/...)\n"
     "-h, --help           show this help message and exit\n";
 
   if (args.size() > 1) {
     for (int i = 1; i < args.size(); i++) {
       const std::string& arg = args[i];
+
       if (arg == "-h" || arg == "--help") {
         std::cout << help_message << std::endl;
         return 1;
@@ -57,12 +59,13 @@ int main(int argc, char * argv[])
           path = args[i + 1];
           i++;
         } else {
-          std::cerr << "Error: --path requires a path argument" << std::endl;
+          std::cerr << "Error: --path requires a path argument\n";
           return 1;
         }
       } else if (arg == "--type") {
         if (i + 1 < args.size()) {
           const std::string& fallen_type = args[i + 1];
+
           if (fallen_type == "orientation") {
             determinant_type = kansei::fallen::DeterminantType::ORIENTATION;
           } else if (fallen_type == "accelero") {
@@ -73,7 +76,15 @@ int main(int argc, char * argv[])
           }
           i++;
         } else {
-          std::cerr << "Error: --type requires a fallen type argument" << std::endl;
+          std::cerr << "Error: --type requires a fallen type argument\n";
+          return 1;
+        }
+      } else if (arg == "--port") {
+        if (i + 1 < args.size()) {
+          port_name = args[i + 1];
+          i++;
+        } else {
+          std::cerr << "Error: --port requires a port name\n";
           return 1;
         }
       }
@@ -88,7 +99,7 @@ int main(int argc, char * argv[])
   if (mpu->connect()) {
     std::cout << "succeeded to connect to mpu " << port_name << "!\n";
   } else {
-    std::cout << "failed to connect to mpu!\n" << "try again!\n";
+    std::cout << "failed to connect to mpu!\ntry again!\n";
     return 0;
   }
 

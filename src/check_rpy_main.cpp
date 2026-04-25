@@ -63,7 +63,7 @@ int main(int argc, char * argv[])
     std::cout << "Gravity Z : " << gravity.z << std::endl;
     std::cout << "start button : " << mpu.start_button << std::endl;
     std::cout << "stop button : " << mpu.stop_button << std::endl;
-    std::cout << "\033c";
+    std::cout << "\033[2J\033[1;1H";
 
     loop_rate.sleep();
   }
