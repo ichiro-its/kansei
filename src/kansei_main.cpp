@@ -94,8 +94,6 @@ int main(int argc, char * argv[])
     return 0;
   }
 
-  std::cout << "Using port: " << port_name << "\n";
-
   auto mpu = std::make_shared<kansei::measurement::MPU>(port_name);
 
   if (mpu->connect()) {
