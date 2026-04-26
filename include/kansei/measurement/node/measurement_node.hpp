@@ -55,6 +55,7 @@ public:
   static std::string status_topic();
   static std::string button_status_topic();
   static std::string unit_topic();
+  static std::string rl_topic();
   static std::string led_topic();
 
   explicit MeasurementNode(
@@ -75,6 +76,7 @@ private:
   rclcpp::Subscription<Empty>::SharedPtr reset_roll_subscriber;
 
   rclcpp::Publisher<Unit>::SharedPtr unit_publisher;
+  rclcpp::Publisher<Unit>::SharedPtr rl_publisher;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
   rclcpp::Publisher<Status>::SharedPtr status_publisher;

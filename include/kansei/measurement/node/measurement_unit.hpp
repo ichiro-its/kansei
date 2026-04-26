@@ -46,6 +46,8 @@ public:
 
   void update_gy_acc(
     const keisan::Vector<3> & gy, const keisan::Vector<3> & acc);
+  void update_gravity(const keisan::Point3 & grav);
+  void set_physical_input(bool use_physical);
   keisan::Vector<3> get_filtered_gy() const;
   keisan::Vector<3> get_filtered_acc() const;
 
@@ -64,6 +66,10 @@ protected:
 
   // gravity variables
   keisan::Point3 gravity;
+  keisan::Point3 raw_gravity;
+
+  // physical input flag
+  bool use_physical_input;
 
   // gyro variables
   double filtered_gy_arr[3][100];

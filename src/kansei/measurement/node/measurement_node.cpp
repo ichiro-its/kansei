@@ -58,6 +58,8 @@ std::string MeasurementNode::button_status_topic() {  return get_node_prefix() +
 
 std::string MeasurementNode::unit_topic() { return get_node_prefix() + "/unit"; }
 
+std::string MeasurementNode::rl_topic() { return get_node_prefix() + "/rl"; }
+
 std::string MeasurementNode::led_topic() { return get_node_prefix() + "/led"; }
 
 MeasurementNode::MeasurementNode(
@@ -84,6 +86,7 @@ MeasurementNode::MeasurementNode(
     });
 
   unit_publisher = node->create_publisher<Unit>(unit_topic(), 10);
+  rl_publisher = node->create_publisher<Unit>(rl_topic(), 10);
 
   status_publisher = node->create_publisher<Status>(status_topic(), 10);
 
@@ -93,8 +96,10 @@ MeasurementNode::MeasurementNode(
     tachimawari::imu::ImuNode::unit_topic(), 10, [this](const Unit::SharedPtr message) {
       keisan::Vector<3> gy(message->gyro.roll, message->gyro.pitch, message->gyro.yaw);
       keisan::Vector<3> acc(message->accelero.x, message->accelero.y, message->accelero.z);
+      keisan::Point3 grav(message->gravity_vector.x, message->gravity_vector.y, message->gravity_vector.z);
 
       this->measurement_unit->update_gy_acc(gy, acc);
+      this->measurement_unit->update_gravity(grav);
     });
 
   led_status_subscriber = node->create_subscription<Int8>(
@@ -162,6 +167,7 @@ void MeasurementNode::publish_unit()
 
   auto gyro = measurement_unit->get_filtered_gy();
   auto accelero = measurement_unit->get_filtered_acc();
+  auto grav = measurement_unit->get_gravity();
 
   unit_msg.gyro.roll = gyro[0];
   unit_msg.gyro.pitch = gyro[1];
@@ -171,7 +177,12 @@ void MeasurementNode::publish_unit()
   unit_msg.accelero.y = accelero[1];
   unit_msg.accelero.z = accelero[2];
 
+  unit_msg.gravity_vector.x = grav.x;
+  unit_msg.gravity_vector.y = grav.y;
+  unit_msg.gravity_vector.z = grav.z;
+
   unit_publisher->publish(unit_msg);
+  rl_publisher->publish(unit_msg);
 }
 
 }  // namespace kansei::measurement

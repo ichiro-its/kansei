@@ -32,7 +32,8 @@ MeasurementUnit::MeasurementUnit()
   raw_acc(keisan::Vector<3>::zero()), gy(0_deg, 0_deg, 0_deg),
   acc(keisan::Point3::zero()), raw_gy(keisan::Vector<3>::zero()),
   filtered_acc_counter(0), filtered_gy_counter(0), start_button(0), stop_button(0),
-  need_update_led(false), led_mode(0)
+  need_update_led(false), led_mode(0), raw_gravity(keisan::Point3::zero()),
+  use_physical_input(false)
 {
   for (int i = 0; i < 3; i++) {
     filtered_gy_center[i] = 512.0;
@@ -53,6 +54,17 @@ void MeasurementUnit::update_gy_acc(
 {
   this->raw_gy = gy;
   this->raw_acc = acc;
+
+  if (use_physical_input) {
+    // Physical units (rad/s, m/s²) from external BNO055
+    // Skip ADC calibration FSM, store directly
+    for (int i = 0; i < 3; ++i) {
+      filtered_gy[i] = gy[i];
+      filtered_acc[i] = acc[i];
+    }
+    calibrated = true;
+    return;
+  }
 
   if (!calibrated) {
     if (filtered_gy_counter < 100) {
@@ -152,6 +164,16 @@ bool MeasurementUnit::is_calibrated() const
 void MeasurementUnit::set_led(int mode) {
   need_update_led = true;
   led_mode = mode;
+}
+
+void MeasurementUnit::update_gravity(const keisan::Point3 & grav)
+{
+  raw_gravity = grav;
+}
+
+void MeasurementUnit::set_physical_input(bool use_physical)
+{
+  use_physical_input = use_physical;
 }
 
 }  // namespace kansei::measurement

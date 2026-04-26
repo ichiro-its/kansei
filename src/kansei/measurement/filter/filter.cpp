@@ -64,6 +64,9 @@ void Filter::load_config(const std::string & path)
     valid_section &= jitsuyo::assign_val(filter_section, "gyro_mux_x", raw_gy_mux[0]);
     valid_section &= jitsuyo::assign_val(filter_section, "gyro_mux_y", raw_gy_mux[1]);
     valid_section &= jitsuyo::assign_val(filter_section, "gyro_mux_z", raw_gy_mux[2]);
+    bool use_phys = false;
+    jitsuyo::assign_val(filter_section, "use_physical_input", use_phys);
+    set_physical_input(use_phys);
     if (!valid_section) {
       std::cout << "Error found at section `filter`" << std::endl;
       valid_config = false;
@@ -85,18 +88,32 @@ void Filter::update_seconds(double seconds)
 
 void Filter::update_rpy()
 {
-  // value mapping (for conversion) refers to the link below:
-  // https://emanual.robotis.com/docs/en/platform/op2/getting_started/
-  gy.roll = keisan::make_degree(
-    keisan::map(raw_gy[0], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[0]);
-  gy.pitch = keisan::make_degree(
-    keisan::map(raw_gy[1], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[1]);
-  gy.yaw = keisan::make_degree(
-    keisan::map(raw_gy[2], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[2]);
+  if (use_physical_input) {
+    // Physical units: raw_gy is already in rad/s, raw_acc already in m/s²
+    gy.roll = keisan::make_radian(raw_gy[0]);
+    gy.pitch = keisan::make_radian(raw_gy[1]);
+    gy.yaw = keisan::make_radian(raw_gy[2]);
 
-  acc.x = keisan::map(raw_acc[0], 512.0, 1023.0, 0.0, 39.2266);
-  acc.y = keisan::map(raw_acc[1], 512.0, 1023.0, 0.0, 39.2266);
-  acc.z = keisan::map(raw_acc[2], 512.0, 1023.0, 0.0, 39.2266);
+    acc.x = raw_acc[0];
+    acc.y = raw_acc[1];
+    acc.z = raw_acc[2];
+
+    // Use BNO055 gravity directly — no Madgwick gravity computation needed
+    gravity = raw_gravity;
+  } else {
+    // ADC values: value mapping (for conversion) refers to the link below:
+    // https://emanual.robotis.com/docs/en/platform/op2/getting_started/
+    gy.roll = keisan::make_degree(
+      keisan::map(raw_gy[0], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[0]);
+    gy.pitch = keisan::make_degree(
+      keisan::map(raw_gy[1], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[1]);
+    gy.yaw = keisan::make_degree(
+      keisan::map(raw_gy[2], 512.0, 1023.0, 0.0, 8.72665) * raw_gy_mux[2]);
+
+    acc.x = keisan::map(raw_acc[0], 512.0, 1023.0, 0.0, 39.2266);
+    acc.y = keisan::map(raw_acc[1], 512.0, 1023.0, 0.0, 39.2266);
+    acc.z = keisan::map(raw_acc[2], 512.0, 1023.0, 0.0, 39.2266);
+  }
 
   if (calibrated) {
     geometry_msgs::msg::Vector3 ang_vel;
@@ -130,6 +147,15 @@ void Filter::update_rpy()
     rpy.pitch = keisan::make_degree(temp_rpy.pitch.degree());
     yaw_raw = keisan::make_degree(temp_rpy.yaw.normalize().degree());
     rpy.yaw = yaw_raw + orientation_compensation;
+
+    // For physical input, gravity is from BNO055 directly; for ADC, gravity is from Madgwick
+    if (!use_physical_input) {
+      float gx, gy, gz;
+      filter.get_gravity(gx, gy, gz, 1.0f);
+      gravity.x = gx;
+      gravity.y = gy;
+      gravity.z = gz;
+    }
   }
 }
 
