@@ -43,6 +43,12 @@ MPU::MPU(const std::string & port_name)
 : socket_fd(-1), orientation_error(0_deg), orientation_compensation(0_deg), raw_orientation(0_deg)
 {
   set_port_name(port_name);
+
+  // BNO055 sends Euler angles directly, not ADC-encoded values
+  for (int i = 0; i < 3; ++i) {
+    filtered_gy[i] = 0.0;
+    filtered_acc[i] = 0.0;
+  }
 }
 
 MPU::~MPU()
@@ -88,6 +94,11 @@ bool MPU::connect()
 
 void MPU::update_rpy()
 {
+  // τ ≈ 20 ms at 100 Hz sensor rate, matches RL walking loop period
+  // If the data is too noisy, increase the τ.
+  // IF the RL feels sluggish, decrease the τ.
+  constexpr double kAlpha = 0.4;
+
   unsigned char usart_data = 0;
   unsigned char usart_status = 0;
   unsigned char usart_buffer[4];
@@ -102,6 +113,14 @@ void MPU::update_rpy()
   float gravity_x = 0;
   float gravity_y = 0;
   float gravity_z = 0;
+
+  float accel_x = 0;
+  float accel_y = 0;
+  float accel_z = 0;
+
+  float gyro_x = 0;
+  float gyro_y = 0;
+  float gyro_z = 0;
 
   while (true) {
     if (need_update_led) {
@@ -275,6 +294,119 @@ void MPU::update_rpy()
       gravity.x = gravity_x;
       gravity.y = gravity_y;
       gravity.z = gravity_z;
+    } else if (usart_status == 42) {
+      if (usart_data == ':') {
+        usart_status++;
+      } else if (usart_data == 'i') {
+        usart_status = 1;
+      } else {
+        usart_status = 0;
+      }
+    } else if (usart_status == 43) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 44) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 45) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 46) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&accel_x, usart_buffer, 4);
+    } else if (usart_status == 47 && usart_data == ':') { // ACCEL Y
+      usart_status++;
+    } else if (usart_status == 48) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 49) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 50) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 51) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&accel_y, usart_buffer, 4);
+    } else if (usart_status == 52 && usart_data == ':') { // ACCEL Z
+      usart_status++;
+    } else if (usart_status == 53) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 54) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 55) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 56) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&accel_z, usart_buffer, 4);
+
+      // BNO055: robot_x=-bno_x, robot_y=bno_y, robot_z=-bno_z
+      filtered_acc[0] = kAlpha * (-accel_x) + (1.0 - kAlpha) * filtered_acc[0];
+      filtered_acc[1] = kAlpha * accel_y    + (1.0 - kAlpha) * filtered_acc[1];
+      filtered_acc[2] = kAlpha * (-accel_z) + (1.0 - kAlpha) * filtered_acc[2];
+    } else if (usart_status == 57 && usart_data == ':') { // GYRO X
+      usart_status++;
+    } else if (usart_status == 58) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 59) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 60) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 61) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&gyro_x, usart_buffer, 4);
+    } else if (usart_status == 62 && usart_data == ':') { // GYRO Y
+      usart_status++;
+    } else if (usart_status == 63) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 64) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 65) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 66) {
+      usart_buffer[3] = usart_data;
+      usart_status++;
+
+      memcpy(&gyro_y, usart_buffer, 4);
+    } else if (usart_status == 67 && usart_data == ':') { // GYRO Z
+      usart_status++;
+    } else if (usart_status == 68) {
+      usart_buffer[0] = usart_data;
+      usart_status++;
+    } else if (usart_status == 69) {
+      usart_buffer[1] = usart_data;
+      usart_status++;
+    } else if (usart_status == 70) {
+      usart_buffer[2] = usart_data;
+      usart_status++;
+    } else if (usart_status == 71) {
+      usart_buffer[3] = usart_data;
+      usart_status = 0;
+
+      memcpy(&gyro_z, usart_buffer, 4);
+
+      // BNO055: robot_x=-bno_x, robot_y=bno_y, robot_z=-bno_z
+      constexpr double DEG2RAD = M_PI / 180.0;
+      filtered_gy[0] = kAlpha * (-gyro_x * DEG2RAD) + (1.0 - kAlpha) * filtered_gy[0];
+      filtered_gy[1] = kAlpha * (gyro_y  * DEG2RAD) + (1.0 - kAlpha) * filtered_gy[1];
+      filtered_gy[2] = kAlpha * (-gyro_z * DEG2RAD) + (1.0 - kAlpha) * filtered_gy[2];
     } else {
       usart_status = 0;
     }

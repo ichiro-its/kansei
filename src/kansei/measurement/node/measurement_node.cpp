@@ -106,8 +106,8 @@ MeasurementNode::MeasurementNode(
 void MeasurementNode::update(double seconds)
 {
   if (std::dynamic_pointer_cast<MPU>(measurement_unit)) {
-
     publish_status();
+    publish_unit();
   } else if (std::dynamic_pointer_cast<Filter>(measurement_unit)) {
     auto filter_measurement = std::dynamic_pointer_cast<Filter>(measurement_unit);
 
@@ -162,14 +162,20 @@ void MeasurementNode::publish_unit()
 
   auto gyro = measurement_unit->get_filtered_gy();
   auto accelero = measurement_unit->get_filtered_acc();
+  keisan::Point3 gravity = measurement_unit->get_gravity();
 
-  unit_msg.gyro.roll = gyro[0];
-  unit_msg.gyro.pitch = gyro[1];
-  unit_msg.gyro.yaw = gyro[2];
+  unit_msg.gyro.roll = gyro[1];
+  unit_msg.gyro.pitch = -gyro[0];
+  unit_msg.gyro.yaw = -gyro[2];
 
-  unit_msg.accelero.x = accelero[0];
-  unit_msg.accelero.y = accelero[1];
+  unit_msg.accelero.x = accelero[1];
+  unit_msg.accelero.y = accelero[0];
   unit_msg.accelero.z = accelero[2];
+
+  // BNO055: robot_x=-bno_x, robot_y=bno_y, robot_z=-bno_z
+  unit_msg.gravity_vector.x = gravity.y;
+  unit_msg.gravity_vector.y = -gravity.x;
+  unit_msg.gravity_vector.z = -gravity.z;
 
   unit_publisher->publish(unit_msg);
 }
