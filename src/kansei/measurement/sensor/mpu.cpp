@@ -349,10 +349,11 @@ void MPU::update_rpy()
 
       memcpy(&accel_z, usart_buffer, 4);
 
-      // BNO055: robot_x=-bno_x, robot_y=bno_y, robot_z=-bno_z
-      filtered_acc[0] = kAlpha * (-accel_x) + (1.0 - kAlpha) * filtered_acc[0];
-      filtered_acc[1] = kAlpha * accel_y    + (1.0 - kAlpha) * filtered_acc[1];
-      filtered_acc[2] = kAlpha * (-accel_z) + (1.0 - kAlpha) * filtered_acc[2];
+      // Subtract gravity to replicate VECTOR_LINEARACCEL,
+      // then apply axis remap: robot_x=-bno_x, robot_y=bno_y, robot_z=-bno_z
+      filtered_acc[0] = kAlpha * (-(accel_x - gravity_x)) + (1.0 - kAlpha) * filtered_acc[0];
+      filtered_acc[1] = kAlpha * (accel_y - gravity_y)    + (1.0 - kAlpha) * filtered_acc[1];
+      filtered_acc[2] = kAlpha * (-(accel_z - gravity_z)) + (1.0 - kAlpha) * filtered_acc[2];
     } else if (usart_status == 57 && usart_data == ':') { // GYRO X
       usart_status++;
     } else if (usart_status == 58) {
